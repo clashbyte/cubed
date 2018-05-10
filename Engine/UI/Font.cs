@@ -97,7 +97,7 @@ namespace Cubed.UI {
 
 			Atlas.Bind();
 			
-			byte[] bytes = System.Text.Encoding.Unicode.GetBytes(text);
+			char[] bytes = Encoding.Unicode.GetChars(Encoding.Unicode.GetBytes(text));
 			GL.Color4(color);
 			GL.Begin(PrimitiveType.Quads);
 			float xpixel = 1f / (float)Atlas.Width;
@@ -138,7 +138,7 @@ namespace Cubed.UI {
 		/// <param name="text">String</param>
 		/// <param name="scale">Font size</param>
 		internal float Width(string text, float scale) {
-			byte[] bytes = System.Text.Encoding.Unicode.GetBytes(text);
+			char[] bytes = Encoding.Unicode.GetChars(Encoding.Unicode.GetBytes(text));
 			float width = 0f;
 			for (int i = 0; i < bytes.Length; i++) {
 				int idx = bytes[i];

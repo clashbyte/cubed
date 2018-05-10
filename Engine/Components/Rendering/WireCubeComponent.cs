@@ -195,6 +195,7 @@ namespace Cubed.Components.Rendering {
 
 			// Отрисовка куба, без текстуры
 			GL.BindTexture(TextureTarget.Texture2D, 0);
+			GL.LineWidth(WireWidth);
 			if (Caps.ShaderPipeline) {
 
 				ShaderSystem.CheckVertexBuffer(ref vertexBuffer, vertexArray, BufferUsageHint.StaticDraw);
@@ -209,7 +210,6 @@ namespace Cubed.Components.Rendering {
 				GL.DrawElements(BeginMode.Lines, indexArray.Length, DrawElementsType.UnsignedShort, 0);
 				shader.Unbind();
 			} else {
-				GL.LineWidth(WireWidth);
 				GL.Color3(WireColor);
 				GL.EnableClientState(ArrayCap.VertexArray);
 				GL.VertexPointer(3, VertexPointerType.Float, 0, vertexArray);

@@ -157,8 +157,8 @@ namespace Cubed.World {
 		/// <param name="sx">X</param>
 		/// <param name="sy">Y</param>
 		/// <returns>Point in world coords</returns>
-		public Vector3 ScreenToPoint(float sx, float sy) {
-			return ScreenToPoint(new Vector3(sx, sy, 0));
+		public Vector3 ScreenToPoint(float sx, float sy, float depth = 0f) {
+			return ScreenToPoint(new Vector3(sx, sy, depth));
 		}
 
 		/// <summary>

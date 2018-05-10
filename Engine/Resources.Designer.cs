@@ -133,6 +133,26 @@ namespace Cubed {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap IconsFontAtlas {
+            get {
+                object obj = ResourceManager.GetObject("IconsFontAtlas", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] IconsFontData {
+            get {
+                object obj = ResourceManager.GetObject("IconsFontData", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap SmallFontAtlas {
             get {
                 object obj = ResourceManager.GetObject("SmallFontAtlas", resourceCulture);

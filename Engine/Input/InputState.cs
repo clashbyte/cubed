@@ -13,7 +13,7 @@ namespace Cubed.Input {
 	/// <summary>
 	/// Current engine input state
 	/// </summary>
-	internal class InputState {
+	public class InputState {
 
 		/// <summary>
 		/// Mouse location
@@ -82,8 +82,13 @@ namespace Cubed.Input {
 
 			// Handling mouse shift
 			Mouse = current.MousePosition;
-			MouseDelta = current.MouseDeltaPosition.Xy - previous.MouseDeltaPosition.Xy;
-			MouseWheel = current.MouseDeltaPosition.Z - previous.MouseDeltaPosition.Z;
+			if (current.rewrite) {
+				MouseDelta = current.MouseDeltaPosition.Xy;
+				MouseWheel = current.MouseDeltaPosition.Z;
+			} else {
+				MouseDelta = current.MouseDeltaPosition.Xy - previous.MouseDeltaPosition.Xy;
+				MouseWheel = current.MouseDeltaPosition.Z - previous.MouseDeltaPosition.Z;
+			}
 		}
 
 
@@ -121,7 +126,7 @@ namespace Cubed.Input {
 		/// <param name="button">Mouse button</param>
 		/// <returns>True if button is down</returns>
 		public bool MouseDown(MouseButton button) {
-			return mouseState[(int)button] == KeyState.Pressed || keyboardState[(int)button] == KeyState.Down;
+			return mouseState[(int)button] == KeyState.Pressed || mouseState[(int)button] == KeyState.Down;
 		}
 
 		/// <summary>
@@ -168,6 +173,11 @@ namespace Cubed.Input {
 			internal Vector3 MouseDeltaPosition;
 
 			/// <summary>
+			/// Rewrite prev values
+			/// </summary>
+			internal bool rewrite;
+
+			/// <summary>
 			/// Snapshot constructor
 			/// </summary>
 			public Snapshot() {
@@ -175,6 +185,40 @@ namespace Cubed.Input {
 				Mouse = new bool[10];
 				MousePosition = Vector2.Zero;
 				MouseDeltaPosition = Vector3.Zero;
+			}
+
+			/// <summary>
+			/// Generating from raw data
+			/// </summary>
+			/// <param name="mouse">Mouse states</param>
+			/// <param name="keyboard">Keyboard states</param>
+			/// <param name="cursor">Cursor position</param>
+			/// <param name="wheel">Wheel position</param>
+			/// <param name="prevCursor">Previous cursor</param>
+			/// <param name="prevWheel">Previous wheel</param>
+			public Snapshot(bool[] mouse, bool[] keyboard, Point cursor, float wheel, Point prevCursor, float prevWheel)
+				: this() {
+				if (keyboard != null) {
+					for (int i = 0; i < 256; i++) {
+						if (i < keyboard.Length) {
+							this.Keyboard[i] = keyboard[i];
+						}
+					}
+				}
+				if (mouse != null) {
+					for (int i = 0; i < 10; i++) {
+						if (i < mouse.Length) {
+							this.Mouse[i] = mouse[i];
+						}
+					}
+				}
+				MousePosition = new Vector2(cursor.X, cursor.Y);
+
+				// Calculating delta manualy
+				MouseState st = OpenTK.Input.Mouse.GetState();
+				MouseDeltaPosition = new Vector3(st.X, st.Y, st.Wheel);
+				//MouseDeltaPosition = new Vector3(cursor.X - prevCursor.X, cursor.Y - prevCursor.Y, wheel - prevWheel);
+				//rewrite = true;
 			}
 
 			/// <summary>

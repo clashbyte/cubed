@@ -57,7 +57,7 @@ namespace Cubed.Main.Testing {
 
 			// Handling logical update
 			engine.UpdateLogic += engine_UpdateLogic;
-			engine.MouseLock = true;
+			//engine.MouseLock = true;
 			engine.Filesystem = new FolderFileSystem() {
 				RootFolder = @"D:\Sharp\Cubed\Project"
 			};

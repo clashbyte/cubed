@@ -8,6 +8,7 @@ using Cubed.Core;
 using Cubed.Drivers.Files;
 using Cubed.UI;
 using Cubed.UI.Basic;
+using Cubed.UI.Misc;
 using Cubed.World;
 using OpenTK;
 
@@ -35,7 +36,7 @@ namespace Cubed.Main.Testing {
 
 			// Handling logical update
 			engine.UpdateLogic += engine_UpdateLogic;
-			engine.MouseLock = false;
+			//engine.MouseLock = false;
 			engine.Filesystem = new FolderFileSystem() {
 				RootFolder = @"D:\Sharp\Cubed\Project"
 			};
@@ -51,6 +52,7 @@ namespace Cubed.Main.Testing {
 				Scene scn = new Scene();
 				eng.World = scn;
 
+				RadioGroup rg = new RadioGroup();
 				UserInterface ui = new UserInterface();
 				/*
 				ui.Items.Add(new Label() {
@@ -61,12 +63,22 @@ namespace Cubed.Main.Testing {
 					FontSize = 12f
 				});
 				*/
-				ui.Items.Add(new ToggleButton() {
-					Position = Vector2.One * 15f,
-					Size = new Vector2(100f, 30f),
-					Text = "Button test",
-					Anchor = Control.AnchorMode.BottomRight
-				});
+				Icons[] icons = new Icons[] {
+					Icons.mouse_pointer,
+					Icons.cube,
+					Icons.paint_brush,
+					Icons.briefcase,
+					Icons.object_group
+				};
+				for (int i = 0; i < 5; i++) {
+					ui.Items.Add(new RadioButton() {
+						Position = Vector2.One * 15f + Vector2.UnitY * 40f * i,
+						Size = new Vector2(30f, 30f),
+						Icon = icons[i],
+						Anchor = Control.AnchorMode.BottomRight,
+						Group = rg
+					});
+				}
 				eng.Interface = ui;
 
 				init = true;

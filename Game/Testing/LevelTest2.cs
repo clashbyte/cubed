@@ -67,7 +67,7 @@ namespace Cubed.Main.Testing {
 
 			// Handling logical update
 			engine.UpdateLogic += engine_UpdateLogic;
-			engine.MouseLock = true;
+			//engine.MouseLock = true;
 			engine.Filesystem = new FolderFileSystem() {
 				RootFolder = @"D:\Sharp\Cubed\Project"
 			};
@@ -173,7 +173,7 @@ namespace Cubed.Main.Testing {
 				map[0, 0, 0] = chunk;
 				scene.Map = map;
 
-				/*
+				
 				spinLight = new Light();
 				spinLight.Color = Color.Pink;
 				spinLight.Range = 4;
@@ -183,20 +183,20 @@ namespace Cubed.Main.Testing {
 				});
 				spinLight.Angles = Vector3.UnitY * 90f;
 				scene.Entities.Add(spinLight);
-				 */
+				 
 
-				/*
-				ents = new Entity[100];
+				
+				ents = new Entity[30];
 				for (int i = 0; i < ents.Length; i++) {
 					Entity ent = new Entity();
 					ent.AddComponent(new SpriteComponent() {
 						Texture = new Texture("sprite.png"),
-						Facing = SpriteComponent.FacingMode.Y
+						Facing = SpriteComponent.FacingMode.XY
 					});
 					scene.Entities.Add(ent);
 					ents[i] = ent;
 				}
-				*/
+				
 
 				// Setting scene
 				e.CurrentEngine.World = scene;
@@ -211,19 +211,19 @@ namespace Cubed.Main.Testing {
 
 			// Moving camera
 			if (Controls.KeyHit(Key.Q)) {
-				Engine.Current.MouseLock = !Engine.Current.MouseLock;
+				//Engine.Current.MouseLock = !Engine.Current.MouseLock;
 			}
 
-			/*
+			
 			for (int i = 0; i < ents.Length; i++) {
 				Entity ent = ents[i];
 				float rad = (lightTurn + i * 3) / 180f * (float)Math.PI;
 				ent.Position = new Vector3(4 + (float)Math.Sin(rad) * 2f, 0.5f, 4 + (float)Math.Cos(rad) * 2f);
 				ent.GetComponent<SpriteComponent>().Tint = scene.GetLightAtPoint(ent.Position.X, ent.Position.Y, ent.Position.Z);
 			}
-			 */
+			 
 			
-			//spinLight.Angles = new Vector3(lightTurn, lightTurn * 2, lightTurn * 3);
+			spinLight.Angles = new Vector3(lightTurn, lightTurn * 2, lightTurn * 3);
 
 		}
 	}

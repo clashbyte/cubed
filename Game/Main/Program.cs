@@ -1,5 +1,7 @@
 ﻿using Cubed.Core;
 using System;
+using Cubed.Drivers.Rendering;
+using Cubed.Main.Testing;
 
 
 namespace Cubed.Main {
@@ -7,15 +9,15 @@ namespace Cubed.Main {
 		
 		
 		static void Main(string[] args) {
+			
+			
 			Engine engine = new Engine();
-			engine.MakeCurrent();
+			LevelTest2 lt = new LevelTest2();
+			lt.Run(engine);
 
-
-			Testing.UITest test = new Testing.UITest();
-			test.Run(engine);
-
-
-			engine.Run();
+			WindowDisplay display = new WindowDisplay();
+			display.Engine = engine;
+			display.Run();
 		}
 	}
 }

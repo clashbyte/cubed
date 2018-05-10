@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Cubed.Core;
+using Cubed.Drivers.Rendering;
 using Cubed.Graphics;
 using Cubed.Input;
 using OpenTK;
@@ -82,12 +83,14 @@ namespace Cubed.UI {
 			}
 
 			// Toggling fullscreen
+			/*
 			if (state.KeyHit(Key.F11)) {
 				Engine.Current.Fullscreen = !Engine.Current.Fullscreen;
 			}
 			if (state.KeyHit(Key.F12)) {
 				Engine.Current.Close();
 			}
+			 */
 
 			// Calculating back offset
 			backOffset = (backOffset + tween * 0.3f) % 640f;
@@ -118,7 +121,7 @@ namespace Cubed.UI {
 			}
 
 			// Matrices
-			Vector2 res = Engine.Current.ScreenSize;
+			Vector2 res = Display.Current.Resolution;
 			float width	 = 640f * (res.X / res.Y);
 			Matrix4 proj = Matrix4.CreateOrthographicOffCenter(0, width, 640, 0, -1, 10);
 			Matrix4 modl = Matrix4.Identity;

@@ -62,7 +62,8 @@ namespace Cubed.UI.Themes {
 		/// </summary>
 		public class ButtonData {
 			public string Text;
-			public Texture Icon;
+			public Icons Icon;
+			public Texture Image;
 			public bool Vertical;
 			public ButtonRenderState State;
 		}

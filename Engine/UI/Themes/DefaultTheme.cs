@@ -19,6 +19,11 @@ namespace Cubed.UI.Themes {
 		private const float BUTTON_FONT_SIZE = 14;
 
 		/// <summary>
+		/// Accent color
+		/// </summary>
+		private readonly Color accentColor = Color.Orange;
+
+		/// <summary>
 		/// Small font
 		/// </summary>
 		static Font smallFont;
@@ -27,6 +32,11 @@ namespace Cubed.UI.Themes {
 		/// Large font
 		/// </summary>
 		static Font largeFont;
+
+		/// <summary>
+		/// Icons font
+		/// </summary>
+		static Font iconsFont;
 
 		/// <summary>
 		/// Drawing label
@@ -89,7 +99,7 @@ namespace Cubed.UI.Themes {
 				Drawing.LineBox(x, y, w, h, textColor, 2f);
 			} else {
 				textColor = Color.Black;
-				Drawing.FilledBox(x, y, w, h, info.State == ButtonRenderState.Selected ? Color.LimeGreen : Color.White);
+				Drawing.FilledBox(x, y, w, h, info.State == ButtonRenderState.Selected ? accentColor : Color.White);
 			}
 
 			// Making outline padding
@@ -98,9 +108,33 @@ namespace Cubed.UI.Themes {
 			w -= 10;
 			h -= 10;
 
+			// Render icon or image
+			if (info.Image != null) {
+				// Render image
+
+
+			} else if (info.Icon != Icons.None) {
+				// Render icon
+				string icon = new String(new char[] {
+					(char)info.Icon	
+				});
+				if (info.Vertical) {
+
+				} else {
+					// Drawing icon
+					CheckIconFont();
+					float tw = iconsFont.Width(icon, h);
+					iconsFont.Render(icon, x + h / 2f - tw / 2f + 1f, y, h * 0.9f, textColor);
+
+					// Padding
+					x += h + 5;
+					w -= h + 5;
+				}
+			}
+
 
 			// At last - rendering text
-			if (info.Text != "") {
+			if (info.Text != "" && info.Text != null) {
 				CheckSmallFont();
 				float tw = smallFont.Width(info.Text, BUTTON_FONT_SIZE);
 				float th = smallFont.Height(info.Text, BUTTON_FONT_SIZE);
@@ -126,6 +160,17 @@ namespace Cubed.UI.Themes {
 		void CheckLargeFont() {
 			if (largeFont == null) {
 				largeFont = new Font(Resources.DefaultFontData, new Graphics.Texture(Resources.DefaultFontAtlas) {
+					Filtering = Graphics.Texture.FilterMode.Enabled
+				});
+			}
+		}
+
+		/// <summary>
+		/// Check and load icons
+		/// </summary>
+		void CheckIconFont() {
+			if (iconsFont == null) {
+				iconsFont = new Font(Resources.IconsFontData, new Graphics.Texture(Resources.IconsFontAtlas) {
 					Filtering = Graphics.Texture.FilterMode.Enabled
 				});
 			}

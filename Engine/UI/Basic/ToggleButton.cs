@@ -13,8 +13,13 @@ namespace Cubed.UI.Basic {
 		/// Current button state
 		/// </summary>
 		public bool State {
-			get;
-			private set;
+			get {
+				return check;
+			}
+			set {
+				check = value;
+				base.OnAction();
+			}
 		}
 
 		/// <summary>
@@ -25,6 +30,11 @@ namespace Cubed.UI.Basic {
 				return State;
 			}
 		}
+
+		/// <summary>
+		/// Flag for enabled state
+		/// </summary>
+		bool check;
 
 		/// <summary>
 		/// Handling action

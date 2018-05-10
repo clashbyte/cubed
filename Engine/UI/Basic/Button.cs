@@ -21,7 +21,7 @@ namespace Cubed.UI.Basic {
 		/// <summary>
 		/// Text info
 		/// </summary>
-		public Texture Icon {
+		public Icons Icon {
 			get;
 			set;
 		}
@@ -104,7 +104,7 @@ namespace Cubed.UI.Basic {
 		/// Handling button action
 		/// </summary>
 		protected virtual void OnAction() {
-
+			
 		}
 
 	}

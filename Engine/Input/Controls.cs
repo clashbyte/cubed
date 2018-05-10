@@ -83,6 +83,18 @@ namespace Cubed.Input {
 		}
 
 		/// <summary>
+		/// Check for key just released
+		/// </summary>
+		/// <param name="key">Key</param>
+		/// <returns>True if key is released</returns>
+		public static bool KeyReleased(Key key) {
+			if (state != null) {
+				return state.KeyReleased(key);
+			}
+			return false;
+		}
+
+		/// <summary>
 		/// Check for key being held
 		/// </summary>
 		/// <param name="key">Key</param>
@@ -90,6 +102,42 @@ namespace Cubed.Input {
 		public static bool KeyDown(Key key) {
 			if (state != null) {
 				return state.KeyDown(key);
+			}
+			return false;
+		}
+
+		/// <summary>
+		/// Check for mouse button just hit
+		/// </summary>
+		/// <param name="button">Button</param>
+		/// <returns>True if button is hit</returns>
+		public static bool MouseHit(MouseButton button) {
+			if (state != null) {
+				return state.MouseHit(button);
+			}
+			return false;
+		}
+
+		/// <summary>
+		/// Check for mouse button just released
+		/// </summary>
+		/// <param name="button">Button</param>
+		/// <returns>True if button is released</returns>
+		public static bool MouseReleased(MouseButton button) {
+			if (state != null) {
+				return state.MouseReleased(button);
+			}
+			return false;
+		}
+
+		/// <summary>
+		/// Check for mouse button being held
+		/// </summary>
+		/// <param name="button">Button</param>
+		/// <returns>True if button is down</returns>
+		public static bool MouseDown(MouseButton button) {
+			if (state != null) {
+				return state.MouseDown(button);
 			}
 			return false;
 		}
