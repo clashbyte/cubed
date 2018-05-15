@@ -66,6 +66,19 @@ namespace Cubed.Graphics {
 		Thread[] loadingThreads;
 
 		/// <summary>
+		/// Owner engine
+		/// </summary>
+		Engine engine;
+
+		/// <summary>
+		/// Constructor
+		/// </summary>
+		/// <param name="eng">Engine</param>
+		public TextureCache(Engine eng) {
+			engine = eng;
+		}
+
+		/// <summary>
 		/// Texture cache update
 		/// </summary>
 		internal void Update() {
@@ -112,9 +125,9 @@ namespace Cubed.Graphics {
 			if (!textures.ContainsKey(name)) {
 				CacheEntry ce = new CacheEntry(name);
 				if (instant) {
-					ce.LoadNow();
+					ce.LoadNow(engine);
 				} else {
-					ce.AddToLoadingQueue();
+					ce.AddToLoadingQueue(engine);
 				}
 				textures.TryAdd(name, ce);
 			}
@@ -135,6 +148,7 @@ namespace Cubed.Graphics {
 		/// </summary>
 		void CheckThreads() {
 			if (loadingThreads == null) {
+				Caps.CheckCaps();
 				loadingThreads = new Thread[LOADING_THREADS];
 				for (int i = 0; i < LOADING_THREADS; i++) {
 					Thread t = new Thread(ThreadedLoading);
@@ -153,12 +167,12 @@ namespace Cubed.Graphics {
 				if (!loadQueue.IsEmpty) {
 					CacheEntry t = null;
 					if (loadQueue.TryDequeue(out t)) {
-						t.ReadData();
+						t.ReadData(engine);
 						if (t.State != EntryState.Empty) {
 							sendQueue.Enqueue(t);
 						}
 					}
-					Thread.Sleep(0);
+					Thread.Sleep(1);
 				} else {
 					Thread.Sleep(50);
 				}
@@ -330,32 +344,32 @@ namespace Cubed.Graphics {
 			/// <summary>
 			/// Instant texture loading
 			/// </summary>
-			public void LoadNow() {
-				ReadData();
+			public void LoadNow(Engine eng) {
+				ReadData(eng);
 				SendToGL();
 			}
 
 			/// <summary>
 			/// Adding to queue
 			/// </summary>
-			public void AddToLoadingQueue() {
+			public void AddToLoadingQueue(Engine eng) {
 				if (State != EntryState.Reading && State != EntryState.Waiting && !Engine.Current.TextureCache.loadQueue.Contains(this)) {
-					Engine.Current.TextureCache.loadQueue.Enqueue(this);
-					Engine.Current.TextureCache.CheckThreads();
+					eng.TextureCache.loadQueue.Enqueue(this);
+					eng.TextureCache.CheckThreads();
 				}
 			}
 
 			/// <summary>
 			/// Reading from disk
 			/// </summary>
-			public void ReadData() {
+			public void ReadData(Engine eng) {
 				State = EntryState.Reading;
 
 				// Reading byte array
-				if (Engine.Current.Filesystem.Exists(FileName)) {
+				if (eng.Filesystem.Exists(FileName)) {
 
 					// Loadin image
-					byte[] data = Engine.Current.Filesystem.Get(FileName);
+					byte[] data = eng.Filesystem.Get(FileName);
 					Bitmap bmp = Bitmap.FromStream(new MemoryStream(data)) as Bitmap;
 					ProcessBitmap(bmp);
 					State = EntryState.NotSent;

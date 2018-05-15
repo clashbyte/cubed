@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Cubed.Core;
 using Cubed.Data.Shaders;
 using Cubed.Data.Types;
 using Cubed.Graphics;
@@ -60,7 +61,22 @@ namespace Cubed.Components.Rendering {
 			set {
 				if (offset != value) {
 					offset = value;
+					rebuildMesh = true;
+				}
+			}
+		}
 
+		/// <summary>
+		/// Sprite offset
+		/// </summary>
+		public Vector2 Scale {
+			get {
+				return scale;
+			}
+			set {
+				if (scale != value) {
+					scale = value;
+					rebuildMesh = true;
 				}
 			}
 		}
@@ -307,6 +323,7 @@ namespace Cubed.Components.Rendering {
 
 				GL.PopMatrix();
 			}
+			Engine.Current.drawCalls++;
 
 			// Returning
 			GL.Enable(EnableCap.CullFace);

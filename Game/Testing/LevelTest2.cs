@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -9,6 +10,8 @@ using Cubed.Core;
 using Cubed.Drivers.Files;
 using Cubed.Graphics;
 using Cubed.Input;
+using Cubed.UI;
+using Cubed.UI.Basic;
 using Cubed.World;
 using OpenTK;
 using OpenTK.Input;
@@ -61,6 +64,32 @@ namespace Cubed.Main.Testing {
 		List<Light> lights = new List<Light>();
 
 		/// <summary>
+		/// Interface
+		/// </summary>
+		UserInterface ui;
+
+		/// <summary>
+		/// Лейбл для FPS
+		/// </summary>
+		Label fpsLabel;
+
+		/// <summary>
+		/// Лейбл для FPS
+		/// </summary>
+		Label dipLabel;
+
+
+		/// <summary>
+		/// Количество кадров
+		/// </summary>
+		int fpsFrames;
+
+		/// <summary>
+		/// Таймер
+		/// </summary>
+		Stopwatch sw;
+
+		/// <summary>
 		/// Start the game
 		/// </summary>
 		public void Run(Engine engine) {
@@ -72,6 +101,23 @@ namespace Cubed.Main.Testing {
 				RootFolder = @"D:\Sharp\Cubed\Project"
 			};
 
+			fpsLabel = new Label() {
+				Position = Vector2.Zero,
+				Text = "FPS: ",
+				HorizontalAlign = UserInterface.Align.Start,
+				VerticalAlign = UserInterface.Align.Start
+			};
+			dipLabel = new Label() {
+				Position = Vector2.UnitY * 20,
+				Text = "DrawCalls: ",
+				HorizontalAlign = UserInterface.Align.Start,
+				VerticalAlign = UserInterface.Align.Start
+			};
+			ui = new UserInterface();
+			ui.Items.Add(fpsLabel);
+			ui.Items.Add(dipLabel);
+			engine.Interface = ui;
+
 		}
 
 		/// <summary>
@@ -80,6 +126,7 @@ namespace Cubed.Main.Testing {
 		void engine_UpdateLogic(object sender, Engine.UpdateEventArgs e) {
 
 			// Handling initialization
+			Random r = new Random();
 			if (!initialized) {
 
 				// Camera
@@ -91,6 +138,7 @@ namespace Cubed.Main.Testing {
 				// Scene
 				scene = new Scene();
 				scene.Camera = cam;
+				
 
 				// Building map
 				Map map = new Map();
@@ -122,7 +170,7 @@ namespace Cubed.Main.Testing {
 				Map.WallBlock wb;
 				for (int y = 1; y < 7; y++) {
 					for (int x = 1; x < 7; x++) {
-						if (x == 3 && y == 4 || x == 4 && y == 3) {
+						if (x == 3 && y == 4 || x >= 4 && y == 3) {
 							wb = new Map.WallBlock();
 							for (int i = 0; i < 4; i++) {
 								wb[(Map.Side)i] = wallTex;
@@ -175,28 +223,34 @@ namespace Cubed.Main.Testing {
 
 				
 				spinLight = new Light();
-				spinLight.Color = Color.Pink;
-				spinLight.Range = 4;
+				spinLight.Color = Color.White;
+				spinLight.Range = 4f;
 				spinLight.AddComponent(new SpriteComponent(){
 					Texture = new Texture("sprite.png"),
 					Facing = SpriteComponent.FacingMode.Y
 				});
 				spinLight.Angles = Vector3.UnitY * 90f;
 				scene.Entities.Add(spinLight);
-				 
-
 				
 				ents = new Entity[30];
 				for (int i = 0; i < ents.Length; i++) {
 					Entity ent = new Entity();
 					ent.AddComponent(new SpriteComponent() {
 						Texture = new Texture("sprite.png"),
-						Facing = SpriteComponent.FacingMode.XY
+						Facing = SpriteComponent.FacingMode.Y,
+						Scale = Vector2.One * (float)r.NextDouble()
 					});
+					if (i == 0) {
+						spinLight.Parent = ent;
+						spinLight.LocalPosition = Vector3.Zero;
+					}
 					scene.Entities.Add(ent);
 					ents[i] = ent;
 				}
-				
+
+				sw = new Stopwatch();
+				fpsFrames = 0;
+				sw.Start();
 
 				// Setting scene
 				e.CurrentEngine.World = scene;
@@ -215,15 +269,35 @@ namespace Cubed.Main.Testing {
 			}
 
 			
+			float rstep = ((float)Math.PI * 2f) / (float)ents.Length;
 			for (int i = 0; i < ents.Length; i++) {
 				Entity ent = ents[i];
-				float rad = (lightTurn + i * 3) / 180f * (float)Math.PI;
+				float rad = i * rstep + lightTurn * 0.01f;
 				ent.Position = new Vector3(4 + (float)Math.Sin(rad) * 2f, 0.5f, 4 + (float)Math.Cos(rad) * 2f);
 				ent.GetComponent<SpriteComponent>().Tint = scene.GetLightAtPoint(ent.Position.X, ent.Position.Y, ent.Position.Z);
 			}
 			 
+			 
 			
-			spinLight.Angles = new Vector3(lightTurn, lightTurn * 2, lightTurn * 3);
+			//spinLight.Angles = new Vector3(lightTurn, lightTurn * 2, lightTurn * 3);
+			//spinLight.Position = new Vector3(4 - (float)Math.Cos(-lightTurn * 0.02f) * 2.5f, 0.5f, 4 + (float)Math.Sin(-lightTurn * 0.01f) * 2.5f);
+
+			spinLight.Range = (float)r.NextDouble() * 0.5f + 2.5f;
+
+			if (fpsFrames >= 60) {
+				sw.Stop();
+
+				int fps = (int)Math.Ceiling(1000f / ((float)sw.ElapsedMilliseconds / (float)fpsFrames));
+				sw.Reset();
+				sw.Start();
+				fpsFrames = 0;
+				fpsLabel.Text = "FPS: " + fps;
+
+			} else {
+				fpsFrames++;
+			}
+			dipLabel.Text = "DrawCalls: " + ((Engine)sender).DrawnPrimitives;
+
 
 		}
 	}

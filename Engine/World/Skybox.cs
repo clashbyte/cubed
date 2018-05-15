@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Cubed.Core;
 using Cubed.Data.Shaders;
 using Cubed.Graphics;
 using OpenTK;
@@ -151,6 +152,7 @@ namespace Cubed.World {
 						textures[i].Bind();
 						shader.Bind();
 						GL.DrawElements(BeginMode.Triangles, indices.Length, DrawElementsType.UnsignedShort, 0);
+						Engine.Current.drawCalls++;
 					}
 				}
 
@@ -174,6 +176,7 @@ namespace Cubed.World {
 						GL.MultMatrix(ref matrices[i]);
 						GL.DrawElements(PrimitiveType.Triangles, indices.Length, DrawElementsType.UnsignedShort, indices);
 						GL.PopMatrix();
+						Engine.Current.drawCalls++;
 					}
 				}
 

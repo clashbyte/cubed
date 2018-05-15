@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Cubed.Components;
 using Cubed.Components.Rendering;
+using Cubed.Core;
 using Cubed.Data.Rendering;
 using Cubed.Data.Shaders;
 using Cubed.Graphics;
@@ -115,12 +116,35 @@ namespace Cubed.World {
 			Ambient = Color.DimGray;
 		}
 
+
+		public Block GetBlockAtCoords(float x, float y, float z) {
+			int cx = (int)Math.Floor(x / (float)Chunk.BLOCKS);
+			int cy = (int)Math.Floor(y);
+			int cz = (int)Math.Floor(z / (float)Chunk.BLOCKS);
+
+			string hash = Hash(cx, cy, cz);
+			if (chunks.ContainsKey(hash)) {
+				float tx = x % Chunk.BLOCKS;
+				float ty = z % Chunk.BLOCKS;
+				if (tx < 0) {
+					tx += Chunk.BLOCKS;
+				}
+				if (ty < 0) {
+					ty += Chunk.BLOCKS;
+				}
+
+				// Calculating light from coords
+				return chunks[hash][(int)tx, (int)ty];
+			}
+			return null;
+		}
+
 		/// <summary>
 		/// Get light level
 		/// </summary>
 		/// <param name="pos"></param>
 		/// <returns></returns>
-		internal Color GetLightLevel(float x, float y, float z) {
+		public Color GetLightLevel(float x, float y, float z) {
 			int cx = (int)Math.Floor(x / (float)Chunk.BLOCKS);
 			int cy = (int)Math.Floor(y);
 			int cz = (int)Math.Floor(z / (float)Chunk.BLOCKS);
@@ -235,6 +259,11 @@ namespace Cubed.World {
 			Block[,] blocks;
 
 			/// <summary>
+			/// Кеш освещения
+			/// </summary>
+			Color[,] lightCache;
+
+			/// <summary>
 			/// Renderable groups
 			/// </summary>
 			Dictionary<Texture, RenderGroup> groups;
@@ -333,23 +362,35 @@ namespace Cubed.World {
 			internal Color GetLightLevel(float x, float y) {
 				if (lightingTex != 0) {
 
+					// Check for cache
+					if (lightCache == null) {
+						lightCache = new Color[LIGHTMAP_SIZE, LIGHTMAP_SIZE];
+						byte[] rawData = new byte[LIGHTMAP_SIZE * LIGHTMAP_SIZE * 3];
+
+						GL.BindTexture(TextureTarget.Texture2D, lightingTex);
+						GL.BindFramebuffer(FramebufferTarget.Framebuffer, frameBuffer);
+						GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, lightingTex, 0);
+						GL.BindTexture(TextureTarget.Texture2D, 0);
+						GL.ReadPixels(0, 0, LIGHTMAP_SIZE, LIGHTMAP_SIZE, PixelFormat.Rgb, PixelType.UnsignedByte, rawData);
+						GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+
+						// Converting pixel data to array
+						int dataPos = 0;
+						for (int ry = 0; ry < LIGHTMAP_SIZE; ry++) {
+							for (int rx = 0; rx < LIGHTMAP_SIZE; rx++) {
+								lightCache[ry, rx] = Color.FromArgb(rawData[dataPos], rawData[dataPos + 1], rawData[dataPos + 2]);
+								dataPos += 3;
+							}
+						}
+					}
+
+					// Resolving light level
 					y = (float)Chunk.BLOCKS - y;
 					int cx = (int)Math.Floor(x / (float)Chunk.BLOCKS * (float)Chunk.LIGHTMAP_SIZE);
 					int cy = (int)Math.Floor(y / (float)Chunk.BLOCKS * (float)Chunk.LIGHTMAP_SIZE);
-					byte[] data = new byte[4];
-					Color color = Color.Black;
-
-					//GL.Enable(EnableCap.Texture2D);
-					GL.BindTexture(TextureTarget.Texture2D, lightingTex);
-					GL.BindFramebuffer(FramebufferTarget.Framebuffer, frameBuffer);
-					GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, lightingTex, 0);
-					GL.BindTexture(TextureTarget.Texture2D, 0);
-					GL.ReadPixels(cx, cy, 1, 1, PixelFormat.Rgb, PixelType.UnsignedByte, data);
-					GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-					//GL.Disable(EnableCap.Texture2D);
-					return Color.FromArgb(data[0], data[1], data[2]);
+					return lightCache[cy, cx];
 				}
-				return Color.Red;
+				return Color.White;
 			}
 
 			/// <summary>
@@ -439,18 +480,24 @@ namespace Cubed.World {
 			/// <param name="forceRebuild"></param>
 			internal void Update(List<Light> lights, bool forceRebuild = false) {
 				foreach (Light l1 in lights) {
-					if (!affectedLights.Contains(l1)) {
+					if (TouchesLight(l1) && !affectedLights.Contains(l1)) {
 						affectedLights.Add(l1);
 						relight = true;
 					}
 				}
 				List<Light> tempLights = new List<Light>(affectedLights);
 				foreach (Light l in tempLights) {
-					if (!lights.Contains(l)) {
+					if (!TouchesLight(l) || !lights.Contains(l)) {
 						affectedLights.Remove(l);
 						relight = true;
 					}
 				}
+				foreach (Light l2 in affectedLights) {
+					if (l2.IsChanged) {
+						relight = true;
+					}
+				}
+
 				if (dirty || forceRebuild) {
 					RebuildGeometry();
 					RebuildObstructors();
@@ -459,6 +506,7 @@ namespace Cubed.World {
 				}
 				if (relight) {
 					RecalculateLight();
+					lightCache = null;
 					relight = false;
 				}
 			}
@@ -583,6 +631,7 @@ namespace Cubed.World {
 						GL.PopMatrix();
 						 */
 					}
+					Engine.Current.drawCalls++;
 				}
 			}
 
@@ -613,6 +662,14 @@ namespace Cubed.World {
 								if (fb.HasCeiling && !textures.Contains(fb.Ceiling)) {
 									textures.Add(fb.Ceiling);
 								}
+								for (int i = 0; i < 4; i++) {
+									if (fb.HasFloor && !textures.Contains(fb.FloorTrim[(Side)i])) {
+										textures.Add(fb.FloorTrim[(Side)i]);
+									}
+									if (fb.HasCeiling && !textures.Contains(fb.CeilingTrim[(Side)i])) {
+										textures.Add(fb.CeilingTrim[(Side)i]);
+									}
+								}
 							}
 						}
 					}
@@ -638,6 +695,76 @@ namespace Cubed.World {
 							Block b = blocks[y, x];
 							float div = 1f / (float)BLOCKS;
 							float cx = (float)x * div, cy = 1f - (float)y * div;
+
+							// Floor and ceiling height
+							float[] floorHeight = new float[] {
+								0f, 0f, 0f, 0f
+							};
+							float[] ceilingHeight = new float[] {
+								0f, 0f, 0f, 0f
+							};
+
+							// Building floors and ceilings
+							if (b is FloorBlock) {
+								FloorBlock fb = b as FloorBlock;
+								if (fb.HasFloor) {
+									floorHeight = fb.FloorHeight;
+									if (fb.Floor == tex) {
+										vertCoords.AddRange(new float[]{
+											x, floorHeight[0], -y,
+											x + 1, floorHeight[1], -y,
+											x, floorHeight[2], -y - 1,
+											x + 1, floorHeight[3], -y - 1
+										});
+										lightCoords.AddRange(new float[]{
+											cx, cy,
+											cx + div, cy,
+											cx, cy - div,
+											cx + div, cy - div
+										});
+										texCoords.AddRange(new float[]{
+											0f, 0f,
+											1f, 0f,
+											0f, 1f,
+											1f, 1f
+										});
+										indices.AddRange(new short[]{
+											(short)(idx + 0), (short)(idx + 1), (short)(idx + 2),
+											(short)(idx + 1), (short)(idx + 3), (short)(idx + 2)
+										});
+										idx += 4;
+									}
+								}
+								if (fb.HasCeiling) {
+									ceilingHeight = fb.CeilingHeight;
+									if (fb.Ceiling == tex) {
+										vertCoords.AddRange(new float[]{
+											x + 1, 1 - ceilingHeight[0], -y,
+											x, 1 - ceilingHeight[1], -y,
+											x + 1, 1 - ceilingHeight[2], -y - 1,
+											x, 1 - ceilingHeight[3], -y - 1
+										});
+										lightCoords.AddRange(new float[]{
+											cx + div, cy,
+											cx, cy,
+											cx + div, cy - div,
+											cx, cy - div
+										});
+										texCoords.AddRange(new float[]{
+											0f, 0f,
+											1f, 0f,
+											0f, 1f,
+											1f, 1f
+										});
+											indices.AddRange(new short[]{
+											(short)(idx + 0), (short)(idx + 1), (short)(idx + 2),
+											(short)(idx + 1), (short)(idx + 3), (short)(idx + 2)
+										});
+										idx += 4;
+									}
+								}
+							}
+
 							if (!(b is WallBlock)) {
 								
 								// Calculating neighbors
@@ -670,27 +797,46 @@ namespace Cubed.World {
 
 									// Getting neighbor block
 									Block nb = GetBlock(x + dx, y + dy);
-									bool need = false;
-									if (nb != null && nb is WallBlock) {
-										if ((nb as WallBlock)[opposite] == tex) {
-											need = true;
+									FloorBlock fnb = null;
+									bool needWall = false, needFloorWall = false, needCeilWall = false;
+									if (nb != null) {
+										if (nb is WallBlock) {
+											if ((nb as WallBlock)[opposite] == tex) {
+												needWall = true;
+											}
+										} else if(nb is FloorBlock) {
+											fnb = nb as FloorBlock;
+											if (fnb.HasFloor && fnb.FloorTrim[opposite] == tex) {
+												needFloorWall = true;
+											}
+											if (fnb.HasCeiling && fnb.CeilingTrim[opposite] == tex) {
+												needCeilWall = true;
+											}
 										}
 									}
-									if (need) {
+									if (needWall) {
 										float[] lightUV = null;
 										float[] vertXYZ = null;
 										float bias = 0.001f;//1f / (float)(LIGHTMAP_SIZE * 2f);
 
-										switch (side) {
+										// Wall height
+										float[] height = new float[] {
+											1, 1, 0, 0
+										};
 
+										switch (side) {
 
 											// Forward side
 											case Side.Forward:
+												height = new float[] {
+													1f - ceilingHeight[3], 1f - ceilingHeight[2],
+													floorHeight[2], floorHeight[3]
+												};
 												vertXYZ = new float[] {
-													x,		1, -y - 1,
-													x + 1,	1, -y - 1, 
-													x,		0, -y - 1,
-													x + 1,	0, -y - 1
+													x,		height[0], -y - 1,
+													x + 1,	height[1], -y - 1, 
+													x,		height[2], -y - 1,
+													x + 1,	height[3], -y - 1
 												};
 												lightUV = new float[] {
 													cx,			cy - div + bias,
@@ -702,11 +848,15 @@ namespace Cubed.World {
 
 											// Back side
 											case Side.Back:
+												height = new float[] {
+													1f - ceilingHeight[0], 1f - ceilingHeight[1],
+													floorHeight[1], floorHeight[0]
+												};
 												vertXYZ = new float[] {
-													x +	1,	1, -y,
-													x,		1, -y, 
-													x + 1,	0, -y,
-													x,		0, -y
+													x +	1,	height[0], -y,
+													x,		height[1], -y, 
+													x + 1,	height[2], -y,
+													x,		height[3], -y
 												};
 												lightUV = new float[] {
 													cx + div,	cy - bias,
@@ -718,11 +868,15 @@ namespace Cubed.World {
 
 											// Right side
 											case Side.Right:
+												height = new float[] {
+													1f - ceilingHeight[2], 1f - ceilingHeight[0],
+													floorHeight[3], floorHeight[1]
+												};
 												vertXYZ = new float[] {
-													x + 1,	1, -y - 1,
-													x + 1,	1, -y, 
-													x + 1,	0, -y - 1,
-													x + 1,	0, -y
+													x + 1,	height[0], -y - 1,
+													x + 1,	height[1], -y, 
+													x + 1,	height[2], -y - 1,
+													x + 1,	height[3], -y
 												};
 												lightUV = new float[] {
 													cx + div - bias,	cy - div,
@@ -732,13 +886,17 @@ namespace Cubed.World {
 												};
 												break;
 
-											// 
+											// Left side
 											case Side.Left:
+												height = new float[] {
+													1f - ceilingHeight[1], 1f - ceilingHeight[3],
+													floorHeight[0], floorHeight[2]
+												};
 												vertXYZ = new float[] {
-													x,	1, -y,
-													x,	1, -y - 1, 
-													x,	0, -y,
-													x,	0, -y - 1
+													x,	height[0], -y,
+													x,	height[1], -y - 1, 
+													x,	height[2], -y,
+													x,	height[3], -y - 1
 												};
 												lightUV = new float[] {
 													cx + bias,	cy,
@@ -755,10 +913,10 @@ namespace Cubed.World {
 											vertCoords.AddRange(vertXYZ);
 											lightCoords.AddRange(lightUV);
 											texCoords.AddRange(new float[]{
-												0f, 0f,
-												1f, 0f,
-												0f, 1f,
-												1f, 1f
+												0f, 1f - height[0],
+												1f, 1f - height[1],
+												0f, 1f - height[2],
+												1f, 1f - height[3]
 											});
 											indices.AddRange(new short[]{
 												(short)(idx + 0), (short)(idx + 2), (short)(idx + 1),
@@ -767,61 +925,254 @@ namespace Cubed.World {
 											idx += 4;
 										}
 									}	
-								}
-							}
 
-							// Building floors and ceilings
-							if (b is FloorBlock) {
-								FloorBlock fb = b as FloorBlock;
-								if (fb.HasFloor && fb.Floor == tex) {
-									vertCoords.AddRange(new float[]{
-										x, 0, -y,
-										x + 1, 0, -y,
-										x, 0, -y - 1,
-										x + 1, 0, -y - 1
-									});
-									lightCoords.AddRange(new float[]{
-										cx, cy,
-										cx + div, cy,
-										cx, cy - div,
-										cx + div, cy - div
-									});
-									texCoords.AddRange(new float[]{
-										0f, 0f,
-										1f, 0f,
-										0f, 1f,
-										1f, 1f
-									});
-									indices.AddRange(new short[]{
-										(short)(idx + 0), (short)(idx + 1), (short)(idx + 2),
-										(short)(idx + 1), (short)(idx + 3), (short)(idx + 2)
-									});
-									idx += 4;
-								}
-								if (fb.HasCeiling && fb.Ceiling == tex) {
-									vertCoords.AddRange(new float[]{
-										x + 1, 1, -y,
-										x, 1, -y,
-										x + 1, 1, -y - 1,
-										x, 1, -y - 1
-									});
-									lightCoords.AddRange(new float[]{
-										cx + div, cy,
-										cx, cy,
-										cx + div, cy - div,
-										cx, cy - div
-									});
-									texCoords.AddRange(new float[]{
-										0f, 0f,
-										1f, 0f,
-										0f, 1f,
-										1f, 1f
-									});
-									indices.AddRange(new short[]{
-										(short)(idx + 0), (short)(idx + 1), (short)(idx + 2),
-										(short)(idx + 1), (short)(idx + 3), (short)(idx + 2)
-									});
-									idx += 4;
+									// Floor trimming wall
+									if (needFloorWall || needCeilWall) {
+										float bias = 0.001f;
+										float[] ofh = fnb.FloorHeight;
+										float[] och = fnb.CeilingHeight;
+										float[] baseCoords = null;
+										float[] baseLightCoords = null;
+
+										// Trim height
+										float baseFL = 0, baseFR = 0;
+										float hFL = 0, hFR = 0;
+										float baseCL = 0, baseCR = 0;
+										float hCL = 0, hCR = 0;
+
+										switch (side) {
+
+											// Forward side
+											case Side.Forward:
+												baseFL = floorHeight[2];
+												baseFR = floorHeight[3];
+												baseCL = ceilingHeight[3];
+												baseCR = ceilingHeight[2];
+												hFL = ofh[0];
+												hFR = ofh[1];
+												hCL = och[1];
+												hCR = och[0];
+												baseCoords = new float[] {
+													x,		-y - 1,
+													x + 1,	-y - 1
+												};
+												baseLightCoords = new float[] {
+													cx,			cy - div + bias,
+													cx + div,	cy - div + bias
+												};
+												break;
+
+											
+											// Back side
+											case Side.Back:
+												baseFL = floorHeight[1];
+												baseFR = floorHeight[0];
+												baseCL = floorHeight[0];
+												baseCR = floorHeight[1];
+												hFL = ofh[3];
+												hFR = ofh[2];
+												hCL = och[2];
+												hCR = och[3];
+												baseCoords = new float[] {
+													x +	1,	-y,
+													x,		-y
+												};
+												baseLightCoords = new float[] {
+													cx + div,	cy - bias,
+													cx,			cy - bias
+												};
+												break;
+
+											
+											// Right side
+											case Side.Right:
+												baseFL = floorHeight[3];
+												baseFR = floorHeight[1];
+												baseCL = ceilingHeight[2];
+												baseCR = ceilingHeight[0];
+												hFL = ofh[2];
+												hFR = ofh[0];
+												hCL = och[3];
+												hCR = och[1];
+												baseCoords = new float[] {
+													x + 1,	-y - 1,
+													x + 1,	-y
+												};
+												baseLightCoords = new float[] {
+													cx + div - bias,	cy - div,
+													cx + div - bias,	cy
+												};
+												break;
+
+											// Left side
+											case Side.Left:
+												baseFL = floorHeight[0];
+												baseFR = floorHeight[2];
+												baseCL = ceilingHeight[1];
+												baseCR = ceilingHeight[3];
+												hFL = ofh[1];
+												hFR = ofh[3];
+												hCL = och[0];
+												hCR = och[2];
+												baseCoords = new float[] {
+													x, -y,
+													x, -y - 1
+												};
+												baseLightCoords = new float[] {
+													cx + bias,	cy,
+													cx + bias,	cy - div,
+												};
+												break;
+												
+										}
+
+										// Checking height
+										if (needFloorWall && (hFL > baseFL || hFR > baseFR)) {
+											if (hFL > baseFL && hFR > baseFR) {
+												vertCoords.AddRange(new float[]{
+													baseCoords[0], hFL, baseCoords[1],
+													baseCoords[2], hFR, baseCoords[3],
+													baseCoords[0], baseFL, baseCoords[1],
+													baseCoords[2], baseFR, baseCoords[3],
+												});
+												lightCoords.AddRange(new float[]{
+													baseLightCoords[0], baseLightCoords[1],
+													baseLightCoords[2], baseLightCoords[3],
+													baseLightCoords[0], baseLightCoords[1],
+													baseLightCoords[2], baseLightCoords[3]
+												});
+												texCoords.AddRange(new float[]{
+													0f, 1f - hFL,
+													1f, 1f - hFR,
+													0f, 1f - baseFL,
+													1f, 1f - baseFR
+												});
+												indices.AddRange(new short[]{
+													(short)(idx + 0), (short)(idx + 2), (short)(idx + 1),
+													(short)(idx + 1), (short)(idx + 2), (short)(idx + 3)
+												});
+												idx += 4;
+											} else {
+												float delta = GetFloorIntersection(baseFL, baseFR, hFL, hFR);
+												if (hFL > baseFL) {
+													vertCoords.AddRange(new float[]{
+														baseCoords[0], baseFL, baseCoords[1],
+														baseCoords[0], hFL, baseCoords[1],
+														baseCoords[0] + (baseCoords[2] - baseCoords[0]) * delta, 
+														baseFL + (baseFR - baseFL) * delta, 
+														baseCoords[1] + (baseCoords[3] - baseCoords[1]) * delta
+													});
+													lightCoords.AddRange(new float[]{
+														baseLightCoords[0], baseLightCoords[1],
+														baseLightCoords[0], baseLightCoords[1],
+														baseLightCoords[0] + (baseLightCoords[2] - baseLightCoords[0]) * delta,
+														baseLightCoords[1] + (baseLightCoords[3] - baseLightCoords[1]) * delta,
+													});
+													texCoords.AddRange(new float[]{
+														0f, 1f - baseFL,
+														0f, 1f - hFL,
+														delta, 1f - (baseFL + (baseFR - baseFL) * delta) 
+													});
+												} else {
+													vertCoords.AddRange(new float[]{
+														baseCoords[2], hFR, baseCoords[3],
+														baseCoords[2], baseFR, baseCoords[3],
+														baseCoords[0] + (baseCoords[2] - baseCoords[0]) * delta, 
+														baseFL + (baseFR - baseFL) * delta, 
+														baseCoords[1] + (baseCoords[3] - baseCoords[1]) * delta
+													});
+													lightCoords.AddRange(new float[]{
+														baseLightCoords[0], baseLightCoords[1],
+														baseLightCoords[0], baseLightCoords[1],
+														baseLightCoords[0] + (baseLightCoords[2] - baseLightCoords[0]) * delta,
+														baseLightCoords[1] + (baseLightCoords[3] - baseLightCoords[1]) * delta,
+													});
+													texCoords.AddRange(new float[]{
+														1f, 1f - hFR,
+														1f, 1f - baseFR,
+														delta, 1f - (baseFL + (baseFR - baseFL) * delta) 
+													});
+												}
+												indices.AddRange(new short[]{
+													(short)(idx + 0), (short)(idx + 2), (short)(idx + 1),
+												});
+												idx += 3;
+											}
+										}
+										
+										if (needCeilWall && (hCL > baseCL || hCR > baseCR)) {
+											if (hCL > baseCL && hCR > baseCR) {
+												vertCoords.AddRange(new float[]{
+													baseCoords[0], 1f - baseCL, baseCoords[1],
+													baseCoords[2], 1f - baseCR, baseCoords[3],
+													baseCoords[0], 1f - hCL, baseCoords[1],
+													baseCoords[2], 1f - hCR, baseCoords[3],
+												});
+												lightCoords.AddRange(new float[]{
+													baseLightCoords[0], baseLightCoords[1],
+													baseLightCoords[2], baseLightCoords[3],
+													baseLightCoords[0], baseLightCoords[1],
+													baseLightCoords[2], baseLightCoords[3]
+												});
+												texCoords.AddRange(new float[]{
+													0f, baseCL,
+													1f, baseCR,
+													0f, hCL,
+													1f, hCR
+												});
+												indices.AddRange(new short[]{
+													(short)(idx + 0), (short)(idx + 2), (short)(idx + 1),
+													(short)(idx + 1), (short)(idx + 2), (short)(idx + 3)
+												});
+												idx += 4;
+											} else {
+												float delta = GetFloorIntersection(baseCL, baseCR, hCL, hCR);
+												if (hCL > baseCL) {
+													vertCoords.AddRange(new float[]{
+														baseCoords[0], 1f - hCL, baseCoords[1],
+														baseCoords[0], 1f- baseCL, baseCoords[1],
+														baseCoords[0] + (baseCoords[2] - baseCoords[0]) * delta, 
+														1f - (baseCL + (baseCR - baseCL) * delta), 
+														baseCoords[1] + (baseCoords[3] - baseCoords[1]) * delta
+													});
+													lightCoords.AddRange(new float[]{
+														baseLightCoords[0], baseLightCoords[1],
+														baseLightCoords[0], baseLightCoords[1],
+														baseLightCoords[0] + (baseLightCoords[2] - baseLightCoords[0]) * delta,
+														baseLightCoords[1] + (baseLightCoords[3] - baseLightCoords[1]) * delta,
+													});
+													texCoords.AddRange(new float[]{
+														0f, hCL,
+														0f, baseCL,
+														delta, (baseCL + (baseCR - baseCL) * delta) 
+													});
+												} else {
+													vertCoords.AddRange(new float[]{
+														baseCoords[2], 1f - baseCR, baseCoords[3],
+														baseCoords[2], 1f - hCR, baseCoords[3],
+														baseCoords[0] + (baseCoords[2] - baseCoords[0]) * delta, 
+														1f - (baseCL + (baseCR - baseCL) * delta), 
+														baseCoords[1] + (baseCoords[3] - baseCoords[1]) * delta
+													});
+													lightCoords.AddRange(new float[]{
+														baseLightCoords[0], baseLightCoords[1],
+														baseLightCoords[0], baseLightCoords[1],
+														baseLightCoords[0] + (baseLightCoords[2] - baseLightCoords[0]) * delta,
+														baseLightCoords[1] + (baseLightCoords[3] - baseLightCoords[1]) * delta,
+													});
+													texCoords.AddRange(new float[]{
+														0f, baseCR,
+														0f, hFR,
+														delta, (baseCL + (baseCR - baseCL) * delta) 
+													});
+												}
+												indices.AddRange(new short[]{
+													(short)(idx + 0), (short)(idx + 2), (short)(idx + 1),
+												});
+												idx += 3;
+											}
+										}
+									}
 								}
 							}
 						}
@@ -869,6 +1220,24 @@ namespace Cubed.World {
 				}
 				
 
+			}
+
+			/// <summary>
+			/// Calculating slope position
+			/// </summary>
+			/// <param name="baseL">Left Y</param>
+			/// <param name="baseR">Right Y</param>
+			/// <param name="otherL">Other Left Y</param>
+			/// <param name="otherR">Other Right Y</param>
+			/// <returns>Delta in (0-1) range</returns>
+			float GetFloorIntersection(float baseL, float baseR, float otherL, float otherR) {
+				double d = (otherR - otherL) - (baseR - baseL);
+				double n_a = (baseL - otherL);
+				if (d == 0)
+					return 0.5f;
+
+				double ua = n_a / d;
+				return (float)ua;
 			}
 
 			/// <summary>
@@ -1149,6 +1518,17 @@ namespace Cubed.World {
 		public class FloorBlock : Block {
 
 			/// <summary>
+			/// Contstructor
+			/// </summary>
+			public FloorBlock()
+				: base() {
+					floorHeights = new float[4];
+					ceilHeights = new float[4];
+					floorArray = new TextureArray(this);
+					ceilingArray = new TextureArray(this);
+			}
+
+			/// <summary>
 			/// Floor texture
 			/// </summary>
 			public Texture Floor {
@@ -1179,6 +1559,24 @@ namespace Cubed.World {
 							Parent.QueueRebuild();
 						}
 					}
+				}
+			}
+
+			/// <summary>
+			/// Floor trim textures
+			/// </summary>
+			public TextureArray FloorTrim {
+				get {
+					return floorArray;
+				}
+			}
+
+			/// <summary>
+			/// Ceiling trim textures
+			/// </summary>
+			public TextureArray CeilingTrim {
+				get {
+					return ceilingArray;
 				}
 			}
 
@@ -1217,6 +1615,58 @@ namespace Cubed.World {
 			}
 
 			/// <summary>
+			/// Floor height
+			/// </summary>
+			public float[] FloorHeight {
+				get {
+					float[] ret = new float[4];
+					for (int i = 0; i < 4; i++) {
+						ret[i] = floorHeights[i];
+					}
+					return ret;
+				}
+				set {
+					if (value == null || value.Length != 4) {
+						throw new Exception("Incorrect data for heightmap (must be array of 4 items)");
+					}
+					for (int i = 0; i < 4; i++) {
+						if (floorHeights[i] != value[i]) {
+							floorHeights[i] = value[i];
+							if (Parent != null) {
+								Parent.QueueRebuild();
+							}
+						}
+					}
+				}
+			}
+
+			/// <summary>
+			/// Floor height
+			/// </summary>
+			public float[] CeilingHeight {
+				get {
+					float[] ret = new float[4];
+					for (int i = 0; i < 4; i++) {
+						ret[i] = ceilHeights[i];
+					}
+					return ret;
+				}
+				set {
+					if (value == null || value.Length != 4) {
+						throw new Exception("Incorrect data for heightmap (must be array of 4 items)");
+					}
+					for (int i = 0; i < 4; i++) {
+						if (ceilHeights[i] != value[i]) {
+							ceilHeights[i] = value[i];
+							if (Parent != null) {
+								Parent.QueueRebuild();
+							}
+						}
+					}
+				}
+			}
+
+			/// <summary>
 			/// Floor and ceiling textures
 			/// </summary>
 			Texture floor, ceiling;
@@ -1227,9 +1677,65 @@ namespace Cubed.World {
 			bool hasFloor, hasCeiling;
 
 			/// <summary>
-			/// Height values
+			/// Floor height values
 			/// </summary>
-			float[] heights;
+			float[] floorHeights;
+
+			/// <summary>
+			/// Ceiling height values
+			/// </summary>
+			float[] ceilHeights;
+
+			/// <summary>
+			/// Trim textures
+			/// </summary>
+			TextureArray floorArray, ceilingArray;
+
+			/// <summary>
+			/// Textures arrays
+			/// </summary>
+			public class TextureArray {
+
+				/// <summary>
+				/// Texture for floor or ceiling sides
+				/// </summary>
+				/// <param name="s">Side</param>
+				/// <returns>Associated texture</returns>
+				public Texture this[Side s] {
+					get {
+						return textures[(int)s];
+					}
+					set{
+						if (textures[(int)s] != value) {
+							textures[(int)s] = value;
+							if (parent.Parent != null) {
+								parent.Parent.QueueRebuild();
+							}
+						}
+					}
+				}
+
+				/// <summary>
+				/// Texture array
+				/// </summary>
+				Texture[] textures;
+
+				/// <summary>
+				/// Parental chunk
+				/// </summary>
+				FloorBlock parent;
+
+				/// <summary>
+				/// Internal constructor
+				/// </summary>
+				/// <param name="c">Parent block</param>
+				internal TextureArray(FloorBlock c) {
+					textures = new Texture[4] {
+						null, null, null, null	
+					};
+					parent = c;
+				}
+			}
 		}
 		
 		/// <summary>

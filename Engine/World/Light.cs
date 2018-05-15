@@ -321,6 +321,15 @@ namespace Cubed.World {
 		}
 
 		/// <summary>
+		/// Does light have changes
+		/// </summary>
+		internal bool IsChanged {
+			get {
+				return changed;
+			}
+		}
+
+		/// <summary>
 		/// Light internal range
 		/// </summary>
 		float range = 3f;

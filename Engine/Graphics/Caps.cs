@@ -56,7 +56,7 @@ namespace Cubed.Graphics {
 		static bool shaderPipeline;
 
 		// Проверка возможностей GL
-		static void CheckCaps() {
+		public static void CheckCaps() {
 			if (!capsLoaded) {
 
 				// Определение версии GL

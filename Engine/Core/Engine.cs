@@ -27,6 +27,15 @@ namespace Cubed.Core {
 		}
 
 		/// <summary>
+		/// Количество отрисовок
+		/// </summary>
+		public uint DrawnPrimitives {
+			get {
+				return drawCalls;
+			}
+		}
+
+		/// <summary>
 		/// File driver for engine
 		/// </summary>
 		public FileSystem Filesystem {
@@ -71,7 +80,10 @@ namespace Cubed.Core {
 			private set;
 		}
 
-		
+		/// <summary>
+		/// Количество отрисовок
+		/// </summary>
+		internal uint drawCalls;
 
 
 		/// <summary>
@@ -83,7 +95,7 @@ namespace Cubed.Core {
 		/// Engine constructor
 		/// </summary>
 		public Engine() {
-			this.TextureCache = new TextureCache();
+			this.TextureCache = new TextureCache(this);
 			this.Console = new UI.Console();
 			this.inputSnapshot = new InputState.Snapshot();
 		}
@@ -131,7 +143,9 @@ namespace Cubed.Core {
 			
 			// Handling texture cache
 			Current = this;
+			Caps.CheckCaps();
 			TextureCache.Update();
+			drawCalls = 0;
 
 			// Viewport and cleaning
 			Vector2 res = display.Resolution;

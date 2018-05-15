@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="Main\Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Testing\LevelTest3.cs" />
     <Compile Include="Testing\LevelTest2.cs" />
     <Compile Include="Testing\LevelTest.cs" />
     <Compile Include="Testing\UITest.cs" />

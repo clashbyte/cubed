@@ -21,6 +21,11 @@ namespace Cubed.World {
 		const int FRAME_TICKS = 16;
 
 		/// <summary>
+		/// Collision resolve bounces
+		/// </summary>
+		const int PHYSICAL_LOOPS = 16;
+
+		/// <summary>
 		/// Scene entities list
 		/// </summary>
 		public List<Entity> Entities {
@@ -131,6 +136,22 @@ namespace Cubed.World {
 				LastUpdateTime += FRAME_TICKS;
 			}
 
+			// Colliding
+			for (int i = 0; i < PHYSICAL_LOOPS; i++) {
+				bool resolved = true;
+				foreach (Entity ent in Entities) {
+					if (ent.BoxCollider != null) {
+						if (ent.BoxCollider.Collide(map)) {
+							resolved = false;
+						}
+					}
+				}
+				if (resolved) {
+					break;
+				}
+			}
+
+
 			// Releasing current
 			Current = null;
 		}
@@ -230,7 +251,11 @@ namespace Cubed.World {
 					}
 				}
 				Map.Update(lightList, Controls.KeyHit(OpenTK.Input.Key.F10));
+
+				//GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
+				GL.LineWidth(2f);
 				Map.Render();
+				GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
 			}
 
 			// Opaque pass

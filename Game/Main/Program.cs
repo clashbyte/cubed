@@ -10,9 +10,8 @@ namespace Cubed.Main {
 		
 		static void Main(string[] args) {
 			
-			
 			Engine engine = new Engine();
-			LevelTest2 lt = new LevelTest2();
+			LevelTest3 lt = new LevelTest3();
 			lt.Run(engine);
 
 			WindowDisplay display = new WindowDisplay();

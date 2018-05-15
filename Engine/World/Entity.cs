@@ -63,6 +63,11 @@ namespace Cubed.World {
 		protected CullSphere cullSphere = new CullSphere();
 
 		/// <summary>
+		/// Body collider
+		/// </summary>
+		protected Collider collider;
+
+		/// <summary>
 		/// Object constructor
 		/// </summary>
 		public Entity() {
@@ -108,7 +113,7 @@ namespace Cubed.World {
 			get {
 				Vector3 vt = pos;
 				if (parent != null) {
-					vt = Vector3.TransformPosition(vt, parent.invmat);
+					vt = Vector3.TransformPosition(vt, parent.mat);
 				}
 				return new Vector3(
 					vt.X, vt.Y, -vt.Z
@@ -119,7 +124,7 @@ namespace Cubed.World {
 					value.X, value.Y, -value.Z
 				);
 				if (parent != null) {
-					pos = Vector3.TransformPosition(pos, parent.mat);
+					pos = Vector3.TransformPosition(pos, parent.invmat);
 				}
 				RebuildMatrix();
 			}
@@ -149,7 +154,7 @@ namespace Cubed.World {
 			get {
 				Vector3 vt = rot;
 				if (parent != null) {
-					vt = ModifyAngles(pos, parent.invmat);
+					vt = ModifyAngles(rot, parent.mat);
 				}
 				return new Vector3(
 					-vt.X, -vt.Y, vt.Z
@@ -160,7 +165,7 @@ namespace Cubed.World {
 					-value.X, -value.Y, value.Z
 				);
 				if (parent != null) {
-					rot = ModifyAngles(pos, parent.mat);
+					rot = ModifyAngles(rot, parent.invmat);
 				}
 				RebuildMatrix();
 			}
@@ -200,13 +205,35 @@ namespace Cubed.World {
 			}
 			set {
 				if (parent != null) {
-					pos = Vector3.TransformPosition(pos, parent.invmat);
+					pos = Vector3.TransformPosition(pos, parent.mat);
+					rot = ModifyAngles(rot, parent.mat);
 					parent.Children.Remove(this);
 					parent = null;
 				}
 				if (value != null) {
 					parent = value;
 					parent.Children.Add(this);
+					pos = Vector3.TransformPosition(pos, parent.invmat);
+					rot = ModifyAngles(rot, parent.invmat);
+				}
+				RebuildMatrix();
+			}
+		}
+
+		/// <summary>
+		/// Коллайдер для тела
+		/// </summary>
+		public Collider BoxCollider {
+			get {
+				return collider;
+			}
+			set {
+				if (collider != null) {
+					collider.owner = null;
+				}
+				collider = value;
+				if (collider != null) {
+					collider.owner = this;
 				}
 			}
 		}

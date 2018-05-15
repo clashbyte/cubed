@@ -46,8 +46,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Components\Component.cs" />
+    <Compile Include="Components\Controls\WalkController.cs" />
     <Compile Include="Components\IRenderable.cs" />
+    <Compile Include="Components\ILateUpdatable.cs" />
     <Compile Include="Components\IUpdatable.cs" />
+    <Compile Include="World\Collider.cs" />
     <Compile Include="Components\Rendering\AnimatedMeshComponent.cs" />
     <Compile Include="Components\Rendering\MeshComponent.cs" />
     <Compile Include="Components\Rendering\MorphMeshComponent.cs" />
