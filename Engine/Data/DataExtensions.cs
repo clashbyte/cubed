@@ -63,7 +63,7 @@ namespace Cubed.Data {
 				v.Z = 0;
 				return NormalizeAngles(v);
 			}
-			Quaternion q = new Quaternion(q1.Z, q1.X, q1.Y, q1.W);
+			Quaternion q = new Quaternion(q1.W, q1.Z, q1.X, q1.Y);
 			v.Y = (float)Math.Atan2(2f * q.X * q.W + 2f * q.Y * q.Z, 1 - 2f * (q.Z * q.Z + q.W * q.W));
 			v.X = (float)Math.Asin(2f * (q.X * q.Z - q.W * q.Y));
 			v.Z = (float)Math.Atan2(2f * q.X * q.Y + 2f * q.Z * q.W, 1 - 2f * (q.Y * q.Y + q.Z * q.Z));

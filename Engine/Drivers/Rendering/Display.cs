@@ -25,7 +25,7 @@ namespace Cubed.Drivers.Rendering {
 		/// <summary>
 		/// Mouse lock
 		/// </summary>
-		public bool MouseLock {
+		public virtual bool MouseLock {
 			get;
 			set;
 		}
@@ -49,6 +49,9 @@ namespace Cubed.Drivers.Rendering {
 			get {
 				return Vector2.One;
 			}
+			set {
+
+			}
 		}
 
 		/// <summary>
@@ -57,14 +60,21 @@ namespace Cubed.Drivers.Rendering {
 		Engine engine;
 
 		/// <summary>
+		/// Shutdown
+		/// </summary>
+		public abstract void Close();
+
+		/// <summary>
 		/// Force engine logical update
 		/// </summary>
 		/// <param name="tween">Number of frames passed</param>
 		/// <param name="inputState">Current input state</param>
 		protected void UpdateEngine(float tween, InputState inputState) {
+			Current = this;
 			if (engine != null) {
 				engine.Update(this, tween, inputState);
 			}
+			Current = null;
 		}
 
 		/// <summary>
@@ -72,10 +82,13 @@ namespace Cubed.Drivers.Rendering {
 		/// </summary>
 		/// <param name="tween">Number of frames passed</param>
 		protected void RenderFrame(float tween) {
+			Current = this;
 			if (engine != null) {
 				engine.Render(this, tween);
 			}
+			Current = null;
 		}
+
 	}
 
 }

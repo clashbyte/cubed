@@ -67,15 +67,32 @@ namespace Cubed.World {
 		protected bool collideWithOther;
 
 		/// <summary>
+		/// Enable collision with world
+		/// </summary>
+		protected bool collideWithWorld;
+
+		/// <summary>
 		/// Владелец
 		/// </summary>
 		internal Entity owner;
+
+		public Collider() {
+			collideWithOther = true;
+			collideWithWorld = true;
+		}
+
+		/// <summary>
+		/// Resetting all data
+		/// </summary>
+		internal void Reset() {
+			response = Vector3.Zero;
+		}
 
 		/// <summary>
 		/// Collisions calculation
 		/// </summary>
 		/// <returns>True if box collided</returns>
-		internal bool Collide(Map map) {
+		internal bool Collide(Map map, Collider[] others) {
 			response = Vector3.Zero;
 			if (velocity != Vector3.Zero && owner != null) {
 
@@ -96,7 +113,7 @@ namespace Cubed.World {
 					// Colliding horizontal
 					if (velocity.Z != 0) {
 						int steps = (int)Math.Ceiling(Math.Abs(velocity.Z) / bd);
-						for (int step = 1; step <= steps; step++) {
+						for (int step = 0; step <= steps; step++) {
 							Vector3 target = new Vector3(0, 0, bd * Math.Sign(velocity.Z) * step);
 							if (Math.Abs(target.Z) > Math.Abs(velocity.Z)) {
 								target.Z = velocity.Z;
@@ -114,42 +131,72 @@ namespace Cubed.World {
 							bool hit = false;
 							int z = forw ? ez : sz;
 
-							// Calculating max depth
-							for (int x = sx; x <= ex; x++) {
-								for (int y = sy; y <= ey; y++) {
-									Map.Block blk = map.GetBlockAtCoords(x, y, z);
-									if (blk != null) {
-										if (blk is Map.WallBlock) {
-											barrier = z;
-											if (!forw) {
-												barrier += 1f;
-											}
-											hit = true;
-										} else if (blk is Map.FloorBlock) {
-											Map.FloorBlock mfb = blk as Map.FloorBlock;
-											Vector3 ps = new Vector3(target.X - (float)x, target.Y - (float)y, target.Z - (float)z);
-											if (y + 1f > target.Y && mfb.HasCeiling) {
-												float dist = 0f;
-												if (CollideCeilVertical(ps, bsz, mfb.CeilingHeight, forw, out dist)) {
-													dist += z;
-													if (forw) {
-														barrier = Math.Min(dist, barrier);
-													} else {
-														barrier = Math.Max(dist, barrier);
+							// Calculating collision with map
+							if (collideWithWorld && map != null) {
+								for (int x = sx; x <= ex; x++) {
+									for (int y = sy; y <= ey; y++) {
+										Map.Block blk = map.GetBlockAtCoords(x, y, z);
+										if (blk != null) {
+											if (blk is Map.WallBlock) {
+												barrier = z;
+												if (!forw) {
+													barrier += 1f;
+												}
+												hit = true;
+											} else if (blk is Map.FloorBlock) {
+												Map.FloorBlock mfb = blk as Map.FloorBlock;
+												Vector3 ps = new Vector3(target.X - (float)x, target.Y - (float)y, target.Z - (float)z);
+												if (y + 1f > target.Y && mfb.HasCeiling) {
+													float dist = 0f;
+													if (CollideCeilVertical(ps, bsz, mfb.CeilingHeight, forw, out dist)) {
+														dist += z;
+														if (forw) {
+															barrier = Math.Min(dist, barrier);
+														} else {
+															barrier = Math.Max(dist, barrier);
+														}
+														hit = true;
 													}
-													hit = true;
+												}
+												if (y < target.Y && mfb.HasFloor) {
+													float dist = 0f;
+													if (CollideFloorVertical(ps, bsz, mfb.FloorHeight, forw, out dist)) {
+														dist += z;
+														if (forw) {
+															barrier = Math.Min(dist, barrier);
+														} else {
+															barrier = Math.Max(dist, barrier);
+														}
+														hit = true;
+													}
 												}
 											}
-											if (y < target.Y && mfb.HasFloor) {
-												float dist = 0f;
-												if (CollideFloorVertical(ps, bsz, mfb.FloorHeight, forw, out dist)) {
-													dist += z;
-													if (forw) {
-														barrier = Math.Min(dist, barrier);
-													} else {
-														barrier = Math.Max(dist, barrier);
-													}
+										}
+									}
+								}
+							}
+
+							// Colliding with other AABBs
+							if (collideWithOther) {
+								foreach (Collider col in others) {
+									if (col != this) {
+										Vector3 opos = col.owner.Position;
+										Vector3 obd = col.size / 2f;
+										if (!(
+											((opos.X + obd.X) < (start.X - bw)) || 
+											((opos.X - obd.X) > (start.X + bw)) || 
+											((opos.Y + obd.Y) < (start.Y - bh)) ||
+											((opos.Y - obd.Y) > (start.Y + bh)))) 
+										{
+											if (forw) {
+												if (start.Z < opos.Z && (target.Z + bd) > opos.Z - obd.Z) {
 													hit = true;
+													barrier = Math.Min(opos.Z - obd.Z, barrier);
+												}
+											} else {
+												if (start.Z > opos.Z && (target.Z - bd) < opos.Z + obd.Z) {
+													hit = true;
+													barrier = Math.Max(opos.Z + obd.Z, barrier);
 												}
 											}
 										}
@@ -181,7 +228,7 @@ namespace Cubed.World {
 					// Colliding vertical
 					if (velocity.X != 0) {
 						int steps = (int)Math.Ceiling(Math.Abs(velocity.X) / bw);
-						for (int step = 1; step <= steps; step++) {
+						for (int step = 0; step <= steps; step++) {
 							Vector3 target = new Vector3(bw * Math.Sign(velocity.X) * step, 0, 0);
 							if (Math.Abs(target.X) > Math.Abs(velocity.X)) {
 								target.X = velocity.X;
@@ -199,42 +246,71 @@ namespace Cubed.World {
 							bool hit = false;
 							int x = right ? ex : sx;
 
-							// Calculating max depth
-							for (int z = sz; z <= ez; z++) {
-								for (int y = sy; y <= ey; y++) {
-									Map.Block blk = map.GetBlockAtCoords(x, y, z);
-									if (blk != null) {
-										if (blk is Map.WallBlock) {
-											barrier = x;
-											if (!right) {
-												barrier += 1f;
-											}
-											hit = true;
-										} else if (blk is Map.FloorBlock) {
-											Map.FloorBlock mfb = blk as Map.FloorBlock;
-											Vector3 ps = new Vector3(target.X - (float)x, target.Y - (float)y, target.Z - (float)z);
-											if (y + 1f > target.Y && mfb.HasCeiling) {
-												float dist = 0f;
-												if (CollideCeilHorizontal(ps, bsz, mfb.CeilingHeight, right, out dist)) {
-													dist += z;
-													if (right) {
-														barrier = Math.Min(dist, barrier);
-													} else {
-														barrier = Math.Max(dist, barrier);
+							// Colliding with map
+							if (collideWithWorld && map != null) {
+								for (int z = sz; z <= ez; z++) {
+									for (int y = sy; y <= ey; y++) {
+										Map.Block blk = map.GetBlockAtCoords(x, y, z);
+										if (blk != null) {
+											if (blk is Map.WallBlock) {
+												barrier = x;
+												if (!right) {
+													barrier += 1f;
+												}
+												hit = true;
+											} else if (blk is Map.FloorBlock) {
+												Map.FloorBlock mfb = blk as Map.FloorBlock;
+												Vector3 ps = new Vector3(target.X - (float)x, target.Y - (float)y, target.Z - (float)z);
+												if (y + 1f > target.Y && mfb.HasCeiling) {
+													float dist = 0f;
+													if (CollideCeilHorizontal(ps, bsz, mfb.CeilingHeight, right, out dist)) {
+														dist += z;
+														if (right) {
+															barrier = Math.Min(dist, barrier);
+														} else {
+															barrier = Math.Max(dist, barrier);
+														}
+														hit = true;
 													}
-													hit = true;
+												}
+												if (y < target.Y && mfb.HasFloor) {
+													float dist = 0f;
+													if (CollideFloorHorizontal(ps, bsz, mfb.FloorHeight, right, out dist)) {
+														dist += x;
+														if (right) {
+															barrier = Math.Min(dist, barrier);
+														} else {
+															barrier = Math.Max(dist, barrier);
+														}
+														hit = true;
+													}
 												}
 											}
-											if (y < target.Y && mfb.HasFloor) {
-												float dist = 0f;
-												if (CollideFloorHorizontal(ps, bsz, mfb.FloorHeight, right, out dist)) {
-													dist += x;
-													if (right) {
-														barrier = Math.Min(dist, barrier);
-													} else {
-														barrier = Math.Max(dist, barrier);
-													}
+										}
+									}
+								}
+							}
+
+							// Colliding with other AABBs
+							if (collideWithOther) {
+								foreach (Collider col in others) {
+									if (col != this) {
+										Vector3 opos = col.owner.Position;
+										Vector3 obd = col.size / 2f;
+										if (!(
+											((opos.Z + obd.Z) < (start.Z - bd)) ||
+											((opos.Z - obd.Z) > (start.Z + bd)) ||
+											((opos.Y + obd.Y) < (start.Y - bh)) ||
+											((opos.Y - obd.Y) > (start.Y + bh)))) {
+											if (right) {
+												if (start.X < opos.X && (target.X + bw) > opos.X - obd.X) {
 													hit = true;
+													barrier = Math.Min(opos.X - obd.X, barrier);
+												}
+											} else {
+												if (start.X > opos.X && (target.X - bw) < opos.X + obd.X) {
+													hit = true;
+													barrier = Math.Max(opos.X + obd.X, barrier);
 												}
 											}
 										}
@@ -266,7 +342,7 @@ namespace Cubed.World {
 					// Colliding in height
 					if (velocity.Y != 0) {
 						int steps = (int)Math.Ceiling(Math.Abs(velocity.Y) / bh);
-						for (int step = 1; step <= steps; step++) {
+						for (int step = 0; step <= steps; step++) {
 							Vector3 target = new Vector3(0, bh * Math.Sign(velocity.Y) * step, 0);
 							if (Math.Abs(target.Y) > Math.Abs(velocity.Y)) {
 								target.Y = velocity.Y;
@@ -280,32 +356,35 @@ namespace Cubed.World {
 							int ez = (int)Math.Floor(target.Z + bd);
 							float ceilh = float.MaxValue;
 							float floorh = float.MinValue;
+							bool up = velocity.Y > 0;
 
 							// Colliding with floor
-							for (int z = sz; z <= ez; z++) {
-								for (int x = sx; x <= ex; x++) {
-									for (int h = sy; h <= ey; h++) {
-										Map.Block blk = map.GetBlockAtCoords(x, h, z);
-										if (blk != null) {
-											if (blk is Map.WallBlock) {
-												if (velocity.Y > 0) {
-													ceilh = Math.Min(ceilh, h);
-												} else {
-													floorh = Math.Max(floorh, h + 1);
-												}
-											} else if (blk is Map.FloorBlock) {
-												Map.FloorBlock mfb = blk as Map.FloorBlock;
-												if (mfb.HasFloor && h < target.Y) {
-													floorh = Math.Max(
-														floorh,
-														GetMaxFloorHeight(new Vector2(target.X - x, target.Z - z), new Vector2(bw, bd), mfb.FloorHeight) + h
-													);
-												}
-												if (mfb.HasCeiling && h + 1 > target.Y) {
-													ceilh = Math.Min(
-														ceilh,
-														1f - GetMaxCeilingHeight(new Vector2(target.X - x, target.Z - z), new Vector2(bw, bd), mfb.CeilingHeight) + h
-													);
+							if (collideWithWorld && map != null) {
+								for (int z = sz; z <= ez; z++) {
+									for (int x = sx; x <= ex; x++) {
+										for (int h = sy; h <= ey; h++) {
+											Map.Block blk = map.GetBlockAtCoords(x, h, z);
+											if (blk != null) {
+												if (blk is Map.WallBlock) {
+													if (velocity.Y > 0) {
+														ceilh = Math.Min(ceilh, h);
+													} else {
+														floorh = Math.Max(floorh, h + 1);
+													}
+												} else if (blk is Map.FloorBlock) {
+													Map.FloorBlock mfb = blk as Map.FloorBlock;
+													if (mfb.HasFloor && h < target.Y) {
+														floorh = Math.Max(
+															floorh,
+															GetMaxFloorHeight(new Vector2(target.X - x, target.Z - z), new Vector2(bw, bd), mfb.FloorHeight) + h
+														);
+													}
+													if (mfb.HasCeiling && h + 1 > target.Y) {
+														ceilh = Math.Min(
+															ceilh,
+															1f - GetMaxCeilingHeight(new Vector2(target.X - x, target.Z - z), new Vector2(bw, bd), mfb.CeilingHeight) + h
+														);
+													}
 												}
 											}
 										}
@@ -313,6 +392,32 @@ namespace Cubed.World {
 								}
 							}
 
+							// Collide with other AABBs
+							if (collideWithOther) {
+								foreach (Collider col in others) {
+									if (col != this) {
+										Vector3 opos = col.owner.Position;
+										Vector3 obd = col.size / 2f;
+										if (!(
+											((opos.Z + obd.Z) < (start.Z - bd)) ||
+											((opos.Z - obd.Z) > (start.Z + bd)) ||
+											((opos.X + obd.X) < (start.X - bw)) ||
+											((opos.X - obd.X) > (start.X + bw)))) {
+											if (up) {
+												if (start.Y < opos.Y && (target.Y + bh) > opos.Y - obd.Y) {
+													ceilh = Math.Min(opos.Y - obd.Y, ceilh);
+												}
+											} else {
+												if (start.Y > opos.Y && (target.Y - bh) < opos.Y + obd.Y) {
+													floorh = Math.Max(opos.Y + obd.Y, floorh);
+												}
+											}
+										}
+									}
+								}
+							}
+
+							// Response
 							if (target.Y + bh > ceilh) {
 								result.Y = ceilh - bh - epsilon;
 								velocity.Z = 0;
@@ -344,7 +449,6 @@ namespace Cubed.World {
 		/// <returns>Высота</returns>
 		public float GetFloorHeight(Vector3 offset) {
 			if (owner != null) {
-				Map map = Engine.Current.World.Map;
 				float bw = size.X / 2f;
 				float bh = size.Y / 2f;
 				float bd = size.Z / 2f;
@@ -359,21 +463,42 @@ namespace Cubed.World {
 				int sz = (int)Math.Floor(target.Z - bd);
 				int ez = (int)Math.Floor(target.Z + bd);
 				float floorh = float.MinValue;
-				for (int z = sz; z <= ez; z++) {
-					for (int x = sx; x <= ex; x++) {
-						for (int y = sy; y <= ey; y++) {
-							Map.Block blk = map.GetBlockAtCoords(x, y, z);
-							if (blk != null) {
-								if (blk is Map.WallBlock) {
-									floorh = Math.Max(floorh, y + 1);
-								} else if (blk is Map.FloorBlock) {
-									Map.FloorBlock mfb = blk as Map.FloorBlock;
-									if (mfb.HasFloor && y < start.Y) {
-										floorh = Math.Max(
-											floorh,
-											GetMaxFloorHeight(new Vector2(target.X - x, target.Z - z), new Vector2(bw, bd), mfb.FloorHeight) + y
-										);
+				Map map = Engine.Current.World.Map;
+				if (collideWithWorld && map != null) {
+					for (int z = sz; z <= ez; z++) {
+						for (int x = sx; x <= ex; x++) {
+							for (int y = sy; y <= ey; y++) {
+								Map.Block blk = map.GetBlockAtCoords(x, y, z);
+								if (blk != null) {
+									if (blk is Map.WallBlock) {
+										floorh = Math.Max(floorh, y + 1);
+									} else if (blk is Map.FloorBlock) {
+										Map.FloorBlock mfb = blk as Map.FloorBlock;
+										if (mfb.HasFloor && y < start.Y) {
+											floorh = Math.Max(
+												floorh,
+												GetMaxFloorHeight(new Vector2(target.X - x, target.Z - z), new Vector2(bw, bd), mfb.FloorHeight) + y
+											);
+										}
 									}
+								}
+							}
+						}
+					}
+				}
+				if (collideWithOther) {
+					Collider[] others = Engine.Current.World.GetAllColliders();
+					foreach (Collider col in others) {
+						if (col != this) {
+							Vector3 opos = col.owner.Position;
+							Vector3 obd = col.size / 2f;
+							if (!(
+								((opos.Z + obd.Z) < (start.Z - bd)) ||
+								((opos.Z - obd.Z) > (start.Z + bd)) ||
+								((opos.X + obd.X) < (start.X - bw)) ||
+								((opos.X - obd.X) > (start.X + bw)))) {
+								if (start.Y > opos.Y && (target.Y - bh) < opos.Y + obd.Y) {
+									floorh = Math.Max(opos.Y + obd.Y, floorh);
 								}
 							}
 						}

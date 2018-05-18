@@ -29,6 +29,13 @@ namespace Cubed.Drivers.Rendering {
 		Vector2 res = Vector2.One;
 
 		/// <summary>
+		/// Window closing - unsupported
+		/// </summary>
+		public override void Close() {
+			throw new NotImplementedException();
+		}
+
+		/// <summary>
 		/// Updating logics
 		/// </summary>
 		/// <param name="tween"></param>

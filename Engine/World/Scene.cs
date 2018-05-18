@@ -80,7 +80,7 @@ namespace Cubed.World {
 		/// <summary>
 		/// Current scene
 		/// </summary>
-		public Scene Current {
+		public static Scene Current {
 			get;
 			private set;
 		}
@@ -122,9 +122,13 @@ namespace Cubed.World {
 
 			// Сборка списка объектов
 			List<EntityComponent> updateable = new List<EntityComponent>();
+			List<EntityComponent> lateUpdateable = new List<EntityComponent>();
 			foreach (Entity e in Entities) {
 				updateable.AddRange(e.GetLogicalComponents());
+				lateUpdateable.AddRange(e.GetLateLogicalComponents());
 			}
+
+			LastUpdateTime += FRAME_TICKS * times;
 
 			// Обновление всех предметов
 			for (int i = 0; i < times; i++) {
@@ -133,15 +137,22 @@ namespace Cubed.World {
 						(e as IUpdatable).Update();
 					}
 				}
-				LastUpdateTime += FRAME_TICKS;
 			}
 
 			// Colliding
+			List<Collider> cols = new List<Collider>();
+			foreach (Entity ent in Entities) {
+				if (ent.BoxCollider != null) {
+					ent.BoxCollider.Reset();
+					cols.Add(ent.BoxCollider);
+				}
+			}
+			Collider[] ocols = cols.ToArray();
 			for (int i = 0; i < PHYSICAL_LOOPS; i++) {
 				bool resolved = true;
 				foreach (Entity ent in Entities) {
 					if (ent.BoxCollider != null) {
-						if (ent.BoxCollider.Collide(map)) {
+						if (ent.BoxCollider.Collide(map, ocols)) {
 							resolved = false;
 						}
 					}
@@ -151,6 +162,14 @@ namespace Cubed.World {
 				}
 			}
 
+			// Late entity update
+			for (int i = 0; i < times; i++) {
+				if (!Paused) {
+					foreach (EntityComponent e in lateUpdateable) {
+						(e as ILateUpdatable).LateUpdate();
+					}
+				}
+			}
 
 			// Releasing current
 			Current = null;
@@ -253,9 +272,9 @@ namespace Cubed.World {
 				Map.Update(lightList, Controls.KeyHit(OpenTK.Input.Key.F10));
 
 				//GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
-				GL.LineWidth(2f);
+				//GL.LineWidth(2f);
 				Map.Render();
-				GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+				//GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
 			}
 
 			// Opaque pass
@@ -432,7 +451,21 @@ namespace Cubed.World {
 				return map.GetLightLevel(x, y, z);
 			}
 			return Color.White;
-		} 
+		}
+
+		/// <summary>
+		/// Collecting all colliders
+		/// </summary>
+		/// <returns>Array of colliders</returns>
+		internal Collider[] GetAllColliders() {
+			List<Collider> cols = new List<Collider>();
+			foreach (Entity e in Entities) {
+				if (e.BoxCollider != null) {
+					cols.Add(e.BoxCollider);
+				}
+			}
+			return cols.ToArray();
+		}
 
 		/// <summary>
 		/// Scene background clearing mode

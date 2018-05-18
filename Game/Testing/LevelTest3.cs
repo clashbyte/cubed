@@ -9,6 +9,7 @@ using Cubed.Components.Controls;
 using Cubed.Components.Rendering;
 using Cubed.Core;
 using Cubed.Drivers.Files;
+using Cubed.Drivers.Rendering;
 using Cubed.Graphics;
 using Cubed.Input;
 using Cubed.UI;
@@ -50,6 +51,11 @@ namespace Cubed.Main.Testing {
 		WalkController playerController;
 
 		/// <summary>
+		/// Штатив
+		/// </summary>
+		Entity camHolder;
+
+		/// <summary>
 		/// Тестовый коллайдер
 		/// </summary>
 		Entity collider;
@@ -84,6 +90,15 @@ namespace Cubed.Main.Testing {
 		/// </summary>
 		Label dipLabel;
 
+		Entity gun;
+
+		Vector2 gunMove;
+		
+		float bob;
+
+
+		float landDisp;
+
 
 		/// <summary>
 		/// Количество кадров
@@ -102,7 +117,8 @@ namespace Cubed.Main.Testing {
 
 			// Handling logical update
 			engine.Filesystem = new FolderFileSystem() {
-				RootFolder = @"D:\Sharp\Cubed\Project"
+				//RootFolder = @"D:\Sharp\Cubed\Project"
+				RootFolder = AppDomain.CurrentDomain.BaseDirectory + @"\Data"
 			};
 			engine.UpdateLogic += engine_UpdateLogic;
 			//engine.MouseLock = true;
@@ -134,6 +150,8 @@ namespace Cubed.Main.Testing {
 			// Handling initialization
 			Random r = new Random();
 			if (!initialized) {
+
+				Display.Current.MouseLock = true;
 
 				// Camera
 				cam = new Camera();
@@ -259,7 +277,7 @@ namespace Cubed.Main.Testing {
 							Floor = floorTex,
 							Ceiling = ceilTex,
 							FloorHeight = new float[4] { 
-								0.7f, 0.0f, 0.7f, 0.0f
+								0.7f, 0.7f, 0.0f, 0.0f
 							}
 						};
 						for (int i = 0; i < 4; i++) {
@@ -276,11 +294,12 @@ namespace Cubed.Main.Testing {
 
 
 				collider = new Entity();
+				/*
 				collider.AddComponent(new WireCubeComponent() {
 					WireColor = Color.Aqua,
 					WireWidth = 1f,
 					Size = new Vector3(0.3f, 0.7f, 0.3f)
-				});
+				});*/
 				collider.BoxCollider = new Collider() {
 					Size = new Vector3(0.3f, 0.7f, 0.3f)
 				};
@@ -290,29 +309,44 @@ namespace Cubed.Main.Testing {
 				sprite = new Entity();
 				sprite.AddComponent(new SpriteComponent() {
 					Texture = new Texture("sprite.png"),
-					Facing = SpriteComponent.FacingMode.Y
+					Facing = SpriteComponent.FacingMode.Y,
+					AffectedByLight = true
 				});
 				sprite.Parent = collider;
 				sprite.LocalPosition = Vector3.UnitY * 0.15f;
 				scene.Entities.Add(sprite);
 
-				playerController = new WalkController();
+				camHolder = new Entity();
+				cam.Parent = camHolder;
+				cam.LocalPosition = Vector3.Zero;
+				cam.LocalAngles = Vector3.Zero;
+				scene.Entities.Add(camHolder);
 
+				playerController = new WalkController();
+				//playerController.Actor = camHolder;
+				//playerController.ActorPosition = 0.2f;
 
 				player = new Entity();
 				player.BoxCollider = new Collider() {
-					Size = new Vector3(0.3f, 0.6f, 0.3f)
+					Size = new Vector3(0.35f, 0.5f, 0.35f)
 				};
-				player.AddComponent(new WireCubeComponent() {
-					WireColor = Color.LimeGreen,
-					WireWidth = 1f,
-					Size = new Vector3(0.3f, 0.6f, 0.3f)
-				});
 				player.AddComponent(playerController);
 				scene.Entities.Add(player);
 				player.Position = new Vector3(4f, 1f, 2f);
 
 
+				// Gun
+				gun = new Entity();
+				gun.AddComponent(new SpriteComponent() {
+					Facing = SpriteComponent.FacingMode.Disabled,
+					AffectedByLight = true,
+					Scale = Vector2.One * 0.05f,
+					Offset = new Vector2(0, -0.04f),
+					Texture = new Texture("weapon_01.png", Texture.LoadingMode.Instant)
+				});
+				gun.Parent = cam;
+				gun.LocalPosition = Vector3.UnitZ * 0.1f;
+				scene.Entities.Add(gun);
 
 				sw = new Stopwatch();
 				fpsFrames = 0;
@@ -323,11 +357,16 @@ namespace Cubed.Main.Testing {
 				initialized = true;
 			}
 
+
+
 			// Moving camera
-			Vector2 rot = Controls.MouseDelta * 0.2f;
+			Vector2 rot = Controls.MouseDelta;
 			Vector2 mov = Controls.Movement * (Controls.KeyDown(Key.LShift) ? 0.1f : 0.06f);
-			//cam.FreeLookControls(new Vector3(mov.X, 0, mov.Y), new Vector3(rot.Y, rot.X, 0));
-			//lightTurn += 1;
+			gunMove += rot * 0.0001f;
+			gunMove *= 0.8f;
+			gunMove.X = MathHelper.Clamp(gunMove.X, -0.03f, 0.03f);
+			gunMove.Y = MathHelper.Clamp(gunMove.Y, -0.02f, 0.002f);
+			rot *= 0.12f;
 
 			// Moving camera
 			if (Controls.KeyDown(Key.E)) {
@@ -336,14 +375,50 @@ namespace Cubed.Main.Testing {
 
 			collider.BoxCollider.Velocity = -Vector3.UnitY * 0.03f;
 
+			
+			Vector3 ang = camHolder.LocalAngles + new Vector3(rot.Y, rot.X, 0);
+			ang.X = Math.Sign(ang.X) * Math.Min(Math.Abs(ang.X), 90);
+			ang.Y = ang.Y % 360f;
+			ang.Z = 0;
+			camHolder.LocalAngles = ang;
 
-			playerController.Control(mov, 0f);
+
+			// Movement
+			bool run = Controls.KeyDown(Key.ShiftLeft);
+			playerController.Control(mov, run, cam.Angles.Y);
 			if (Controls.KeyHit(Key.Space)) {
-				playerController.Jump();
+				if (playerController.IsGrounded) {
+					playerController.Jump();
+					landDisp = 0.04f;
+				}
 			}
 
-
-
+			// View bobbing
+			float bobDist = 0.04f;
+			if (run) {
+				bobDist = 0.08f;
+			}
+			if ((mov.X != 0 || mov.Y != 0) && playerController.IsGrounded) {
+				bob += 0.1f;
+				if (run) {
+					bob += 0.05f;
+				}
+			} else {
+				bob = 0;
+			}
+			float bobAng = (float)MathHelper.DegreesToRadians(bob);
+			Vector3 bobVec = new Vector3((float)Math.Sin(bob) * bobDist, (float)Math.Cos(bob * 2f) * bobDist - bobDist, 0);
+			cam.LocalPosition += (bobVec - cam.LocalPosition) * 0.2f;
+			
+			// Positioning cam
+			Vector3 plrPos = player.Position;
+			Vector3 camPos = camHolder.Position;
+			camHolder.Position = new Vector3(plrPos.X, camPos.Y + (plrPos.Y + 0.2f - landDisp - camPos.Y) * 0.3f, plrPos.Z);
+			gun.LocalPosition = Vector3.UnitZ * 0.1f + cam.LocalPosition * 0.1f - Vector3.UnitY * landDisp * 0.1f + new Vector3(-gunMove.X, gunMove.Y, 0);
+			if (playerController.IsLanded) {
+				landDisp = Math.Min(playerController.LandVelocity * 3f, 0.5f);
+			}
+			landDisp *= 0.85f;
 
 			// Счётчики
 			if (fpsFrames >= 60) {
@@ -360,6 +435,9 @@ namespace Cubed.Main.Testing {
 			}
 			dipLabel.Text = "DrawCalls: " + ((Engine)sender).DrawnPrimitives;
 
+			if (Controls.KeyHit(Key.Escape)) {
+				Display.Current.Close();
+			}
 
 		}
 	}

@@ -52,6 +52,14 @@ namespace Cubed.Components.Rendering {
 		}
 
 		/// <summary>
+		/// Enable sprite lighting
+		/// </summary>
+		public bool AffectedByLight {
+			get;
+			set;
+		}
+
+		/// <summary>
 		/// Sprite offset
 		/// </summary>
 		public Vector2 Offset {
@@ -140,6 +148,7 @@ namespace Cubed.Components.Rendering {
 			Tint = Color.White;
 			Blending = BlendingMode.AlphaChannel;
 			Facing = FacingMode.XY;
+			AffectedByLight = false;
 			rebuildMesh = true;
 			rebuildTexCoords = true;
 		}
@@ -268,10 +277,13 @@ namespace Cubed.Components.Rendering {
 				mat =
 					Matrix4.CreateFromQuaternion(cmat.ExtractRotation() * Quaternion.FromEulerAngles(-Parent.LocalAngles.Z / 180f * (float)Math.PI, 0, 0)) *
 					pmat.ClearRotation();
-			} else {
+			} else if (Facing == FacingMode.Y) {
 				mat =
 					Matrix4.CreateFromQuaternion(Quaternion.FromEulerAngles(-Parent.LocalAngles.Z / 180f * (float)Math.PI, -Camera.Current.Angles.Y / 180f * (float)Math.PI, 0)) *
 					pmat.ClearRotation();
+			} else {
+				mat =
+					pmat;
 			}
 
 			// Binding texture
@@ -282,6 +294,18 @@ namespace Cubed.Components.Rendering {
 			}
 			GL.Disable(EnableCap.CullFace);
 
+			Color color = Tint;
+			if (AffectedByLight) {
+				Vector3 pos = Parent.Position;
+				Color light = Scene.Current.GetLightAtPoint(pos.X, pos.Y, pos.Z);
+				color = Color.FromArgb(
+					Tint.A,
+					(byte)(((float)color.R / 255f) * ((float)light.R / 255f) * 255f),
+					(byte)(((float)color.G / 255f) * ((float)light.G / 255f) * 255f),
+					(byte)(((float)color.B / 255f) * ((float)light.B / 255f) * 255f) 
+				);
+			}
+
 
 			// Handling
 			if (Caps.ShaderPipeline) {
@@ -290,7 +314,7 @@ namespace Cubed.Components.Rendering {
 				ShaderSystem.EntityMatrix = mat;
 
 				SpriteShader shader = SpriteShader.Shader;
-				shader.DiffuseColor = Tint;
+				shader.DiffuseColor = color;
 				shader.Bind();
 				GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBuffer);
 				GL.VertexAttribPointer(shader.VertexBufferLocation, 3, VertexAttribPointerType.Float, false, 0, 0);
@@ -333,8 +357,9 @@ namespace Cubed.Components.Rendering {
 		/// Sprite align mode
 		/// </summary>
 		public enum FacingMode : byte {
-			XY = 0,
-			Y = 1
+			Disabled = 0,
+			XY = 1,
+			Y = 2
 		}
 	}
 }

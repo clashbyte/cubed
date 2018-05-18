@@ -321,6 +321,19 @@ namespace Cubed.World {
 		}
 
 		/// <summary>
+		/// List of all late updateable components
+		/// </summary>
+		internal IEnumerable<EntityComponent> GetLateLogicalComponents() {
+			List<EntityComponent> cl = new List<EntityComponent>();
+			foreach (EntityComponent c in components) {
+				if (c is ILateUpdatable && c.Enabled) {
+					cl.Add(c);
+				}
+			}
+			return cl;
+		}
+
+		/// <summary>
 		/// List of all renderable components
 		/// </summary>
 		internal IEnumerable<EntityComponent> GetVisualComponents() {

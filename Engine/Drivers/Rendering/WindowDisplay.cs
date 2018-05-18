@@ -23,6 +23,13 @@ namespace Cubed.Drivers.Rendering {
 			get {
 				return resolution;
 			}
+			set {
+				resolution = value;
+				if (window != null) {
+					CheckResolution();
+					window.ClientSize = new Size((int)resolution.X, (int)resolution.Y);
+				}
+			}
 		}
 
 		/// <summary>
@@ -57,6 +64,18 @@ namespace Cubed.Drivers.Rendering {
 				title = value;
 				if (window != null) {
 					window.Title = title;
+				}
+			}
+		}
+
+		public override bool MouseLock {
+			get {
+				return lockMouse;
+			}
+			set {
+				lockMouse = value;
+				if (window != null) {
+					window.CursorVisible = !lockMouse;
 				}
 			}
 		}
@@ -122,6 +141,7 @@ namespace Cubed.Drivers.Rendering {
 			}
 
 			// Creating window
+			CheckResolution();
 			window = new GameWindow((int)resolution.X, (int)resolution.Y, new GraphicsMode(new ColorFormat(32), 24, 0, 0, new ColorFormat(32), 2, false), title, fullscreen ? GameWindowFlags.Fullscreen : GameWindowFlags.Default, DisplayDevice.Default, 2, 4, GraphicsContextFlags.Default);
 			window.VSync = VSyncMode.Off;
 			window.UpdateFrame += window_UpdateFrame;
@@ -137,6 +157,27 @@ namespace Cubed.Drivers.Rendering {
 			}
 			window.Run(60, 60);
 
+		}
+
+
+
+		
+		/// <summary>
+		/// Window closings
+		/// </summary>
+		public override void Close() {
+			window.Close();
+		}
+
+		/// <summary>
+		/// Checking resolution
+		/// </summary>
+		void CheckResolution() {
+			if (resolution.X == 0 || resolution.Y == 0) {
+				DisplayDevice dd = OpenTK.DisplayDevice.Default;
+				resolution.X = dd.Width;
+				resolution.Y = dd.Height;
+			}
 		}
 
 		private void window_MouseUp(object sender, OpenTK.Input.MouseButtonEventArgs e) {

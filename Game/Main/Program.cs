@@ -14,7 +14,16 @@ namespace Cubed.Main {
 			LevelTest3 lt = new LevelTest3();
 			lt.Run(engine);
 
-			WindowDisplay display = new WindowDisplay();
+			OpenTK.DisplayDevice dd = OpenTK.DisplayDevice.Default;
+
+
+			WindowDisplay display = new WindowDisplay() {
+				Fullscreen = false,
+				Resolution = new OpenTK.Vector2(
+					dd.Width - 200,
+					dd.Height - 100
+				)
+			};
 			display.Engine = engine;
 			display.Run();
 		}

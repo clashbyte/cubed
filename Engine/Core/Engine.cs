@@ -140,7 +140,7 @@ namespace Cubed.Core {
 		/// <param name="display"></param>
 		/// <param name="tween"></param>
 		internal void Render(Display display, float tween) {
-			
+
 			// Handling texture cache
 			Current = this;
 			Caps.CheckCaps();
@@ -176,7 +176,6 @@ namespace Cubed.Core {
 			Console.Render();
 			Current = null;
 		}
-
 
 		/// <summary>
 		/// Frame update event arguments
