@@ -1,0 +1,12 @@
+; *** Generated with SpriteBoy Editor ver.0.0.97wip ***
+; You mustn't edit this. It's a main project file.
+[MAIN]
+Name = MyGame
+Author = Creator
+Version = 1.0.0
+[CHEAT]
+God = 
+GiveAll = 
+NextLevel = 
+[MAPS]
+StartMap = 

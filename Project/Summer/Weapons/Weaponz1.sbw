@@ -1,0 +1,23 @@
+[MAIN]
+Power = 20
+RepFrames = 0
+CastSprite = 0
+PosX = 0.393104
+PosY = 0.707693
+SizX = 0.196552
+SizY = 0.292307
+JumpFrom = 0
+JumpTo = 0
+Sound = 
+SpriteSpeed = 0
+Melee = 0
+AnimCdr = 3
+[FRAME1]
+Path = weapon_01.png
+Delay = 5
+[FRAME2]
+Path = weapon_02.png
+Delay = 5
+[FRAME3]
+Path = weapon_03.png
+Delay = 5

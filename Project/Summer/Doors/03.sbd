@@ -1,0 +1,10 @@
+[MAIN]
+DoorSpr = 40.png
+WallSpr = 40.png
+Sound1 = 
+Sound2 = 
+Sound3 = 
+Type = 4
+Key = 0
+Delay = 1
+Speed = 1
