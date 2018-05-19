@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Cubed.Core;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
@@ -19,6 +15,11 @@ namespace Cubed.Graphics {
 		/// Empty texture (used for shaders)
 		/// </summary>
 		static int emptyGLTexture;
+
+		/// <summary>
+		/// Not loaded checker texture
+		/// </summary>
+		static int checkerGLTexture;
 
 		/// <summary>
 		/// File name in internal filesystem
@@ -240,7 +241,8 @@ namespace Cubed.Graphics {
 				if (Proxy != null) {
 					Proxy.Bind();
 				} else {
-					BindEmpty();
+					BindNotFound();
+					//BindEmpty();
 				}
 			}
 		}
@@ -253,13 +255,57 @@ namespace Cubed.Graphics {
 				if (emptyGLTexture == 0) {
 					emptyGLTexture = GL.GenTexture();
 					GL.BindTexture(TextureTarget.Texture2D, emptyGLTexture);
-					GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Four, 1, 1, 0, OpenTK.Graphics.OpenGL.PixelFormat.Rgba, PixelType.UnsignedByte, new byte[] { 255, 255, 255, 255 });
+					GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Four, 1, 1, 0, PixelFormat.Rgba, PixelType.UnsignedByte, new byte[] { 255, 255, 255, 255 });
+					GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+					GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
+					GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
+					GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
 				} else {
 					GL.BindTexture(TextureTarget.Texture2D, emptyGLTexture);
 				}
 				ShaderSystem.TextureMatrix = Matrix4.Identity;
 			} else {
 				GL.BindTexture(TextureTarget.Texture2D, 0);
+			}
+		}
+
+		/// <summary>
+		/// Binding checker texture to pipeline
+		/// </summary>
+		internal static void BindNotFound() {
+			bool generate = false;
+			if (checkerGLTexture == 0 || !GL.IsTexture(checkerGLTexture)) {
+				checkerGLTexture = GL.GenTexture();
+				generate = true;
+			}
+			GL.BindTexture(TextureTarget.Texture2D, checkerGLTexture);
+			if (generate) {
+
+				// Generating checker pattern
+				byte[] data = new byte[64];
+				for (int y = 0; y < 4; y++) {
+					for (int x = 0; x < 4; x++) {
+						int i = (x + y * 4) * 4;
+						if (((x + y) % 2) == 0) {
+							data[i + 0] = 200;
+							data[i + 1] = 200;
+							data[i + 2] = 200;
+						} else {
+							data[i + 0] = 255;
+							data[i + 1] = 255;
+							data[i + 2] = 255;
+						}
+						data[i + 3] = 255;
+					}
+				}
+				GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Four, 4, 4, 0, PixelFormat.Rgba, PixelType.UnsignedByte, data);
+				GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+				GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
+				GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
+				GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
+			}
+			if (Caps.ShaderPipeline) {
+				ShaderSystem.TextureMatrix = Matrix4.Identity;
 			}
 		}
 

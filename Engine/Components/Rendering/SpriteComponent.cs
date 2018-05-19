@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Cubed.Core;
 using Cubed.Data.Shaders;
 using Cubed.Data.Types;
@@ -287,8 +283,8 @@ namespace Cubed.Components.Rendering {
 			}
 
 			// Binding texture
-			if (this.Texture != null) {
-				this.Texture.Bind();
+			if (Texture != null) {
+				Texture.Bind();
 			} else {
 				Texture.BindEmpty();
 			}

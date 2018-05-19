@@ -480,13 +480,14 @@ namespace Cubed.Graphics {
 				GL.BindTexture(TextureTarget.Texture2D, GLTex);
 
 				// Загрузка матрицы
-				ShaderSystem.TextureMatrix = TextureMatrix;
-				GL.MatrixMode(MatrixMode.Texture);
-				Matrix4 mat = TextureMatrix;
-				GL.LoadMatrix(ref mat);
-				GL.MatrixMode(MatrixMode.Modelview);
-
-
+				if (Caps.ShaderPipeline) {
+					ShaderSystem.TextureMatrix = TextureMatrix;
+				} else {
+					GL.MatrixMode(MatrixMode.Texture);
+					Matrix4 mat = TextureMatrix;
+					GL.LoadMatrix(ref mat);
+					GL.MatrixMode(MatrixMode.Modelview);
+				}
 			}
 
 			/// <summary>

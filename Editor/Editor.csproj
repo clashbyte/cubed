@@ -9,8 +9,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Cubed</RootNamespace>
     <AssemblyName>Editor</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -52,6 +53,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Forms\Common\MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Common\MainForm.Designer.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Common\StartupForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Common\StartupForm.Designer.cs">
+      <DependentUpon>StartupForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Controls\NSTheme.cs" />
     <Compile Include="Drivers\EngineControl.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -61,6 +75,9 @@
     <Compile Include="Math\Intersections.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UI\Controls\ThemeBase154.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Windows\MapEditorForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -69,6 +86,9 @@
     </Compile>
     <EmbeddedResource Include="Drivers\EngineControl.resx">
       <DependentUpon>EngineControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Common\StartupForm.resx">
+      <DependentUpon>StartupForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -108,7 +128,10 @@
       <Name>GameObjects</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Controls\" />
+    <Folder Include="Data\Editor\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Cubed.Forms.Common;
 using Cubed.Map;
 using Cubed.Windows;
 
@@ -16,7 +17,7 @@ namespace Cubed {
 			
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
-			Application.Run(new MapEditorForm());
+			Application.Run(new MainForm());
 			
 
 			//MapEditor.Start();

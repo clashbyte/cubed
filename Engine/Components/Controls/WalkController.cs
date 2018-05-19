@@ -166,6 +166,8 @@ namespace Cubed.Components.Controls {
 			tr *= decMult;
 			if (tr.LengthFast > speed) {
 				tr = tr.Normalized() * speed;
+			} else if(tr.LengthFast < 0.0001f) {
+				tr = Vector3.Zero;
 			}
 			tr.Y = velocity.Y;
 			velocity = tr;
