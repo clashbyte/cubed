@@ -1,4 +1,5 @@
-﻿using OpenTK;
+﻿using Cubed.UI.Graphics;
+using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Platform;
 using System;
@@ -335,7 +336,12 @@ namespace Cubed.UI.Controls
 			set { _Large = value; Invalidate(); }
 		}
 
-
+		private bool _Vertical;
+		[Localizable(false)]
+		public bool Vertical {
+			get { return _Vertical; }
+			set { _Vertical = value; Invalidate(); }
+		}
 
 		private bool IsMouseDown;
 		private GraphicsPath GP1;
@@ -380,26 +386,39 @@ namespace Cubed.UI.Controls
 
 			G.DrawPath(P1, GP1);
 			G.DrawPath(P2, GP2);
+			SZ1 = G.MeasureString(Text, Font);
 
 			int pad = 5;
 			PointF ICP = Point.Empty;
+			SizeF ISZ = SizeF.Empty;
 			if (_Icon != null)
 			{
-				pad = 13 + _IconSize.Width;
-				ICP = new PointF(
-					7, Height / 2 - _IconSize.Height / 2
-				);
-				if (Text == "")
-				{
+				if (Text == "") {
 					ICP = new PointF(
 						Width / 2 - _IconSize.Width / 2,
 						Height / 2 - _IconSize.Height / 2
 					);
+				} else {
+					if (Vertical) {
+						ICP = new PointF(
+							Width / 2 - _IconSize.Width / 2,
+							(Height - SZ1.Height - 10) / 2 - _IconSize.Height / 2
+						);
+					} else {
+						pad = 13 + _IconSize.Width;
+						ICP = new PointF(
+							7, Height / 2 - _IconSize.Height / 2
+						);
+					}
 				}
 			}
 
-			SZ1 = G.MeasureString(Text, Font);
-			PT1 = new PointF(pad, Height / 2 - SZ1.Height / 2);
+			if (Vertical && _Icon != null) {
+				PT1 = new PointF(Width / 2 - SZ1.Width / 2, Height - SZ1.Height - 5);
+			} else {
+				PT1 = new PointF(pad, Height / 2 - SZ1.Height / 2);
+			}
+			
 
 			if (IsMouseDown)
 			{
@@ -1332,6 +1351,7 @@ namespace Cubed.UI.Controls
 			Base.Multiline = _Multiline;
 			Base.ReadOnly = _ReadOnly;
 			Base.UseSystemPasswordChar = _UseSystemPasswordChar;
+			
 
 			Base.ForeColor = Color.White;
 			Base.BackColor = Color.FromArgb(50, 50, 50);
@@ -3092,7 +3112,7 @@ namespace Cubed.UI.Controls
 
 	#endregion
 
-	/*
+	
 	public class NSDirectoryInspector : global::System.Windows.Forms.Control
 	{
 
@@ -3119,7 +3139,6 @@ namespace Cubed.UI.Controls
 			SF1.LineAlignment = StringAlignment.Center;
 
 			Font = new System.Drawing.Font("Tahoma", 8);
-			//empltyMessage = global::System.Windows.Forms.ControlStrings.InspectorEmptyMessage;
 
 			Entries = new ObservableCollection<Entry>();
 			Entries.CollectionChanged += Entries_CollectionChanged;
@@ -3137,6 +3156,7 @@ namespace Cubed.UI.Controls
 		private NSVScrollBar scroller;
 
 		private int offset;
+		[EditorBrowsable(EditorBrowsableState.Never)]
 		public int Offset
 		{
 			get { return offset; }
@@ -3172,12 +3192,22 @@ namespace Cubed.UI.Controls
 			}
 		}
 
+		public string EmptyMessage {
+			get {
+				return emptyMessage;
+			}
+			set {
+				emptyMessage = value;
+				Invalidate();
+			}
+		}
+
 		private Entry hoverEntry;
 		private bool mouseInside;
 		private bool mouseDown;
 		private Entry clickedEntry;
 		private bool dragStarted;
-		string empltyMessage;
+		string emptyMessage;
 		bool heightOverflow;
 
 		private Pen P1;
@@ -3229,7 +3259,7 @@ namespace Cubed.UI.Controls
 					GraphicsPath fullPath = ThemeModule.CreateRound(rect, 7);
 					GraphicsPath iconPath = ThemeModule.CreateRound(rect.X + 3, rect.Y + 3, rect.Width - 6, rect.Width - 6, 7);
 
-					// Обводка
+					// Highlighting
 					if (en == selectedEntry)
 					{
 						G.FillPath(B3, fullPath);
@@ -3241,53 +3271,53 @@ namespace Cubed.UI.Controls
 						G.FillPath(B2, iconPath);
 					}
 
-					// Иконка
-					if (en.IsDirectory)
-					{
-						//Preview.FolderIcon.SmallIcon.Draw(G, iconRect);
+					// Managing icons
+					UIIcon mainIcon = null;
+					UIIcon subIcon = null;
+					if (en.BulletIcon != null) {
+						mainIcon = en.BulletIcon;
 					}
-					else
-					{
-						if (en.Icon != null)
-						{
-							en.Icon.SmallIcon.Draw(G, iconRect);
-							if (en.Icon.Ready && en.Icon.ProxyBullet && en.Icon.Proxy != null)
-							{
-								Rectangle bulletBox = new Rectangle(
-									iconRect.Right - 23,
-									iconRect.Bottom - 23,
-									24, 24
-								);
-								Rectangle bulletRect = new Rectangle(
-									bulletBox.X + 4,
-									bulletBox.Y + 4,
-									bulletBox.Width - 8,
-									bulletBox.Height - 8
-								);
-
-								GraphicsPath bgp1 = ThemeModule.CreateRoundIncomplete(bulletBox, 3, new ThemeModule.Corners()
-								{
-									BottomLeft = true,
-									BottomRight = true,
-									TopLeft = true,
-									TopRight = true
-								});
-								G.FillPath(new SolidBrush(Color.FromArgb(128, 0, 0, 0)), bgp1);
-
-								en.Icon.Proxy.BulletIcon.Draw(G, bulletRect, 2f);
-							}
-						}
+					if (en.MainIcon != null) {
+						subIcon = mainIcon;
+						mainIcon = en.MainIcon;
 					}
 
-					// Подпись
-					/*
-					SizeF sz = G.MeasureString(en.Name, System.Drawing.Font);
+					// Rendering icons
+					if (mainIcon != null) {
+						en.MainIcon.Draw(G, iconRect);
+					}
+					if (subIcon != null) {
+						Rectangle bulletBox = new Rectangle(
+								iconRect.Right - 23,
+								iconRect.Bottom - 23,
+								24, 24
+							);
+						Rectangle bulletRect = new Rectangle(
+							bulletBox.X + 4,
+							bulletBox.Y + 4,
+							bulletBox.Width - 8,
+							bulletBox.Height - 8
+						);
+
+						GraphicsPath bgp1 = ThemeModule.CreateRoundIncomplete(bulletBox, 3, new ThemeModule.Corners() {
+							BottomLeft = true,
+							BottomRight = true,
+							TopLeft = true,
+							TopRight = true
+						});
+						G.FillPath(new SolidBrush(Color.FromArgb(128, 0, 0, 0)), bgp1);
+
+						subIcon.Draw(G, bulletRect);
+					}
+					
+					// Name
+					SizeF sz = G.MeasureString(en.Name, Font);
 					string txt = en.Name;
 					if (sz.Width > rect.Width - 6)
 					{
 						for (int j = txt.Length; j > 0; j--)
 						{
-							sz = G.MeasureString(en.Name.Substring(0, j) + "...", System.Drawing.Font);
+							sz = G.MeasureString(en.Name.Substring(0, j) + "...", Font);
 							if (sz.Width < rect.Width - 6)
 							{
 								txt = en.Name.Substring(0, j) + "...";
@@ -3296,8 +3326,8 @@ namespace Cubed.UI.Controls
 						}
 					}
 					PointF txtp = new PointF(rect.X + rect.Width / 2 - sz.Width / 2, rect.Y + rect.Height - (rect.Height - rect.Width) / 2 - sz.Height / 2 - 2);
-					G.DrawString(txt, System.Drawing.Font, Brushes.Black, txtp.X + 1, txtp.Y + 1);
-					G.DrawString(txt, System.Drawing.Font, Brushes.White, txtp.X, txtp.Y);
+					G.DrawString(txt, Font, Brushes.Black, txtp.X + 1, txtp.Y + 1);
+					G.DrawString(txt, Font, Brushes.White, txtp.X, txtp.Y);
 					
 					dx++;
 					if (dx >= ItemsStride)
@@ -3315,8 +3345,8 @@ namespace Cubed.UI.Controls
 			else
 			{
 
-				// Строка что файлов нет
-				string txt = empltyMessage;
+				// Empty files string
+				string txt = emptyMessage;
 				SizeF sz = G.MeasureString(txt, Font);
 				PointF txtp = new PointF(Width / 2 - sz.Width / 2, 20);
 				G.DrawString(txt, Font, Brushes.Black, txtp.X + 1, txtp.Y + 1);
@@ -3381,11 +3411,13 @@ namespace Cubed.UI.Controls
 				if (clickedEntry != hoverEntry && !dragStarted)
 				{
 					dragStarted = true;
+					
 					/*
 					Project.DraggingEntry de = new Project.DraggingEntry()
 					{
 						File = clickedEntry.Tag as Project.Entry
 					};
+					*/
 					
 					//DoDragDrop((object)de, DragDropEffects.Link);
 				}
@@ -3406,7 +3438,7 @@ namespace Cubed.UI.Controls
 			selectedEntry = hoverEntry;
 			if (e.Button == System.Windows.Forms.MouseButtons.Left && selectedEntry != null)
 			{
-				if (!selectedEntry.IsDirectory)
+				if (selectedEntry.IsDraggable)
 				{
 					mouseDown = true;
 					dragStarted = false;
@@ -3546,6 +3578,20 @@ namespace Cubed.UI.Controls
 
 		void Entries_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
 		{
+
+			// Managing items
+			if (e.OldItems != null) {
+				foreach (Entry ne in e.OldItems) {
+					ne.SetParent(null);
+				}
+			}
+			if (e.NewItems != null) {
+				foreach (Entry ne in e.NewItems) {
+					ne.SetParent(this);
+				}
+			}
+			
+
 			if (!Entries.Contains(selectedEntry) && selectedEntry != null)
 			{
 				selectedEntry = null;
@@ -3558,17 +3604,108 @@ namespace Cubed.UI.Controls
 			Invalidate();
 		}
 
+		/// <summary>
+		/// Entry for inspector
+		/// </summary>
+		public class Entry {
 
-		public class Entry
-		{
-			public string Name;
-			public bool IsDirectory;
-			public Preview Icon;
-			public object Tag;
+			/// <summary>
+			/// Display name
+			/// </summary>
+			public string Name {
+				get {
+					return name;
+				}
+				set {
+					if (name != value) {
+						name = value;
+						if (parent != null) {
+							parent.Invalidate();
+						}
+					}
+				}
+			}
+
+			/// <summary>
+			/// Image
+			/// </summary>
+			public UIIcon MainIcon {
+				get {
+					return main;
+				}
+				set {
+					if (main != value) {
+						main = value;
+						if (parent != null) {
+							parent.Invalidate();
+						}
+					}
+				}
+			}
+
+			/// <summary>
+			/// Subimage
+			/// </summary>
+			public UIIcon BulletIcon {
+				get {
+					return bullet;
+				}
+				set {
+					if (bullet != value) {
+						bullet = value;
+						if (parent != null) {
+							parent.Invalidate();
+						}
+					}
+				}
+			}
+
+			/// <summary>
+			/// Is this entry draggable
+			/// </summary>
+			public bool IsDraggable {
+				get;
+				set;
+			}
+			
+			/// <summary>
+			/// Tag for this entry
+			/// </summary>
+			public object Tag {
+				get;
+				set;
+			}
+
+			/// <summary>
+			/// Internal name
+			/// </summary>
+			string name;
+
+			/// <summary>
+			/// Internal icon
+			/// </summary>
+			UIIcon main = null;
+
+			/// <summary>
+			/// Internal bullet icon
+			/// </summary>
+			UIIcon bullet = null;
+
+			/// <summary>
+			/// Parent control
+			/// </summary>
+			NSDirectoryInspector parent;
+
+			/// <summary>
+			/// Setting parent
+			/// </summary>
+			/// <param name="p"></param>
+			internal void SetParent(NSDirectoryInspector p) {
+				parent = p;
+			}
 		}
 
 	}
-	*/
 
 	/*
 	public class NSFileInfo : global::System.Windows.Forms.Control

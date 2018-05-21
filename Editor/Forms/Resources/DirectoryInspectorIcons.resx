@@ -117,25 +117,17 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="newProjectButton.IconImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        xAAADsQBlSsOGwAAAXFJREFUOE+Nk7FLQlEUxiVERBoiQqQxxD+hOZoaJCIcHaIhGhqaQkKCCHGKaIqI
-        hmiIBgeniGhsaGhqioiQpnCMhois33f9Hiq9wg9+eM75zj3v3fuuiWHV6XSSUIJzeIYP+LT9v2icg0ct
-        gEvYhEPlbvlbNG3BF+jJBZdVr0DLaU8URyDtOFq8AgvQgmt7F9BQHEQyAUfwCgUowjes2t+FGmiIfG2n
-        3L9YezyFSRiFFzizvwgzsOdYfRqUigaEA4F3GIMNeIOc/QMoOV4Cvdm88iCSMmQg2rumN4PZJ2rLoAfV
-        XYoXDWugp1ScZ0GvrdpOaIoTpk665jga0gRtR2dSDI1xwtyHe5hyKRqi7ehMdLB5yNjuieI6PMC48zRU
-        g4mIdbA5aEPS5a5s6PRnnaegAdvONUz+CRyrNiCKVWg7noYbuILwjfnVAJ38E2RVGxDFW9A/SzdQjbos
-        3QuCiPWJdUN/L5YwtPAO6pB3eUglEj9W7/E1meMfgAAAAABJRU5ErkJggg==
-</value>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="Drive" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Resources\hdd-angled.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="openProjectButton.IconImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        xAAADsQBlSsOGwAAAHFJREFUOE9joBj8//9/NTL+9+/fbCDmgEoTBkBNIHAciGEGvAfi9UDMBlWCH4C1
-        //8fAuUyADXaAPFHIL4NxCiuw4YxDAABoEYlIO4lYADI1f+xGkAMAOkBaRw1YFgZAE/KJGB4QsImSTSG
-        OohcwMAAAG+pfAbN0gGpAAAAAElFTkSuQmCC
-</value>
+  <data name="Folder" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Resources\folder.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="NetworkDrive" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Resources\server.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="RemovableDrive" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Resources\hdd-removable.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

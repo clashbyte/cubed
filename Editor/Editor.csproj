@@ -65,6 +65,17 @@
     <Compile Include="Forms\Common\StartupForm.Designer.cs">
       <DependentUpon>StartupForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\Dialogs\OpenFolderDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Dialogs\OpenFolderDialog.Designer.cs">
+      <DependentUpon>OpenFolderDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Resources\DirectoryInspectorIcons.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>DirectoryInspectorIcons.resx</DependentUpon>
+    </Compile>
     <Compile Include="UI\Controls\NSTheme.cs" />
     <Compile Include="Drivers\EngineControl.cs">
       <SubType>Component</SubType>
@@ -78,6 +89,7 @@
     <Compile Include="UI\Controls\ThemeBase154.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="UI\Graphics\UIIcon.cs" />
     <Compile Include="Windows\MapEditorForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -89,6 +101,13 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Common\StartupForm.resx">
       <DependentUpon>StartupForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Dialogs\OpenFolderDialog.resx">
+      <DependentUpon>OpenFolderDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Resources\DirectoryInspectorIcons.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>DirectoryInspectorIcons.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -131,6 +150,21 @@
   <ItemGroup>
     <Folder Include="Controls\" />
     <Folder Include="Data\Editor\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\folder.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\hdd.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\hdd-angled.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\hdd-removable.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\server.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
