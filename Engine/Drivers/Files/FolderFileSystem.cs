@@ -35,6 +35,9 @@ namespace Cubed.Drivers.Files {
 		/// <param name="file">File name</param>
 		/// <returns>Size in bytes</returns>
 		public override int Size(string file) {
+			if (Exists(file)) {
+				return (int)(new FileInfo(file)).Length;
+			}
 			return 0;
 		}
 

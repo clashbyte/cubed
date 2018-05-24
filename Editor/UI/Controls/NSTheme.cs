@@ -32,8 +32,7 @@ using System.Windows.Forms;
 
 namespace Cubed.UI.Controls
 {
-
-
+	
 	public static class ThemeModule
 	{
 
@@ -1116,9 +1115,7 @@ namespace Cubed.UI.Controls
 		}
 
 	}
-
-
-
+	
 	public class NSLabel : global::System.Windows.Forms.Control
 	{
 
@@ -1228,6 +1225,12 @@ namespace Cubed.UI.Controls
 			set { corners = value; Invalidate(); }
 		}
 
+		public TextBox BaseInput {
+			get {
+				return Base;
+			}
+		}
+
 		private int _MaxLength = 32767;
 		public int MaxLength
 		{
@@ -1292,7 +1295,7 @@ namespace Cubed.UI.Controls
 				}
 			}
 		}
-
+		
 		public override string Text
 		{
 			get { return base.Text; }
@@ -3284,7 +3287,7 @@ namespace Cubed.UI.Controls
 
 					// Rendering icons
 					if (mainIcon != null) {
-						en.MainIcon.Draw(G, iconRect);
+						mainIcon.Draw(G, iconRect);
 					}
 					if (subIcon != null) {
 						Rectangle bulletBox = new Rectangle(
@@ -3661,6 +3664,22 @@ namespace Cubed.UI.Controls
 			}
 
 			/// <summary>
+			/// Sub name
+			/// </summary>
+			public string SubName {
+				get;
+				set;
+			}
+
+			/// <summary>
+			/// Description
+			/// </summary>
+			public string Description {
+				get;
+				set;
+			}
+
+			/// <summary>
 			/// Is this entry draggable
 			/// </summary>
 			public bool IsDraggable {
@@ -3707,7 +3726,7 @@ namespace Cubed.UI.Controls
 
 	}
 
-	/*
+	
 	public class NSFileInfo : global::System.Windows.Forms.Control
 	{
 
@@ -3728,12 +3747,45 @@ namespace Cubed.UI.Controls
 		}
 
 		/// <summary>
-		/// Скрытое поле файла
+		/// Render in vertical mode
+		/// </summary>
+		public bool Vertical {
+			get {
+				return vertical;
+			}
+			set {
+				vertical = value;
+				Invalidate();
+			}
+		}
+
+		public int IconPadding {
+			get {
+				return iconPadding;
+			}
+			set {
+				iconPadding = value;
+				Invalidate();
+			}
+		}
+
+		/// <summary>
+		/// Hidden file field
 		/// </summary>
 		NSDirectoryInspector.Entry file;
 
 		/// <summary>
-		/// Конструктор
+		/// Rendering in vertical mode
+		/// </summary>
+		bool vertical;
+
+		/// <summary>
+		/// Icon padding
+		/// </summary>
+		int iconPadding = 8;
+
+		/// <summary>
+		/// Constructor
 		/// </summary>
 		public NSFileInfo()
 		{
@@ -3745,7 +3797,7 @@ namespace Cubed.UI.Controls
 		}
 
 		/// <summary>
-		/// Отрисовка
+		/// Drawing
 		/// </summary>
 		/// <param name="e"></param>
 		protected override void OnPaint(PaintEventArgs e)
@@ -3755,93 +3807,112 @@ namespace Cubed.UI.Controls
 			G.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
 			G.SmoothingMode = SmoothingMode.AntiAlias;
 
-			if (file != null)
-			{
-				int frameSize = Height - 6;
-				if (frameSize > Width / 3)
-				{
+			int frameSize = 0;
+			if (vertical) {
+				frameSize = Width - 6;
+			} else {
+				frameSize = Height - 6;
+				if (frameSize > Width / 3) {
 					frameSize = Width / 3;
 				}
+			}
+			
 
-				GraphicsPath GP1 = ThemeModule.CreateRound(new Rectangle(3, 3, frameSize, frameSize), 7);
-				GraphicsPath GP2 = ThemeModule.CreateRound(new Rectangle(4, 4, frameSize - 2, frameSize - 2), 7);
-				Pen P1 = new Pen(Color.FromArgb(35, 35, 35));
-				Pen P2 = new Pen(Color.FromArgb(55, 55, 55));
+			GraphicsPath GP1 = ThemeModule.CreateRound(new Rectangle(3, 3, frameSize, frameSize), 7);
+			GraphicsPath GP2 = ThemeModule.CreateRound(new Rectangle(4, 4, frameSize - 2, frameSize - 2), 7);
+			Pen P1 = new Pen(Color.FromArgb(35, 35, 35));
+			Pen P2 = new Pen(Color.FromArgb(55, 55, 55));
 
-				PathGradientBrush PB1 = new PathGradientBrush(GP1);
-				PB1.CenterColor = Color.FromArgb(50, 50, 50);
-				PB1.SurroundColors = new Color[] { Color.FromArgb(45, 45, 45) };
-				PB1.FocusScales = new PointF(0.7f, 0.7f);
+			PathGradientBrush PB1 = new PathGradientBrush(GP1);
+			PB1.CenterColor = Color.FromArgb(50, 50, 50);
+			PB1.SurroundColors = new Color[] { Color.FromArgb(45, 45, 45) };
+			PB1.FocusScales = new PointF(0.7f, 0.7f);
 
 
-				G.FillPath(PB1, GP1);
-				G.DrawPath(P2, GP1);
-				G.DrawPath(P1, GP2);
+			G.FillPath(PB1, GP1);
+			G.DrawPath(P2, GP1);
+			G.DrawPath(P1, GP2);
 
-				Rectangle rc = new Rectangle(3, 3, frameSize, frameSize);
-				rc.X += 8;
-				rc.Y += 8;
-				rc.Width -= 16;
-				rc.Height -= 16;
-				if (file != null)
-				{
-					if (file.IsDirectory)
-					{
-						Preview.FolderIcon.LargeIcon.Draw(G, rc);
-					}
-					else
-					{
-						file.Icon.LargeIcon.Draw(G, rc);
-					}
-				}
+			Rectangle rc = new Rectangle(3, 3, frameSize, frameSize);
+			rc.X += iconPadding;
+			rc.Y += iconPadding;
+			rc.Width -= iconPadding * 2;
+			rc.Height -= iconPadding * 2;
+			string[] lines = new string[3];
 
-				string[] lines = new string[3];
+			if (file != null) {
 				lines[0] = file.Name;
-				if (file.IsDirectory)
-				{
-					lines[1] = ControlStrings.FileInfoFolder;
-					lines[2] = ControlStrings.FileInfoFolderFiles.Replace("%COUNT%", (file.Tag as Project.Dir).Entries.Length.ToString());
+				lines[1] = file.SubName;
+				lines[2] = file.Description;
+
+				UIIcon mainIcon = null;
+				UIIcon subIcon = null;
+				if (file.BulletIcon != null) {
+					mainIcon = file.BulletIcon;
 				}
-				else
-				{
-					Project.Entry en = (file.Tag as Project.Entry);
-					string ext = System.IO.Path.GetExtension(en.Name).ToLower();
-					lines[1] = global::System.Windows.Forms.ControlStrings.FileInfoUnknown.Replace("%EXT%", ext.ToUpper());
-					if (Editor.Extensions.ContainsKey(ext))
-					{
-						lines[1] = Editor.Extensions[ext].Description;
-					}
-					lines[2] = CalculateFileSize(en.FullPath);
-
-
+				if (file.MainIcon != null) {
+					subIcon = mainIcon;
+					mainIcon = file.MainIcon;
 				}
-
-
-
-				int textWidth = Width - frameSize - 10;
-				int textX = Width - textWidth;
-				int textY = 8;
-
-				for (int i = 0; i < lines.Length; i++)
-				{
-					SizeF sz = G.MeasureString(lines[i], System.Drawing.Font, textWidth);
-					G.DrawString(lines[i], System.Drawing.Font, Brushes.Black, new RectangleF(textX + 1, textY + 1, sz.Width, sz.Height));
-					G.DrawString(lines[i], System.Drawing.Font, i == 0 ? Brushes.White : Brushes.LightGray, new RectangleF(textX, textY, sz.Width, sz.Height));
-					textY += (int)sz.Height + 3;
+				
+				// Rendering icons
+				if (mainIcon != null) {
+					mainIcon.Draw(G, rc);
 				}
+				if (subIcon != null) {
+					Rectangle bulletBox = new Rectangle(
+							rc.Right - 23,
+							rc.Bottom - 23,
+							24, 24
+						);
+					Rectangle bulletRect = new Rectangle(
+						bulletBox.X + 4,
+						bulletBox.Y + 4,
+						bulletBox.Width - 8,
+						bulletBox.Height - 8
+					);
+
+					GraphicsPath bgp1 = ThemeModule.CreateRoundIncomplete(bulletBox, 3, new ThemeModule.Corners() {
+						BottomLeft = true,
+						BottomRight = true,
+						TopLeft = true,
+						TopRight = true
+					});
+					G.FillPath(new SolidBrush(Color.FromArgb(128, 0, 0, 0)), bgp1);
+
+					subIcon.Draw(G, bulletRect);
+				}
+			}
+			
+			int textWidth = Width - frameSize - 10;
+			int textX = Width - textWidth;
+			int textY = 8;
+			if (vertical) {
+				textWidth = Width - 16;
+				textX = 8;
+				textY = frameSize + 8;
+			}
+
+			for (int i = 0; i < lines.Length; i++)
+			{
+				SizeF sz = G.MeasureString(lines[i], Font, textWidth);
+				G.DrawString(lines[i], Font, Brushes.Black, new RectangleF(textX + 1, textY + 1, sz.Width, sz.Height));
+				G.DrawString(lines[i], Font, i == 0 ? Brushes.White : Brushes.LightGray, new RectangleF(textX, textY, sz.Width, sz.Height));
+				textY += (int)sz.Height + 3;
 			}
 		}
 
 		/// <summary>
-		/// Удаление объекта
+		/// Disposing
 		/// </summary>
 		/// <param name="disposing"></param>
 		protected override void Dispose(bool disposing)
 		{
 			base.Dispose(disposing);
-			Preview.PreviewsReady -= Preview_PreviewsReady;
+			//Preview.PreviewsReady -= Preview_PreviewsReady;
 		}
 
+		/*
 		/// <summary>
 		/// Событие загрузки превью
 		/// </summary>
@@ -3860,11 +3931,12 @@ namespace Cubed.UI.Controls
 				}
 			}
 		}
+		*/
 
 		/// <summary>
-		/// Строка с размером файла
+		/// Calculating file size
 		/// </summary>
-		/// <returns>Размер файла в виде строки</returns>
+		/// <returns>File size string</returns>
 		string CalculateFileSize(string path)
 		{
 			string[] sizes = { "b", "kb", "mb", "gb", "pb" };
@@ -3877,7 +3949,7 @@ namespace Cubed.UI.Controls
 			return String.Format("{0:0.##} {1}", len, sizes[order]);
 		}
 	}
-
+	/*
 	public class NSAnimationView : global::System.Windows.Forms.Control
 	{
 

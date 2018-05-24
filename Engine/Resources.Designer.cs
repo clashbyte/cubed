@@ -153,6 +153,16 @@ namespace Cubed {
         /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap ProjectIcon {
+            get {
+                object obj = ResourceManager.GetObject("ProjectIcon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap SmallFontAtlas {
             get {
                 object obj = ResourceManager.GetObject("SmallFontAtlas", resourceCulture);

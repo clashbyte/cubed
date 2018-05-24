@@ -1,10 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using Cubed.Forms.Dialogs;
 
@@ -29,7 +23,14 @@ namespace Cubed.Forms.Common {
 
 			OpenFolderDialog fd = new OpenFolderDialog();
 			fd.IsNewProject = true;
-			fd.ShowDialog();
+			if (fd.ShowDialog() == DialogResult.OK) {
+				Hide();
+
+				MainForm mf = new MainForm();
+				mf.ShowDialog();
+
+				Show();
+			}
 
 		}
 

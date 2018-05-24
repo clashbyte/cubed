@@ -25,6 +25,11 @@
 		private void InitializeComponent() {
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(OpenFolderDialog));
 			this.panel1 = new System.Windows.Forms.Panel();
+			this.newFolderButton = new Cubed.UI.Controls.NSIconicButton();
+			this.selectButton = new Cubed.UI.Controls.NSIconicButton();
+			this.cancelButton = new Cubed.UI.Controls.NSIconicButton();
+			this.nsSeperator1 = new Cubed.UI.Controls.NSSeperator();
+			this.folderInfo = new Cubed.UI.Controls.NSFileInfo();
 			this.goDocsButton = new Cubed.UI.Controls.NSIconicButton();
 			this.goPCButton = new Cubed.UI.Controls.NSIconicButton();
 			this.goHomeButton = new Cubed.UI.Controls.NSIconicButton();
@@ -32,10 +37,6 @@
 			this.directoryBrowser = new Cubed.UI.Controls.NSDirectoryInspector();
 			this.goUpButton = new Cubed.UI.Controls.NSIconicButton();
 			this.pathBox = new Cubed.UI.Controls.NSTextBox();
-			this.newFolderButton = new Cubed.UI.Controls.NSIconicButton();
-			this.selectButton = new Cubed.UI.Controls.NSIconicButton();
-			this.cancelButton = new Cubed.UI.Controls.NSIconicButton();
-			this.nsSeperator1 = new Cubed.UI.Controls.NSSeperator();
 			this.panel1.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -50,6 +51,81 @@
 			this.panel1.Name = "panel1";
 			this.panel1.Size = new System.Drawing.Size(753, 54);
 			this.panel1.TabIndex = 2;
+			// 
+			// newFolderButton
+			// 
+			this.newFolderButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.newFolderButton.Corners.BottomLeft = true;
+			this.newFolderButton.Corners.BottomRight = true;
+			this.newFolderButton.Corners.TopLeft = true;
+			this.newFolderButton.Corners.TopRight = true;
+			this.newFolderButton.IconImage = ((System.Drawing.Image)(resources.GetObject("newFolderButton.IconImage")));
+			this.newFolderButton.IconSize = new System.Drawing.Size(16, 16);
+			this.newFolderButton.Large = false;
+			this.newFolderButton.Location = new System.Drawing.Point(372, 15);
+			this.newFolderButton.Name = "newFolderButton";
+			this.newFolderButton.Size = new System.Drawing.Size(120, 30);
+			this.newFolderButton.TabIndex = 3;
+			this.newFolderButton.Text = "New Folder";
+			this.newFolderButton.Vertical = false;
+			this.newFolderButton.Click += new System.EventHandler(this.newFolderButton_Click);
+			// 
+			// selectButton
+			// 
+			this.selectButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.selectButton.Corners.BottomLeft = true;
+			this.selectButton.Corners.BottomRight = true;
+			this.selectButton.Corners.TopLeft = true;
+			this.selectButton.Corners.TopRight = true;
+			this.selectButton.IconImage = ((System.Drawing.Image)(resources.GetObject("selectButton.IconImage")));
+			this.selectButton.IconSize = new System.Drawing.Size(16, 16);
+			this.selectButton.Large = false;
+			this.selectButton.Location = new System.Drawing.Point(498, 15);
+			this.selectButton.Name = "selectButton";
+			this.selectButton.Size = new System.Drawing.Size(120, 30);
+			this.selectButton.TabIndex = 2;
+			this.selectButton.Text = "Select";
+			this.selectButton.Vertical = false;
+			this.selectButton.Click += new System.EventHandler(this.selectButton_Click);
+			// 
+			// cancelButton
+			// 
+			this.cancelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.cancelButton.Corners.BottomLeft = true;
+			this.cancelButton.Corners.BottomRight = true;
+			this.cancelButton.Corners.TopLeft = true;
+			this.cancelButton.Corners.TopRight = true;
+			this.cancelButton.IconImage = ((System.Drawing.Image)(resources.GetObject("cancelButton.IconImage")));
+			this.cancelButton.IconSize = new System.Drawing.Size(16, 16);
+			this.cancelButton.Large = false;
+			this.cancelButton.Location = new System.Drawing.Point(624, 15);
+			this.cancelButton.Name = "cancelButton";
+			this.cancelButton.Size = new System.Drawing.Size(120, 30);
+			this.cancelButton.TabIndex = 0;
+			this.cancelButton.Text = "Cancel";
+			this.cancelButton.Vertical = false;
+			this.cancelButton.Click += new System.EventHandler(this.cancelButton_Click);
+			// 
+			// nsSeperator1
+			// 
+			this.nsSeperator1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.nsSeperator1.Location = new System.Drawing.Point(0, 0);
+			this.nsSeperator1.Name = "nsSeperator1";
+			this.nsSeperator1.Size = new System.Drawing.Size(753, 54);
+			this.nsSeperator1.TabIndex = 1;
+			this.nsSeperator1.Text = "nsSeperator1";
+			// 
+			// folderInfo
+			// 
+			this.folderInfo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.folderInfo.File = null;
+			this.folderInfo.IconPadding = 24;
+			this.folderInfo.Location = new System.Drawing.Point(572, 48);
+			this.folderInfo.Name = "folderInfo";
+			this.folderInfo.Size = new System.Drawing.Size(172, 332);
+			this.folderInfo.TabIndex = 10;
+			this.folderInfo.Vertical = true;
 			// 
 			// goDocsButton
 			// 
@@ -124,9 +200,10 @@
 			this.directoryBrowser.Name = "directoryBrowser";
 			this.directoryBrowser.Offset = 0;
 			this.directoryBrowser.SelectedEntry = null;
-			this.directoryBrowser.Size = new System.Drawing.Size(404, 332);
+			this.directoryBrowser.Size = new System.Drawing.Size(478, 332);
 			this.directoryBrowser.TabIndex = 5;
 			this.directoryBrowser.Text = "nsDirectoryInspector1";
+			this.directoryBrowser.SelectionChanged += new Cubed.UI.Controls.NSDirectoryInspector.SelectionChangedEventHandler(this.directoryBrowser_SelectionChanged);
 			this.directoryBrowser.DoubleClick += new System.EventHandler(this.directoryBrowser_DoubleClick);
 			// 
 			// goUpButton
@@ -145,6 +222,7 @@
 			this.goUpButton.TabIndex = 4;
 			this.goUpButton.Text = "Parent";
 			this.goUpButton.Vertical = false;
+			this.goUpButton.Click += new System.EventHandler(this.goUpButton_Click);
 			// 
 			// pathBox
 			// 
@@ -164,66 +242,7 @@
 			this.pathBox.TabIndex = 3;
 			this.pathBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
 			this.pathBox.UseSystemPasswordChar = false;
-			// 
-			// newFolderButton
-			// 
-			this.newFolderButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.newFolderButton.Corners.BottomLeft = true;
-			this.newFolderButton.Corners.BottomRight = true;
-			this.newFolderButton.Corners.TopLeft = true;
-			this.newFolderButton.Corners.TopRight = true;
-			this.newFolderButton.IconImage = ((System.Drawing.Image)(resources.GetObject("newFolderButton.IconImage")));
-			this.newFolderButton.IconSize = new System.Drawing.Size(16, 16);
-			this.newFolderButton.Large = false;
-			this.newFolderButton.Location = new System.Drawing.Point(372, 13);
-			this.newFolderButton.Name = "newFolderButton";
-			this.newFolderButton.Size = new System.Drawing.Size(120, 30);
-			this.newFolderButton.TabIndex = 3;
-			this.newFolderButton.Text = "New Folder";
-			this.newFolderButton.Vertical = false;
-			// 
-			// selectButton
-			// 
-			this.selectButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.selectButton.Corners.BottomLeft = true;
-			this.selectButton.Corners.BottomRight = true;
-			this.selectButton.Corners.TopLeft = true;
-			this.selectButton.Corners.TopRight = true;
-			this.selectButton.IconImage = ((System.Drawing.Image)(resources.GetObject("selectButton.IconImage")));
-			this.selectButton.IconSize = new System.Drawing.Size(16, 16);
-			this.selectButton.Large = false;
-			this.selectButton.Location = new System.Drawing.Point(498, 13);
-			this.selectButton.Name = "selectButton";
-			this.selectButton.Size = new System.Drawing.Size(120, 30);
-			this.selectButton.TabIndex = 2;
-			this.selectButton.Text = "Select";
-			this.selectButton.Vertical = false;
-			// 
-			// cancelButton
-			// 
-			this.cancelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.cancelButton.Corners.BottomLeft = true;
-			this.cancelButton.Corners.BottomRight = true;
-			this.cancelButton.Corners.TopLeft = true;
-			this.cancelButton.Corners.TopRight = true;
-			this.cancelButton.IconImage = ((System.Drawing.Image)(resources.GetObject("cancelButton.IconImage")));
-			this.cancelButton.IconSize = new System.Drawing.Size(16, 16);
-			this.cancelButton.Large = false;
-			this.cancelButton.Location = new System.Drawing.Point(624, 13);
-			this.cancelButton.Name = "cancelButton";
-			this.cancelButton.Size = new System.Drawing.Size(120, 30);
-			this.cancelButton.TabIndex = 0;
-			this.cancelButton.Text = "Cancel";
-			this.cancelButton.Vertical = false;
-			// 
-			// nsSeperator1
-			// 
-			this.nsSeperator1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.nsSeperator1.Location = new System.Drawing.Point(0, 0);
-			this.nsSeperator1.Name = "nsSeperator1";
-			this.nsSeperator1.Size = new System.Drawing.Size(753, 54);
-			this.nsSeperator1.TabIndex = 1;
-			this.nsSeperator1.Text = "nsSeperator1";
+			this.pathBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.pathBox_KeyDown);
 			// 
 			// OpenFolderDialog
 			// 
@@ -231,6 +250,7 @@
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(50)))), ((int)(((byte)(50)))));
 			this.ClientSize = new System.Drawing.Size(753, 440);
+			this.Controls.Add(this.folderInfo);
 			this.Controls.Add(this.goDocsButton);
 			this.Controls.Add(this.goPCButton);
 			this.Controls.Add(this.goHomeButton);
@@ -239,11 +259,12 @@
 			this.Controls.Add(this.goUpButton);
 			this.Controls.Add(this.pathBox);
 			this.Controls.Add(this.panel1);
+			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.MinimizeBox = false;
 			this.MinimumSize = new System.Drawing.Size(530, 355);
 			this.Name = "OpenFolderDialog";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-			this.Text = "OpenFolderDialog";
+			this.Text = "Choose folder";
 			this.Activated += new System.EventHandler(this.OpenFolderDialog_Activated);
 			this.panel1.ResumeLayout(false);
 			this.ResumeLayout(false);
@@ -264,5 +285,6 @@
 		private UI.Controls.NSIconicButton goHomeButton;
 		private UI.Controls.NSIconicButton goPCButton;
 		private UI.Controls.NSIconicButton goDocsButton;
+		private UI.Controls.NSFileInfo folderInfo;
 	}
 }
