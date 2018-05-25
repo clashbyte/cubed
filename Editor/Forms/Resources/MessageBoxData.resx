@@ -117,10 +117,50 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="abortLabel" xml:space="preserve">
+    <value>Abort</value>
+  </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="buttonIgnore" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Resources\skip.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="buttonNegative" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Resources\iconmonstr-x-mark-5-16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="buttonPositive" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Resources\check-small.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="buttonRetry" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Resources\retry-small.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="cancelLabel" xml:space="preserve">
     <value>Cancel</value>
   </data>
+  <data name="errorIcon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Resources\error.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="ignoreLabel" xml:space="preserve">
+    <value>Ignore</value>
+  </data>
+  <data name="infoIcon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Resources\info.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="noLabel" xml:space="preserve">
+    <value>No</value>
+  </data>
   <data name="okLabel" xml:space="preserve">
     <value>OK</value>
+  </data>
+  <data name="questionIcon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Resources\question.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="retryLabel" xml:space="preserve">
+    <value>Retry</value>
+  </data>
+  <data name="warningIcon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Resources\warning.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="yesLabel" xml:space="preserve">
+    <value>Yes</value>
   </data>
 </root>

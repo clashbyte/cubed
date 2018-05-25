@@ -200,6 +200,30 @@
   <ItemGroup>
     <None Include="Resources\server.png" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\error.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\info.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\question.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\warning.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\check-small.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iconmonstr-x-mark-5-16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\retry-small.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\skip.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

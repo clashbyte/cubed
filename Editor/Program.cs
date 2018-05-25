@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Cubed.Forms.Common;
+using Cubed.Forms.Dialogs;
 using Cubed.Map;
 using Cubed.Windows;
 
@@ -17,7 +18,11 @@ namespace Cubed {
 			
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
-			Application.Run(new StartupForm());
+
+			MessageDialog.Open("Test", "More test", MessageBoxButtons.RetryCancel, MessageBoxIcon.Question);
+
+
+			//Application.Run(new StartupForm());
 			
 
 			//MapEditor.Start();
