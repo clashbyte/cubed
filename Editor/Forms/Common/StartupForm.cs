@@ -17,6 +17,14 @@ namespace Cubed.Forms.Common {
 		}
 
 		/// <summary>
+		/// Form startup
+		/// </summary>
+		protected override void OnShown(EventArgs e) {
+			base.OnShown(e);
+
+		}
+
+		/// <summary>
 		/// New project button event
 		/// </summary>
 		private void newProjectButton_Click(object sender, EventArgs e) {
@@ -39,10 +47,12 @@ namespace Cubed.Forms.Common {
 		/// </summary>
 		private void openProjectButton_Click(object sender, EventArgs e) {
 
+			/*
 			OpenFolderDialog fd = new OpenFolderDialog();
 			fd.IsNewProject = false;
 			fd.ShowDialog();
-
+			*/
+			MessageBox.Show("Енот вонючка!", "О нет!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 		}
 	}
 }

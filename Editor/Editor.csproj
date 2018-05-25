@@ -66,6 +66,12 @@
     <Compile Include="Forms\Common\StartupForm.Designer.cs">
       <DependentUpon>StartupForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\Dialogs\MessageDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Dialogs\MessageDialog.Designer.cs">
+      <DependentUpon>MessageDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\Dialogs\OpenFolderDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -82,6 +88,11 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>DirectoryInspectorIcons.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Resources\MessageBoxData.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MessageBoxData.resx</DependentUpon>
     </Compile>
     <Compile Include="UI\Controls\NSTheme.cs" />
     <Compile Include="Drivers\EngineControl.cs">
@@ -112,7 +123,13 @@
     <EmbeddedResource Include="Forms\Common\StartupForm.resx">
       <DependentUpon>StartupForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Dialogs\MessageDialog.resx">
+      <DependentUpon>MessageDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\Dialogs\OpenFolderDialog.resx">
+      <DependentUpon>OpenFolderDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Dialogs\OpenFolderDialog.ru.resx">
       <DependentUpon>OpenFolderDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Dialogs\TextInputDialog.resx">
@@ -121,6 +138,10 @@
     <EmbeddedResource Include="Forms\Resources\DirectoryInspectorIcons.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>DirectoryInspectorIcons.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Resources\MessageBoxData.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>MessageBoxData.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

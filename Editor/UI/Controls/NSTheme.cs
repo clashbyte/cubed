@@ -297,6 +297,7 @@ namespace Cubed.UI.Controls
 		private ThemeModule.Corners corners = new ThemeModule.Corners();
 
 		[DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+		[Localizable(false)]
 		public ThemeModule.Corners Corners
 		{
 			get { return corners; }
@@ -304,13 +305,14 @@ namespace Cubed.UI.Controls
 		}
 
 		private Image _Icon, _IconShadow, _IconDisabled;
+		[Localizable(false)]
 		public Image IconImage
 		{
 			get { return _Icon; }
 			set
 			{
 				_Icon = value;
-				if (_Icon != null)
+				if (_Icon != null && _IconSize.IsEmpty)
 				{
 					_IconSize = _Icon.Size;
 				}

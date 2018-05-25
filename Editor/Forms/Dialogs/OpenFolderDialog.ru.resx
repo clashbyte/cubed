@@ -117,46 +117,47 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="&gt;&gt;newFolderButton.Parent" xml:space="preserve">
-    <value>panel1</value>
-  </data>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="nsLabel1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>70, 30</value>
+  <data name="newFolderButton.IconImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        xAAADsQBlSsOGwAAAJtJREFUOE/VksENgzAQBP2KqCNV8KAM2qICSuCRMlIERSAa8DHnHAiCwSHwYaR5
+        WNyuDcadRkSaud77GjN7nIaQ8saxoMMXPmxknxAXKW3pCBbYY4uL08VcFSgEn1glCvTUEi34Bc1o8MYF
+        E0cLmM2xseVfBZ+jj+gCkgXMhJ0xXB+E67ysYPqVN8ytR+dXrxALfDsvWH7Eczg3AJVycn0ezHkGAAAA
+        AElFTkSuQmCC
+</value>
   </data>
-  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="goDocsButton.TabIndex" type="System.Int32, mscorlib">
-    <value>9</value>
+  <data name="newFolderButton.Text" xml:space="preserve">
+    <value>Новая папка</value>
   </data>
-  <data name="cancelButton.Size" type="System.Drawing.Size, System.Drawing">
-    <value>120, 30</value>
+  <data name="selectButton.IconImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        xAAADsQBlSsOGwAAAXFJREFUOE+Nk7FLQlEUxiVERBoiQqQxxD+hOZoaJCIcHaIhGhqaQkKCCHGKaIqI
+        hmiIBgeniGhsaGhqioiQpnCMhois33f9Hiq9wg9+eM75zj3v3fuuiWHV6XSSUIJzeIYP+LT9v2icg0ct
+        gEvYhEPlbvlbNG3BF+jJBZdVr0DLaU8URyDtOFq8AgvQgmt7F9BQHEQyAUfwCgUowjes2t+FGmiIfG2n
+        3L9YezyFSRiFFzizvwgzsOdYfRqUigaEA4F3GIMNeIOc/QMoOV4Cvdm88iCSMmQg2rumN4PZJ2rLoAfV
+        XYoXDWugp1ScZ0GvrdpOaIoTpk665jga0gRtR2dSDI1xwtyHe5hyKRqi7ehMdLB5yNjuieI6PMC48zRU
+        g4mIdbA5aEPS5a5s6PRnnaegAdvONUz+CRyrNiCKVWg7noYbuILwjfnVAJ38E2RVGxDFW9A/SzdQjbos
+        3QuCiPWJdUN/L5YwtPAO6pB3eUglEj9W7/E1meMfgAAAAABJRU5ErkJggg==
+</value>
   </data>
-  <data name="selectButton.Size" type="System.Drawing.Size, System.Drawing">
-    <value>120, 30</value>
+  <data name="selectButton.Text" xml:space="preserve">
+    <value>Выбрать</value>
   </data>
-  <data name="cancelButton.Location" type="System.Drawing.Point, System.Drawing">
-    <value>624, 15</value>
+  <data name="cancelButton.IconImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        xAAADsQBlSsOGwAAARxJREFUOE+lkztuwlAQRV2gCLGWVF5DxBJSsRtWgSgRNXKBEHWWQMkasgIUJ+c8
+        rh1kQxFypSPPm3dn3sd2NVTbtjWs4AyXYGyujm0sJmewhi84wRIWwdicc3pmKbvKBHzAJ7wnPZJz8ej9
+        bcLArk68JvVQeuJddwnP7NbKyjznsIFJMSDiKTTwlrE7saZ24OWcihMRN9+I5w5ewOJjctvY9HknKwNv
+        eJm8YwsOKXDVLi4NY9PnxZ4NfE2L5IsY22RvoSK2UV+srIHLowZuvRxFER9gmukia6A0GB5hArsU7qG7
+        kyP0TYj7IwwvcZOCsiq4m65hE5u+/hLvvUbPfLuaTbYwfo1JPP8hKQb/+5SVCXjuZ7oVk3/4navqByrU
+        N/+CiV2mAAAAAElFTkSuQmCC
+</value>
   </data>
-  <data name="&gt;&gt;goPCButton.Parent" xml:space="preserve">
-    <value>$this</value>
-  </data>
-  <data name="goPCButton.Location" type="System.Drawing.Point, System.Drawing">
-    <value>12, 117</value>
-  </data>
-  <data name="&gt;&gt;pathBox.Name" xml:space="preserve">
-    <value>pathBox</value>
-  </data>
-  <data name="&gt;&gt;pathBox.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSTextBox, Editor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</value>
-  </data>
-  <data name="$this.MinimumSize" type="System.Drawing.Size, System.Drawing">
-    <value>530, 355</value>
-  </data>
-  <data name="&gt;&gt;panel1.Name" xml:space="preserve">
-    <value>panel1</value>
-  </data>
-  <data name="&gt;&gt;cancelButton.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSIconicButton, Editor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</value>
+  <data name="cancelButton.Text" xml:space="preserve">
+    <value>Отмена</value>
   </data>
   <data name="goDocsButton.IconImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
@@ -177,242 +178,63 @@
         7wRbgT46FYBhdxnaXAjNu74zaqNhBoN/837JbhnQsx4AAAAASUVORK5CYII=
 </value>
   </data>
-  <data name="goUpButton.TabIndex" type="System.Int32, mscorlib">
-    <value>4</value>
-  </data>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="goUpButton.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Top, Right</value>
-  </data>
-  <data name="goPCButton.TabIndex" type="System.Int32, mscorlib">
-    <value>8</value>
-  </data>
-  <data name="&gt;&gt;goUpButton.ZOrder" xml:space="preserve">
-    <value>6</value>
-  </data>
-  <data name="&gt;&gt;folderInfo.Name" xml:space="preserve">
-    <value>folderInfo</value>
-  </data>
-  <data name="&gt;&gt;folderInfo.ZOrder" xml:space="preserve">
-    <value>0</value>
-  </data>
-  <data name="&gt;&gt;nsSeperator1.Name" xml:space="preserve">
-    <value>nsSeperator1</value>
-  </data>
-  <data name="newFolderButton.IconImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        xAAADsQBlSsOGwAAAJtJREFUOE/VksENgzAQBP2KqCNV8KAM2qICSuCRMlIERSAa8DHnHAiCwSHwYaR5
-        WNyuDcadRkSaud77GjN7nIaQ8saxoMMXPmxknxAXKW3pCBbYY4uL08VcFSgEn1glCvTUEi34Bc1o8MYF
-        E0cLmM2xseVfBZ+jj+gCkgXMhJ0xXB+E67ysYPqVN8ytR+dXrxALfDsvWH7Eczg3AJVycn0ezHkGAAAA
-        AElFTkSuQmCC
-</value>
-  </data>
-  <data name="cancelButton.IconImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        xAAADsQBlSsOGwAAARxJREFUOE+lkztuwlAQRV2gCLGWVF5DxBJSsRtWgSgRNXKBEHWWQMkasgIUJ+c8
-        rh1kQxFypSPPm3dn3sd2NVTbtjWs4AyXYGyujm0sJmewhi84wRIWwdicc3pmKbvKBHzAJ7wnPZJz8ej9
-        bcLArk68JvVQeuJddwnP7NbKyjznsIFJMSDiKTTwlrE7saZ24OWcihMRN9+I5w5ewOJjctvY9HknKwNv
-        eJm8YwsOKXDVLi4NY9PnxZ4NfE2L5IsY22RvoSK2UV+srIHLowZuvRxFER9gmukia6A0GB5hArsU7qG7
-        kyP0TYj7IwwvcZOCsiq4m65hE5u+/hLvvUbPfLuaTbYwfo1JPP8hKQb/+5SVCXjuZ7oVk3/4navqByrU
-        N/+CiV2mAAAAAElFTkSuQmCC
-</value>
-  </data>
-  <data name="goHomeButton.TabIndex" type="System.Int32, mscorlib">
-    <value>7</value>
-  </data>
-  <data name="&gt;&gt;cancelButton.Parent" xml:space="preserve">
-    <value>panel1</value>
-  </data>
-  <data name="cancelButton.Text" xml:space="preserve">
-    <value>Cancel</value>
-  </data>
-  <data name="&gt;&gt;newFolderButton.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSIconicButton, Editor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</value>
-  </data>
-  <data name="panel1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>753, 54</value>
-  </data>
-  <data name="nsSeperator1.TabIndex" type="System.Int32, mscorlib">
-    <value>1</value>
-  </data>
-  <data name="goHomeButton.Location" type="System.Drawing.Point, System.Drawing">
-    <value>12, 48</value>
-  </data>
-  <data name="&gt;&gt;selectButton.Name" xml:space="preserve">
-    <value>selectButton</value>
-  </data>
-  <data name="goUpButton.Text" xml:space="preserve">
-    <value>Parent</value>
-  </data>
-  <data name="&gt;&gt;nsLabel1.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSLabel, Editor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</value>
-  </data>
-  <data name="$this.StartPosition" type="System.Windows.Forms.FormStartPosition, System.Windows.Forms">
-    <value>CenterParent</value>
-  </data>
-  <data name="selectButton.Location" type="System.Drawing.Point, System.Drawing">
-    <value>498, 15</value>
-  </data>
-  <data name="&gt;&gt;nsSeperator1.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSSeperator, Editor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</value>
-  </data>
-  <data name="&gt;&gt;goDocsButton.Name" xml:space="preserve">
-    <value>goDocsButton</value>
-  </data>
-  <data name="&gt;&gt;goHomeButton.ZOrder" xml:space="preserve">
-    <value>3</value>
-  </data>
-  <data name="selectButton.Text" xml:space="preserve">
-    <value>Select</value>
-  </data>
-  <data name="&gt;&gt;goDocsButton.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSIconicButton, Editor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</value>
-  </data>
-  <data name="selectButton.IconImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        xAAADsQBlSsOGwAAAXFJREFUOE+Nk7FLQlEUxiVERBoiQqQxxD+hOZoaJCIcHaIhGhqaQkKCCHGKaIqI
-        hmiIBgeniGhsaGhqioiQpnCMhois33f9Hiq9wg9+eM75zj3v3fuuiWHV6XSSUIJzeIYP+LT9v2icg0ct
-        gEvYhEPlbvlbNG3BF+jJBZdVr0DLaU8URyDtOFq8AgvQgmt7F9BQHEQyAUfwCgUowjes2t+FGmiIfG2n
-        3L9YezyFSRiFFzizvwgzsOdYfRqUigaEA4F3GIMNeIOc/QMoOV4Cvdm88iCSMmQg2rumN4PZJ2rLoAfV
-        XYoXDWugp1ScZ0GvrdpOaIoTpk665jga0gRtR2dSDI1xwtyHe5hyKRqi7ehMdLB5yNjuieI6PMC48zRU
-        g4mIdbA5aEPS5a5s6PRnnaegAdvONUz+CRyrNiCKVWg7noYbuILwjfnVAJ38E2RVGxDFW9A/SzdQjbos
-        3QuCiPWJdUN/L5YwtPAO6pB3eUglEj9W7/E1meMfgAAAAABJRU5ErkJggg==
-</value>
-  </data>
-  <data name="&gt;&gt;goUpButton.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSIconicButton, Editor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</value>
-  </data>
-  <data name="directoryBrowser.Size" type="System.Drawing.Size, System.Drawing">
-    <value>478, 332</value>
-  </data>
-  <data name="&gt;&gt;goHomeButton.Name" xml:space="preserve">
-    <value>goHomeButton</value>
-  </data>
-  <data name="directoryBrowser.TabIndex" type="System.Int32, mscorlib">
-    <value>5</value>
-  </data>
-  <data name="directoryBrowser.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Top, Bottom, Left, Right</value>
-  </data>
-  <data name="cancelButton.TabIndex" type="System.Int32, mscorlib">
-    <value>0</value>
-  </data>
-  <data name="$this.AutoScaleDimensions" type="System.Drawing.SizeF, System.Drawing">
-    <value>6, 13</value>
-  </data>
-  <data name="&gt;&gt;goHomeButton.Parent" xml:space="preserve">
-    <value>$this</value>
-  </data>
-  <data name="directoryBrowser.Location" type="System.Drawing.Point, System.Drawing">
-    <value>88, 48</value>
-  </data>
-  <data name="goDocsButton.Location" type="System.Drawing.Point, System.Drawing">
-    <value>12, 186</value>
-  </data>
-  <data name="nsSeperator1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>753, 54</value>
-  </data>
-  <data name="newFolderButton.TabIndex" type="System.Int32, mscorlib">
-    <value>3</value>
-  </data>
-  <data name="newFolderButton.Location" type="System.Drawing.Point, System.Drawing">
-    <value>372, 15</value>
-  </data>
-  <data name="&gt;&gt;goPCButton.Name" xml:space="preserve">
-    <value>goPCButton</value>
-  </data>
-  <data name="selectButton.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Top, Right</value>
-  </data>
-  <data name="&gt;&gt;goUpButton.Name" xml:space="preserve">
-    <value>goUpButton</value>
-  </data>
-  <data name="&gt;&gt;panel1.Parent" xml:space="preserve">
-    <value>$this</value>
-  </data>
-  <data name="folderInfo.TabIndex" type="System.Int32, mscorlib">
-    <value>10</value>
-  </data>
-  <data name="nsLabel1.TabIndex" type="System.Int32, mscorlib">
-    <value>6</value>
-  </data>
-  <data name="&gt;&gt;selectButton.Parent" xml:space="preserve">
-    <value>panel1</value>
-  </data>
-  <data name="&gt;&gt;nsSeperator1.Parent" xml:space="preserve">
-    <value>panel1</value>
-  </data>
-  <data name="goDocsButton.Size" type="System.Drawing.Size, System.Drawing">
-    <value>70, 70</value>
-  </data>
-  <data name="directoryBrowser.Font" type="System.Drawing.Font, System.Drawing">
-    <value>Tahoma, 8pt</value>
-  </data>
-  <data name="nsLabel1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>12, 12</value>
-  </data>
   <data name="goDocsButton.Text" xml:space="preserve">
-    <value>Documents</value>
+    <value>Документы</value>
   </data>
-  <data name="&gt;&gt;$this.Name" xml:space="preserve">
-    <value>OpenFolderDialog</value>
-  </data>
-  <data name="panel1.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
-    <value>Bottom</value>
-  </data>
-  <data name="panel1.TabIndex" type="System.Int32, mscorlib">
-    <value>2</value>
-  </data>
-  <data name="&gt;&gt;folderInfo.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSFileInfo, Editor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</value>
-  </data>
-  <data name="&gt;&gt;goDocsButton.Parent" xml:space="preserve">
-    <value>$this</value>
-  </data>
-  <data name="&gt;&gt;cancelButton.ZOrder" xml:space="preserve">
-    <value>2</value>
-  </data>
-  <data name="&gt;&gt;selectButton.ZOrder" xml:space="preserve">
-    <value>1</value>
-  </data>
-  <data name="&gt;&gt;panel1.ZOrder" xml:space="preserve">
-    <value>8</value>
-  </data>
-  <data name="&gt;&gt;selectButton.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSIconicButton, Editor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</value>
-  </data>
-  <data name="&gt;&gt;directoryBrowser.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSDirectoryInspector, Editor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</value>
-  </data>
-  <data name="&gt;&gt;directoryBrowser.Name" xml:space="preserve">
-    <value>directoryBrowser</value>
-  </data>
-  <data name="cancelButton.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Top, Right</value>
-  </data>
-  <data name="&gt;&gt;goPCButton.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSIconicButton, Editor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</value>
+  <data name="goPCButton.IconImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        xAAADsQBlSsOGwAAAXdJREFUeF7tlbFRw1AQRBUQUgBFUAYluAB6oQACyiCkCCKKoAJiAglu517yv1EC
+        si3u75u52ej+7e6M5elrcFwAOiwuAB2WtQIeYw7FRpmOWCvgMBVDmTJaiwtAe1wAe2VQpozW4gLQHhfA
+        XhmUKaO1uAC0xwWwVwZlymgtLgDtcQHslUGZMlqLC0B7XAB7ZVCmjNbiAtAeF8BeGZQpo7W4ALTHBbBX
+        BmXKaC0uAO1xAeyVQZkyWosLQHtcAHtlUKaM1uIC0B4XwF4ZlCmjtbgAtMcFsFcGZcpoLS4A7XEB7JVB
+        mTJaiwtAe4Yv4DXmudgo0xFrBQyDC0CHxQXE/PTBGGb4kzDGGLMp8zw/xFd2E/QWz/4PwvD9sizY/zt6
+        S2/y/L4Jo3dh+BPvm6E39TZn9kmYvI35wPPm6G3d4Ny+CGM3Me94PRm6oVuc3Qdh6DrmDY8nR7d0k/OX
+        JYxcxW/zBW9nQzd1GxuXI4w84ens6DY2fsk0fQPrTwbDc4PKWQAAAABJRU5ErkJggg==
+</value>
   </data>
   <data name="goPCButton.Text" xml:space="preserve">
-    <value>Computer</value>
+    <value>Компьютер</value>
   </data>
-  <data name="selectButton.TabIndex" type="System.Int32, mscorlib">
-    <value>2</value>
+  <data name="goHomeButton.IconImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        xAAADsQBlSsOGwAAAw5JREFUeF7tm02KVDEUhQtpHLsQF9BDF+FCxB2IA3EgDsSBiANxIE3TNOIqeinu
+        oar0nMpJY37ee3mpvLwXKh9EqLo3N+d+A39Qd53OehyPx2c8+nhZaPkHncuSYJf/Ky5Kgr+8ZY4EtL/C
+        uR0512rdFkPLW1IloJVLjvFSrdthanlLigS0tSUgdXnLlAS0tCNg7vKWMQkotyFgavnD4fAL9d/6GDAk
+        Ad/dqGWI9QUwOBdQoAAsf4/6Ux6K0NcBnMFZGnsC/c/x3R+1xFhXAAMzuMIEYIE71K/Uzv7SEtYTwKAM
+        rCABCH6D+uPyFnxXUsI6AhiQQRUiAIF/oh4sb0GtlIT6AhiMARUgAEF/oD64vAU9JSTUFcBADKbHAxDw
+        O+pP1D4JeinhXtcD+BbfVPsJT0I9AQzCQHo4AMG+oZ68vAV3zpFQRwADMIiJFIJAX1GfvbwFd3MlvNDH
+        5eDDDKAsAQjyBfXs5S2YMVvC4vBBPqwMAah9xjl7eQtmbUcCH+KDejsAQT+ptSibkJCw/Ee1LgIl7Pf7
+        Oz0XsKiEhOU/qHVRKAFv1ZWQsPx7tVaBEnDqSOAgDtTsACz/Tq1VQablJXAAB2mmA77n8m/VugrIcIWz
+        jARe5ADNcsD3XP6NWlcFWcpL4AVe1IwALF/lJ7xUkJUSyvwSyUZe0N0h1vnz9gjMZKLFSZKQuDxpTgAZ
+        lTBjedKkABKVMHN50qwA4kjIWJ40LYA8SsAPr/GZf9EwdGK0JCC20+lwd10fBo0xmhGgcj6a49MFqLwZ
+        mMlEc1E5H83x6QJU3gzMZKK5qJyP5vh0ASpvBmYy0VxUzkdzfEYFoH7NnsJn9B8+qSdA5Xw0x2dKAH+j
+        UZpbjY+Cehdg2lxUzkdzfLoAlaOg3gWYtqI0L2B0gf9hr7ni0AWoHAX1LsC0uaicj+b4dAEqR0G9CzBt
+        Dl2AypOw11xx6AJUjoJ6VQE5nCsgC43MR3NK0AVo5CTsNVfORyPz0ZwSdAEaOQl7zZXz0ch8MIM/u5Y4
+        yf+Xj73e3eyjkZ1OlN3uH9hKzhsqL/DZAAAAAElFTkSuQmCC
+</value>
   </data>
-  <data name="folderInfo.Location" type="System.Drawing.Point, System.Drawing">
-    <value>572, 48</value>
+  <data name="goHomeButton.Text" xml:space="preserve">
+    <value>Домой</value>
   </data>
-  <data name="&gt;&gt;directoryBrowser.ZOrder" xml:space="preserve">
-    <value>5</value>
+  <data name="nsLabel1.Text" xml:space="preserve">
+    <value>Путь:</value>
   </data>
-  <data name="&gt;&gt;pathBox.Parent" xml:space="preserve">
-    <value>$this</value>
+  <data name="goUpButton.IconImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        xAAADsQBlSsOGwAAAMNJREFUOE/ljLERglAQRBkDSiAipAQCKqACIqpwDGzCwCIMLcCxGCMjYyMD+b7F
+        VQdExNidefPv7+5dNKamaRbC39/EYg1XU9ueJhZKuMDKaC4dj4tiDmfYwMxolpe7NiwKGZxgD7Ft+bE9
+        ZZntrggSOECAXQhh7ijSLM+ZOomjlzCXFLfmqNeRDjw9oa6jYT2K/r79v+pfD1CoIPWshb7aA7wpVJo7
+        aisOeAvNPQpnmoPmjmSiNfQX+6jz8cBk3bei6AYYQJMuBkPUsgAAAABJRU5ErkJggg==
+</value>
   </data>
-  <data name="&gt;&gt;folderInfo.Parent" xml:space="preserve">
-    <value>$this</value>
+  <data name="goUpButton.Text" xml:space="preserve">
+    <value>Наверх</value>
+  </data>
+  <data name="pathBox.Size" type="System.Drawing.Size, System.Drawing">
+    <value>570, 30</value>
   </data>
   <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
@@ -2230,164 +2052,11 @@
         AQAAwAMAAOAPAAA=
 </value>
   </data>
-  <data name="&gt;&gt;goPCButton.ZOrder" xml:space="preserve">
-    <value>2</value>
-  </data>
-  <data name="nsSeperator1.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
-    <value>Fill</value>
-  </data>
-  <data name="&gt;&gt;nsLabel1.Name" xml:space="preserve">
-    <value>nsLabel1</value>
-  </data>
-  <data name="&gt;&gt;goUpButton.Parent" xml:space="preserve">
-    <value>$this</value>
-  </data>
-  <data name="pathBox.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Top, Left, Right</value>
-  </data>
-  <data name="pathBox.TabIndex" type="System.Int32, mscorlib">
-    <value>3</value>
-  </data>
-  <data name="nsSeperator1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 0</value>
-  </data>
-  <data name="&gt;&gt;cancelButton.Name" xml:space="preserve">
-    <value>cancelButton</value>
-  </data>
-  <data name="nsSeperator1.Text" xml:space="preserve">
-    <value>nsSeperator1</value>
-  </data>
-  <data name="pathBox.Size" type="System.Drawing.Size, System.Drawing">
-    <value>570, 24</value>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="$this.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
   </data>
   <data name="$this.Text" xml:space="preserve">
-    <value>Choose folder</value>
+    <value>Выберите папку</value>
   </data>
-  <data name="&gt;&gt;goHomeButton.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSIconicButton, Editor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</value>
-  </data>
-  <data name="newFolderButton.Text" xml:space="preserve">
-    <value>New Folder</value>
-  </data>
-  <data name="folderInfo.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Top, Bottom, Right</value>
-  </data>
-  <data name="goHomeButton.IconImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        xAAADsQBlSsOGwAAAw5JREFUeF7tm02KVDEUhQtpHLsQF9BDF+FCxB2IA3EgDsSBiANxIE3TNOIqeinu
-        oar0nMpJY37ee3mpvLwXKh9EqLo3N+d+A39Qd53OehyPx2c8+nhZaPkHncuSYJf/Ky5Kgr+8ZY4EtL/C
-        uR0512rdFkPLW1IloJVLjvFSrdthanlLigS0tSUgdXnLlAS0tCNg7vKWMQkotyFgavnD4fAL9d/6GDAk
-        Ad/dqGWI9QUwOBdQoAAsf4/6Ux6K0NcBnMFZGnsC/c/x3R+1xFhXAAMzuMIEYIE71K/Uzv7SEtYTwKAM
-        rCABCH6D+uPyFnxXUsI6AhiQQRUiAIF/oh4sb0GtlIT6AhiMARUgAEF/oD64vAU9JSTUFcBADKbHAxDw
-        O+pP1D4JeinhXtcD+BbfVPsJT0I9AQzCQHo4AMG+oZ68vAV3zpFQRwADMIiJFIJAX1GfvbwFd3MlvNDH
-        5eDDDKAsAQjyBfXs5S2YMVvC4vBBPqwMAah9xjl7eQtmbUcCH+KDejsAQT+ptSibkJCw/Ee1LgIl7Pf7
-        Oz0XsKiEhOU/qHVRKAFv1ZWQsPx7tVaBEnDqSOAgDtTsACz/Tq1VQablJXAAB2mmA77n8m/VugrIcIWz
-        jARe5ADNcsD3XP6NWlcFWcpL4AVe1IwALF/lJ7xUkJUSyvwSyUZe0N0h1vnz9gjMZKLFSZKQuDxpTgAZ
-        lTBjedKkABKVMHN50qwA4kjIWJ40LYA8SsAPr/GZf9EwdGK0JCC20+lwd10fBo0xmhGgcj6a49MFqLwZ
-        mMlEc1E5H83x6QJU3gzMZKK5qJyP5vh0ASpvBmYy0VxUzkdzfEYFoH7NnsJn9B8+qSdA5Xw0x2dKAH+j
-        UZpbjY+Cehdg2lxUzkdzfLoAlaOg3gWYtqI0L2B0gf9hr7ni0AWoHAX1LsC0uaicj+b4dAEqR0G9CzBt
-        Dl2AypOw11xx6AJUjoJ6VQE5nCsgC43MR3NK0AVo5CTsNVfORyPz0ZwSdAEaOQl7zZXz0ch8MIM/u5Y4
-        yf+Xj73e3eyjkZ1OlN3uH9hKzhsqL/DZAAAAAElFTkSuQmCC
-</value>
-  </data>
-  <data name="&gt;&gt;nsSeperator1.ZOrder" xml:space="preserve">
-    <value>3</value>
-  </data>
-  <data name="newFolderButton.Size" type="System.Drawing.Size, System.Drawing">
-    <value>120, 30</value>
-  </data>
-  <data name="goHomeButton.Text" xml:space="preserve">
-    <value>Home</value>
-  </data>
-  <data name="nsLabel1.Font" type="System.Drawing.Font, System.Drawing">
-    <value>Tahoma, 8.25pt</value>
-  </data>
-  <data name="goUpButton.IconImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        xAAADsQBlSsOGwAAAMNJREFUOE/ljLERglAQRBkDSiAipAQCKqACIqpwDGzCwCIMLcCxGCMjYyMD+b7F
-        VQdExNidefPv7+5dNKamaRbC39/EYg1XU9ueJhZKuMDKaC4dj4tiDmfYwMxolpe7NiwKGZxgD7Ft+bE9
-        ZZntrggSOECAXQhh7ijSLM+ZOomjlzCXFLfmqNeRDjw9oa6jYT2K/r79v+pfD1CoIPWshb7aA7wpVJo7
-        aisOeAvNPQpnmoPmjmSiNfQX+6jz8cBk3bei6AYYQJMuBkPUsgAAAABJRU5ErkJggg==
-</value>
-  </data>
-  <data name="newFolderButton.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Top, Right</value>
-  </data>
-  <data name="panel1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 386</value>
-  </data>
-  <data name="&gt;&gt;nsLabel1.Parent" xml:space="preserve">
-    <value>$this</value>
-  </data>
-  <data name="directoryBrowser.Text" xml:space="preserve">
-    <value>nsDirectoryInspector1</value>
-  </data>
-  <data name="&gt;&gt;panel1.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Panel, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;pathBox.ZOrder" xml:space="preserve">
-    <value>7</value>
-  </data>
-  <data name="&gt;&gt;nsLabel1.ZOrder" xml:space="preserve">
-    <value>4</value>
-  </data>
-  <data name="&gt;&gt;goDocsButton.ZOrder" xml:space="preserve">
-    <value>1</value>
-  </data>
-  <data name="goUpButton.Size" type="System.Drawing.Size, System.Drawing">
-    <value>91, 30</value>
-  </data>
-  <data name="&gt;&gt;newFolderButton.Name" xml:space="preserve">
-    <value>newFolderButton</value>
-  </data>
-  <data name="$this.ClientSize" type="System.Drawing.Size, System.Drawing">
-    <value>753, 440</value>
-  </data>
-  <data name="goPCButton.IconImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        xAAADsQBlSsOGwAAAXdJREFUeF7tlbFRw1AQRBUQUgBFUAYluAB6oQACyiCkCCKKoAJiAglu517yv1EC
-        si3u75u52ej+7e6M5elrcFwAOiwuAB2WtQIeYw7FRpmOWCvgMBVDmTJaiwtAe1wAe2VQpozW4gLQHhfA
-        XhmUKaO1uAC0xwWwVwZlymgtLgDtcQHslUGZMlqLC0B7XAB7ZVCmjNbiAtAeF8BeGZQpo7W4ALTHBbBX
-        BmXKaC0uAO1xAeyVQZkyWosLQHtcAHtlUKaM1uIC0B4XwF4ZlCmjtbgAtMcFsFcGZcpoLS4A7XEB7JVB
-        mTJaiwtAe4Yv4DXmudgo0xFrBQyDC0CHxQXE/PTBGGb4kzDGGLMp8zw/xFd2E/QWz/4PwvD9sizY/zt6
-        S2/y/L4Jo3dh+BPvm6E39TZn9kmYvI35wPPm6G3d4Ny+CGM3Me94PRm6oVuc3Qdh6DrmDY8nR7d0k/OX
-        JYxcxW/zBW9nQzd1GxuXI4w84ens6DY2fsk0fQPrTwbDc4PKWQAAAABJRU5ErkJggg==
-</value>
-  </data>
-  <data name="&gt;&gt;$this.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Form, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="goPCButton.Size" type="System.Drawing.Size, System.Drawing">
-    <value>70, 70</value>
-  </data>
-  <data name="pathBox.Location" type="System.Drawing.Point, System.Drawing">
-    <value>88, 12</value>
-  </data>
-  <data name="&gt;&gt;newFolderButton.ZOrder" xml:space="preserve">
-    <value>0</value>
-  </data>
-  <data name="goHomeButton.Size" type="System.Drawing.Size, System.Drawing">
-    <value>70, 70</value>
-  </data>
-  <data name="folderInfo.Size" type="System.Drawing.Size, System.Drawing">
-    <value>172, 332</value>
-  </data>
-  <data name="&gt;&gt;directoryBrowser.Parent" xml:space="preserve">
-    <value>$this</value>
-  </data>
-  <data name="goUpButton.Location" type="System.Drawing.Point, System.Drawing">
-    <value>653, 12</value>
-  </data>
-  <data name="nsLabel1.Text" xml:space="preserve">
-    <value>Location:</value>
-  </data>
-  <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
-  <metadata name="$this.Language" type="System.Globalization.CultureInfo, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>ru</value>
-  </metadata>
 </root>
