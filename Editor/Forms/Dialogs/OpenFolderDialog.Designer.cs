@@ -25,12 +25,12 @@
 		private void InitializeComponent() {
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(OpenFolderDialog));
 			this.panel1 = new System.Windows.Forms.Panel();
-			this.folderInfo = new Cubed.UI.Controls.NSFileInfo();
-			this.goDocsButton = new Cubed.UI.Controls.NSIconicButton();
 			this.newFolderButton = new Cubed.UI.Controls.NSIconicButton();
 			this.selectButton = new Cubed.UI.Controls.NSIconicButton();
 			this.cancelButton = new Cubed.UI.Controls.NSIconicButton();
 			this.nsSeperator1 = new Cubed.UI.Controls.NSSeperator();
+			this.folderInfo = new Cubed.UI.Controls.NSFileInfo();
+			this.goDocsButton = new Cubed.UI.Controls.NSIconicButton();
 			this.goPCButton = new Cubed.UI.Controls.NSIconicButton();
 			this.goHomeButton = new Cubed.UI.Controls.NSIconicButton();
 			this.nsLabel1 = new Cubed.UI.Controls.NSLabel();
@@ -48,28 +48,6 @@
 			this.panel1.Controls.Add(this.cancelButton);
 			this.panel1.Controls.Add(this.nsSeperator1);
 			this.panel1.Name = "panel1";
-			// 
-			// folderInfo
-			// 
-			resources.ApplyResources(this.folderInfo, "folderInfo");
-			this.folderInfo.File = null;
-			this.folderInfo.IconPadding = 24;
-			this.folderInfo.Name = "folderInfo";
-			this.folderInfo.Vertical = true;
-			// 
-			// goDocsButton
-			// 
-			resources.ApplyResources(this.goDocsButton, "goDocsButton");
-			this.goDocsButton.Corners.BottomLeft = true;
-			this.goDocsButton.Corners.BottomRight = true;
-			this.goDocsButton.Corners.TopLeft = false;
-			this.goDocsButton.Corners.TopRight = false;
-			this.goDocsButton.IconImage = ((System.Drawing.Image)(resources.GetObject("goDocsButton.IconImage")));
-			this.goDocsButton.IconSize = new System.Drawing.Size(32, 32);
-			this.goDocsButton.Large = false;
-			this.goDocsButton.Name = "goDocsButton";
-			this.goDocsButton.Vertical = true;
-			this.goDocsButton.Click += new System.EventHandler(this.goDocsButton_Click);
 			// 
 			// newFolderButton
 			// 
@@ -117,6 +95,28 @@
 			// 
 			resources.ApplyResources(this.nsSeperator1, "nsSeperator1");
 			this.nsSeperator1.Name = "nsSeperator1";
+			// 
+			// folderInfo
+			// 
+			resources.ApplyResources(this.folderInfo, "folderInfo");
+			this.folderInfo.File = null;
+			this.folderInfo.IconPadding = 24;
+			this.folderInfo.Name = "folderInfo";
+			this.folderInfo.Vertical = true;
+			// 
+			// goDocsButton
+			// 
+			resources.ApplyResources(this.goDocsButton, "goDocsButton");
+			this.goDocsButton.Corners.BottomLeft = true;
+			this.goDocsButton.Corners.BottomRight = true;
+			this.goDocsButton.Corners.TopLeft = false;
+			this.goDocsButton.Corners.TopRight = false;
+			this.goDocsButton.IconImage = ((System.Drawing.Image)(resources.GetObject("goDocsButton.IconImage")));
+			this.goDocsButton.IconSize = new System.Drawing.Size(32, 32);
+			this.goDocsButton.Large = false;
+			this.goDocsButton.Name = "goDocsButton";
+			this.goDocsButton.Vertical = true;
+			this.goDocsButton.Click += new System.EventHandler(this.goDocsButton_Click);
 			// 
 			// goPCButton
 			// 

@@ -52,8 +52,12 @@
     <Compile Include="Components\ILateUpdatable.cs" />
     <Compile Include="Components\IUpdatable.cs" />
     <Compile Include="Data\Defines\ProjectBasicInfo.cs" />
+    <Compile Include="Data\Files\Attributes\ChunkTagAttribute.cs" />
+    <Compile Include="Data\Files\BinaryChunk.cs" />
+    <Compile Include="Data\Files\ChunkedFile.cs" />
     <Compile Include="Data\Files\ContainerChunk.cs" />
-    <Compile Include="Data\Files\FileChunk.cs" />
+    <Compile Include="Data\Files\Chunk.cs" />
+    <Compile Include="Data\Files\KeyValueChunk.cs" />
     <Compile Include="World\Collider.cs" />
     <Compile Include="Components\Rendering\AnimatedMeshComponent.cs" />
     <Compile Include="Components\Rendering\MeshComponent.cs" />
@@ -162,6 +166,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\main-icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\project-error.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

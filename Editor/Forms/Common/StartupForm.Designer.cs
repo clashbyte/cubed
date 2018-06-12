@@ -51,7 +51,7 @@
 			this.webBrowser.Name = "webBrowser";
 			this.webBrowser.Size = new System.Drawing.Size(417, 380);
 			this.webBrowser.TabIndex = 4;
-			this.webBrowser.Url = new System.Uri("http://google.com", System.UriKind.Absolute);
+			this.webBrowser.Url = new System.Uri("https://clashbyte.ru/cubed/news", System.UriKind.Absolute);
 			this.webBrowser.WebBrowserShortcutsEnabled = false;
 			// 
 			// newProjectButton

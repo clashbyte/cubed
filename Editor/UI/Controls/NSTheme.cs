@@ -1285,14 +1285,13 @@ namespace Cubed.UI.Controls
 				if (Base != null)
 				{
 					Base.Multiline = value;
-
 					if (value)
 					{
-						Base.Height = Height - 11;
+					//	Base.Height = Height - 11;
 					}
 					else
 					{
-						Height = Base.Height + 11;
+					//	Height = Base.Height + 11;
 					}
 				}
 			}
@@ -1325,7 +1324,7 @@ namespace Cubed.UI.Controls
 
 					if (!_Multiline)
 					{
-						Height = Base.Height + 11;
+					//	Height = Base.Height + 11;
 					}
 				}
 			}

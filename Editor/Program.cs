@@ -19,10 +19,10 @@ namespace Cubed {
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
 
-			MessageDialog.Open("Test", "More test", MessageBoxButtons.RetryCancel, MessageBoxIcon.Question);
+			//MessageDialog.Open("Test", "More test", MessageBoxButtons.RetryCancel, MessageBoxIcon.Question);
 
 
-			//Application.Run(new StartupForm());
+			Application.Run(new StartupForm());
 			
 
 			//MapEditor.Start();

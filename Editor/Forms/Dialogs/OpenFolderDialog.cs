@@ -76,6 +76,11 @@ namespace Cubed.Forms.Dialogs {
 		string currentPath;
 
 		/// <summary>
+		/// Current folder
+		/// </summary>
+		string selectedFolder;
+
+		/// <summary>
 		/// Existing file names
 		/// </summary>
 		string[] existingNames;
@@ -138,6 +143,7 @@ namespace Cubed.Forms.Dialogs {
 		private void directoryBrowser_SelectionChanged(object sender) {
 
 			// Switching button
+			Folder = null;
 			bool allow = false;
 			NSDirectoryInspector.Entry se = directoryBrowser.SelectedEntry;
 			if (se != null) {
@@ -148,6 +154,9 @@ namespace Cubed.Forms.Dialogs {
 				allow = (info == null) == IsNewProject;
 			}
 			selectButton.Enabled = allow;
+			if (allow) {
+				Folder = (se.Tag as DirectoryInfo).FullName;
+			}
 
 			// Applying folder inspector
 			if (se != null) {
@@ -307,7 +316,6 @@ namespace Cubed.Forms.Dialogs {
 				goUpButton.Enabled = true;
 				newFolderButton.Enabled = true;
 			}
-			Folder = path;
 			projects.Clear();
 
 			// Enumerating dirs
@@ -345,7 +353,7 @@ namespace Cubed.Forms.Dialogs {
 						en.Name = info.Name;
 						en.SubName = info.Author;
 						en.Description = dir.Name;
-						en.MainIcon = new UIIcon(info.Splash);
+						en.MainIcon = new UIIcon(info.Icon);
 						projects.Add(en, info);
 					}
 

@@ -68,6 +68,24 @@ namespace Cubed.Drivers.Rendering {
 			}
 		}
 
+		/// <summary>
+		/// Window icon
+		/// </summary>
+		public Icon Icon {
+			get {
+				return icon;
+			}
+			set {
+				icon = value;
+				if (window != null) {
+					window.Icon = icon;
+				}
+			}
+		}
+
+		/// <summary>
+		/// Enable mouse locking
+		/// </summary>
 		public override bool MouseLock {
 			get {
 				return lockMouse;
@@ -94,6 +112,11 @@ namespace Cubed.Drivers.Rendering {
 		/// Window title
 		/// </summary>
 		string title = "Cubed";
+
+		/// <summary>
+		/// Window icon
+		/// </summary>
+		Icon icon;
 
 		/// <summary>
 		/// Привязка мыши

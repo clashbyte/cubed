@@ -71,14 +71,17 @@ namespace Cubed.Forms.Dialogs {
 			return md.ShowDialog();
 		}
 
-
-
-
+		/// <summary>
+		/// Constructor
+		/// </summary>
 		public MessageDialog() {
 			InitializeComponent();
-			
 		}
 
+		/// <summary>
+		/// Showing event
+		/// </summary>
+		/// <param name="e"></param>
 		protected override void OnShown(EventArgs e) {
 			base.OnShown(e);
 			Text = Title;
@@ -198,6 +201,11 @@ namespace Cubed.Forms.Dialogs {
 			iconPanel.Invalidate();
 		}
 
+		/// <summary>
+		/// Drawing icon
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		private void iconPanel_Paint(object sender, PaintEventArgs e) {
 			System.Drawing.Graphics g = e.Graphics;
 			g.Clear(Color.FromArgb(50, 50, 50));
@@ -206,6 +214,11 @@ namespace Cubed.Forms.Dialogs {
 			}
 		}
 
+		/// <summary>
+		/// Button hit
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		private void button_Click(object sender, EventArgs e) {
 			if (sender == button1) {
 				DialogResult = results[0];

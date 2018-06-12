@@ -25,9 +25,11 @@ namespace Cubed.Data.Projects {
 		/// <returns></returns>
 		public static ProjectBasicInfo GetInfoByFolder(string folder) {
 			if (File.Exists(Path.Combine(folder, ".cubed"))) {
-				return ProjectBasicInfo.GetDefaultInfo(Path.GetFileName(folder));
+				return ProjectBasicInfo.Read(folder);
 			}
 			return null;
 		}
+
+		
 	}
 }
