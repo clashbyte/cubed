@@ -68,6 +68,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\Editor\Attributes\FileEditorAttribute.cs" />
     <Compile Include="Data\Projects\Project.cs" />
     <Compile Include="Forms\Common\EditorForm.cs">
       <SubType>Form</SubType>
@@ -207,7 +208,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Controls\" />
-    <Folder Include="Data\Editor\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\folder.png" />
