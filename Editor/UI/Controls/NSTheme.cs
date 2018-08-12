@@ -3025,7 +3025,7 @@ namespace Cubed.UI.Controls
 			this.Controls.Add(this.RightScroller);
 			this.Controls.Add(this.ListButton);
 			this.Name = "TabScroller";
-			this.Size = new System.Drawing.Size(66, 22);
+			this.Size = new System.Drawing.Size(70, 22);
 			this.BackColor = Color.FromArgb(40, 40, 40);
 			this.Resize += new EventHandler(TabScroller_Resize);
 			this.ResumeLayout(false);
@@ -3211,6 +3211,7 @@ namespace Cubed.UI.Controls
 		private bool mouseDown;
 		private Entry clickedEntry;
 		private bool dragStarted;
+		private Image itemsCache;
 		string emptyMessage;
 		bool heightOverflow;
 
@@ -3236,6 +3237,92 @@ namespace Cubed.UI.Controls
 		private int ItemSize = 82;
 		private int IconSize = 64;
 
+		public void ClearCache() {
+			itemsCache = null;
+		}
+
+		public void PatchPreview(Entry en) {
+			if (itemsCache != null && Entries.Contains(en)) {
+				using (System.Drawing.Graphics IG = System.Drawing.Graphics.FromImage(itemsCache)) {
+					IG.SmoothingMode = SmoothingMode.AntiAlias;
+					IG.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
+
+					// Item rectangle
+					int idx = Entries.IndexOf(en);
+					int dx = idx % ItemsStride;
+					int dy = (idx - dx) / ItemsStride;
+
+					float delta = (float)ItemWidth / (float)ItemSize;
+					Rectangle rect = new Rectangle(dx * ItemWidth + 3, dy * ItemHeight + 1, ItemWidth, ItemHeight);
+
+					GraphicsPath fullPath = ThemeModule.CreateRound(rect, 7);
+					GraphicsPath iconPath = ThemeModule.CreateRound(rect.X + 3, rect.Y + 3, rect.Width - 6, rect.Width - 6, 7);
+					Rectangle iconRect = new Rectangle((int)((float)rect.X + (float)rect.Width / 2f - (float)IconSize * delta / 2f), (int)((float)rect.Y + (float)rect.Width / 2f - (float)IconSize * delta / 2f), (int)((float)IconSize * delta), (int)((float)IconSize * delta));
+
+					IG.SetClip(rect, CombineMode.Replace);
+					IG.Clear(Color.Transparent);
+					IG.ResetClip();
+					
+
+					// Managing icons
+					UIIcon mainIcon = null;
+					UIIcon subIcon = null;
+					if (en.BulletIcon != null) {
+						mainIcon = en.BulletIcon;
+					}
+					if (en.MainIcon != null) {
+						subIcon = mainIcon;
+						mainIcon = en.MainIcon;
+					}
+
+					// Rendering icons
+					if (mainIcon != null) {
+						mainIcon.Draw(IG, iconRect);
+					}
+					if (subIcon != null) {
+						Rectangle bulletBox = new Rectangle(
+								iconRect.Right - 23,
+								iconRect.Bottom - 23,
+								24, 24
+							);
+						Rectangle bulletRect = new Rectangle(
+							bulletBox.X + 4,
+							bulletBox.Y + 4,
+							bulletBox.Width - 8,
+							bulletBox.Height - 8
+						);
+
+						GraphicsPath bgp1 = ThemeModule.CreateRoundIncomplete(bulletBox, 3, new ThemeModule.Corners() {
+							BottomLeft = true,
+							BottomRight = true,
+							TopLeft = true,
+							TopRight = true
+						});
+						IG.FillPath(new SolidBrush(Color.FromArgb(128, 0, 0, 0)), bgp1);
+
+						subIcon.Draw(IG, bulletRect);
+					}
+
+					// Name
+					SizeF sz = IG.MeasureString(en.Name, Font);
+					string txt = en.Name;
+					if (sz.Width > rect.Width - 6) {
+						for (int j = txt.Length; j > 0; j--) {
+							sz = IG.MeasureString(en.Name.Substring(0, j) + "...", Font);
+							if (sz.Width < rect.Width - 6) {
+								txt = en.Name.Substring(0, j) + "...";
+								break;
+							}
+						}
+					}
+					PointF txtp = new PointF(rect.X + rect.Width / 2 - sz.Width / 2, rect.Y + rect.Height - (rect.Height - rect.Width) / 2 - sz.Height / 2 - 2);
+					IG.DrawString(txt, Font, Brushes.Black, txtp.X + 1, txtp.Y + 1);
+					IG.DrawString(txt, Font, Brushes.White, txtp.X, txtp.Y);
+					
+				}
+			}
+		}
+
 		protected override void OnPaint(PaintEventArgs e)
 		{
 			System.Drawing.Graphics G = e.Graphics;
@@ -3253,6 +3340,94 @@ namespace Cubed.UI.Controls
 				}
 				int dx = 0, dy = 0;
 				int off = offset % ItemHeight;
+
+				// Making cache
+				if (itemsCache == null) {
+					off = 0;
+					itemsCache = new Bitmap(Width - scroller.Width, (int)System.Math.Ceiling((float)Entries.Count / (float)ItemsStride) * ItemHeight);
+					using (System.Drawing.Graphics IG = System.Drawing.Graphics.FromImage(itemsCache)) {
+						IG.SmoothingMode = SmoothingMode.AntiAlias;
+						IG.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
+
+						foreach (Entry en in Entries) {
+
+							// Item rectangle
+							Rectangle rect = new Rectangle(dx * ItemWidth + 3, dy * ItemHeight + 1 - off, ItemWidth, ItemHeight);
+
+							GraphicsPath fullPath = ThemeModule.CreateRound(rect, 7);
+							GraphicsPath iconPath = ThemeModule.CreateRound(rect.X + 3, rect.Y + 3, rect.Width - 6, rect.Width - 6, 7);
+							Rectangle iconRect = new Rectangle((int)((float)rect.X + (float)rect.Width / 2f - (float)IconSize * delta / 2f), (int)((float)rect.Y + (float)rect.Width / 2f - (float)IconSize * delta / 2f), (int)((float)IconSize * delta), (int)((float)IconSize * delta));
+
+							// Managing icons
+							UIIcon mainIcon = null;
+							UIIcon subIcon = null;
+							if (en.BulletIcon != null) {
+								mainIcon = en.BulletIcon;
+							}
+							if (en.MainIcon != null) {
+								subIcon = mainIcon;
+								mainIcon = en.MainIcon;
+							}
+
+							// Rendering icons
+							if (mainIcon != null) {
+								mainIcon.Draw(IG, iconRect);
+							}
+							if (subIcon != null) {
+								Rectangle bulletBox = new Rectangle(
+										iconRect.Right - 23,
+										iconRect.Bottom - 23,
+										24, 24
+									);
+								Rectangle bulletRect = new Rectangle(
+									bulletBox.X + 4,
+									bulletBox.Y + 4,
+									bulletBox.Width - 8,
+									bulletBox.Height - 8
+								);
+
+								GraphicsPath bgp1 = ThemeModule.CreateRoundIncomplete(bulletBox, 3, new ThemeModule.Corners() {
+									BottomLeft = true,
+									BottomRight = true,
+									TopLeft = true,
+									TopRight = true
+								});
+								IG.FillPath(new SolidBrush(Color.FromArgb(128, 0, 0, 0)), bgp1);
+
+								subIcon.Draw(IG, bulletRect);
+							}
+
+							// Name
+							SizeF sz = IG.MeasureString(en.Name, Font);
+							string txt = en.Name;
+							if (sz.Width > rect.Width - 6)
+							{
+								for (int j = txt.Length; j > 0; j--)
+								{
+									sz = IG.MeasureString(en.Name.Substring(0, j) + "...", Font);
+									if (sz.Width < rect.Width - 6)
+									{
+										txt = en.Name.Substring(0, j) + "...";
+										break;
+									}
+								}
+							}
+							PointF txtp = new PointF(rect.X + rect.Width / 2 - sz.Width / 2, rect.Y + rect.Height - (rect.Height - rect.Width) / 2 - sz.Height / 2 - 2);
+							IG.DrawString(txt, Font, Brushes.Black, txtp.X + 1, txtp.Y + 1);
+							IG.DrawString(txt, Font, Brushes.White, txtp.X, txtp.Y);
+					
+							dx++;
+							if (dx >= ItemsStride)
+							{
+								dx = 0;
+								dy++;
+							}
+						}
+					}
+				}
+				dx = 0;
+				dy = 0;
+				off = offset % ItemHeight;
 
 				for (int i = skip; i < Entries.Count; i++)
 				{
@@ -3274,64 +3449,6 @@ namespace Cubed.UI.Controls
 						G.FillPath(B1, fullPath);
 						G.FillPath(B2, iconPath);
 					}
-
-					// Managing icons
-					UIIcon mainIcon = null;
-					UIIcon subIcon = null;
-					if (en.BulletIcon != null) {
-						mainIcon = en.BulletIcon;
-					}
-					if (en.MainIcon != null) {
-						subIcon = mainIcon;
-						mainIcon = en.MainIcon;
-					}
-
-					// Rendering icons
-					if (mainIcon != null) {
-						mainIcon.Draw(G, iconRect);
-					}
-					if (subIcon != null) {
-						Rectangle bulletBox = new Rectangle(
-								iconRect.Right - 23,
-								iconRect.Bottom - 23,
-								24, 24
-							);
-						Rectangle bulletRect = new Rectangle(
-							bulletBox.X + 4,
-							bulletBox.Y + 4,
-							bulletBox.Width - 8,
-							bulletBox.Height - 8
-						);
-
-						GraphicsPath bgp1 = ThemeModule.CreateRoundIncomplete(bulletBox, 3, new ThemeModule.Corners() {
-							BottomLeft = true,
-							BottomRight = true,
-							TopLeft = true,
-							TopRight = true
-						});
-						G.FillPath(new SolidBrush(Color.FromArgb(128, 0, 0, 0)), bgp1);
-
-						subIcon.Draw(G, bulletRect);
-					}
-					
-					// Name
-					SizeF sz = G.MeasureString(en.Name, Font);
-					string txt = en.Name;
-					if (sz.Width > rect.Width - 6)
-					{
-						for (int j = txt.Length; j > 0; j--)
-						{
-							sz = G.MeasureString(en.Name.Substring(0, j) + "...", Font);
-							if (sz.Width < rect.Width - 6)
-							{
-								txt = en.Name.Substring(0, j) + "...";
-								break;
-							}
-						}
-					}
-					PointF txtp = new PointF(rect.X + rect.Width / 2 - sz.Width / 2, rect.Y + rect.Height - (rect.Height - rect.Width) / 2 - sz.Height / 2 - 2);
-					G.DrawString(txt, Font, Brushes.Black, txtp.X + 1, txtp.Y + 1);
-					G.DrawString(txt, Font, Brushes.White, txtp.X, txtp.Y);
 					
 					dx++;
 					if (dx >= ItemsStride)
@@ -3344,6 +3461,8 @@ namespace Cubed.UI.Controls
 						}
 					}
 				}
+				G.CompositingQuality = CompositingQuality.HighQuality;
+				G.DrawImage(itemsCache, 0, -offset);
 
 			}
 			else
@@ -3375,6 +3494,7 @@ namespace Cubed.UI.Controls
 			int scrolledDepth = offset % ItemHeight;
 
 			CalculateItemSize();
+			itemsCache = null;
 			if (mouseInside)
 			{
 				Point cur = PointToClient(MousePosition);
@@ -3604,6 +3724,7 @@ namespace Cubed.UI.Controls
 					SelectionChanged(this);
 				}
 			}
+			itemsCache = null;
 			CheckScroll();
 			Invalidate();
 		}
@@ -7152,6 +7273,18 @@ namespace Cubed.UI.Controls
 		public override Color MenuItemSelected
 		{
 			get { return Color.FromArgb(65, 65, 65); }
+		}
+
+		public override Color MenuItemSelectedGradientBegin {
+			get {
+				return NSTheme.UI_ACCENT;
+			}
+		}
+
+		public override Color MenuItemSelectedGradientEnd {
+			get {
+				return NSTheme.UI_ACCENT;
+			}
 		}
 
 		public override Color SeparatorDark

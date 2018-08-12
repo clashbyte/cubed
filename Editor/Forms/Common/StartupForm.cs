@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
 using Cubed.Data.Defines;
@@ -16,6 +17,9 @@ namespace Cubed.Forms.Common {
 		/// </summary>
 		public StartupForm() {
 			InitializeComponent();
+			webBrowser.Dock = DockStyle.Fill;
+			loadingLabel.Dock = DockStyle.Fill;
+			webBrowser.Navigate("https://google.com");
 		}
 
 		/// <summary>
@@ -24,6 +28,10 @@ namespace Cubed.Forms.Common {
 		protected override void OnShown(EventArgs e) {
 			base.OnShown(e);
 			Text = "Cubed v" + Assembly.GetExecutingAssembly().GetName().Version.ToString();
+
+			Hide();
+			ShowMainForm(Path.Combine(Directory.GetCurrentDirectory(), "./../../../Project"));
+			Close();
 		}
 
 		/// <summary>
@@ -91,8 +99,19 @@ namespace Cubed.Forms.Common {
 			MainForm mf = new MainForm();
 			mf.StartingAction = isNew ? MainForm.StartAction.OpenNew : MainForm.StartAction.Open;
 			mf.CurrentProjectPath = path;
-			mf.ShowDialog();
+			mf.Open();
 			return mf.ClosingAction;
+		}
+
+		/// <summary>
+		/// Showing web browser when page loads
+		/// </summary>
+		void webBrowser_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e) {
+			webBrowser.Visible = true;
+		}
+
+		void webBrowser_Navigated(object sender, WebBrowserNavigatedEventArgs e) {
+			webBrowser.Visible = true;
 		}
 	}
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using Cubed.Data.Projects;
 
 namespace Cubed.Forms.Common {
 
@@ -34,6 +35,20 @@ namespace Cubed.Forms.Common {
 		public CloseAction ClosingAction {
 			get;
 			private set;
+		}
+
+		/// <summary>
+		/// Handling starting action
+		/// </summary>
+		private void HandleStartingAction() {
+			switch (StartingAction) {
+				case StartAction.Open:
+				case StartAction.OpenNew:
+					Project.Open(CurrentProjectPath);
+					break;
+				default:
+					break;
+			}
 		}
 
 		/// <summary>

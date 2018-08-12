@@ -26,6 +26,7 @@
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(StartupForm));
 			this.panel1 = new System.Windows.Forms.Panel();
 			this.webBrowser = new System.Windows.Forms.WebBrowser();
+			this.loadingLabel = new Cubed.UI.Controls.NSLabel();
 			this.newProjectButton = new Cubed.UI.Controls.NSIconicButton();
 			this.openProjectButton = new Cubed.UI.Controls.NSIconicButton();
 			this.panel1.SuspendLayout();
@@ -44,15 +45,27 @@
 			// webBrowser
 			// 
 			this.webBrowser.AllowWebBrowserDrop = false;
-			this.webBrowser.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.webBrowser.IsWebBrowserContextMenuEnabled = false;
-			this.webBrowser.Location = new System.Drawing.Point(240, 0);
+			this.webBrowser.Location = new System.Drawing.Point(255, 12);
 			this.webBrowser.MinimumSize = new System.Drawing.Size(20, 20);
 			this.webBrowser.Name = "webBrowser";
-			this.webBrowser.Size = new System.Drawing.Size(417, 380);
+			this.webBrowser.Size = new System.Drawing.Size(390, 166);
 			this.webBrowser.TabIndex = 4;
 			this.webBrowser.Url = new System.Uri("https://clashbyte.ru/cubed/news", System.UriKind.Absolute);
 			this.webBrowser.WebBrowserShortcutsEnabled = false;
+			this.webBrowser.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this.webBrowser_DocumentCompleted);
+			this.webBrowser.Navigated += new System.Windows.Forms.WebBrowserNavigatedEventHandler(this.webBrowser_Navigated);
+			// 
+			// loadingLabel
+			// 
+			this.loadingLabel.Font = new System.Drawing.Font("Tahoma", 8.25F);
+			this.loadingLabel.ForeColor = System.Drawing.Color.White;
+			this.loadingLabel.Location = new System.Drawing.Point(255, 184);
+			this.loadingLabel.Name = "loadingLabel";
+			this.loadingLabel.Size = new System.Drawing.Size(390, 184);
+			this.loadingLabel.TabIndex = 5;
+			this.loadingLabel.Text = "Loading news...";
+			this.loadingLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 			// 
 			// newProjectButton
 			// 
@@ -98,6 +111,7 @@
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(50)))), ((int)(((byte)(50)))));
 			this.ClientSize = new System.Drawing.Size(657, 380);
+			this.Controls.Add(this.loadingLabel);
 			this.Controls.Add(this.webBrowser);
 			this.Controls.Add(this.panel1);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
@@ -118,5 +132,6 @@
 		private UI.Controls.NSIconicButton openProjectButton;
 		private System.Windows.Forms.Panel panel1;
 		private System.Windows.Forms.WebBrowser webBrowser;
+		private UI.Controls.NSLabel loadingLabel;
 	}
 }

@@ -68,7 +68,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Data\Editor\Attributes\FileEditorAttribute.cs" />
+    <Compile Include="Data\Editor\FileTypeManager.cs" />
+    <Compile Include="Data\Editor\Previews\ImagePreviewGenerator.cs" />
+    <Compile Include="Data\Editor\Previews\Preview.cs" />
+    <Compile Include="Data\Editor\Previews\PreviewGenerator.cs" />
     <Compile Include="Data\Projects\Project.cs" />
     <Compile Include="Forms\Common\EditorForm.cs">
       <SubType>Form</SubType>
@@ -84,6 +87,9 @@
     </Compile>
     <Compile Include="Forms\Common\MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Common\MainForm.Project.cs">
+      <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\Common\StartupForm.cs">
       <SubType>Form</SubType>
@@ -119,7 +125,9 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>MessageBoxData.resx</DependentUpon>
     </Compile>
-    <Compile Include="UI\Controls\NSTheme.cs" />
+    <Compile Include="UI\Controls\NSTheme.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Drivers\EngineControl.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -269,6 +277,9 @@
       <ProductName>Windows Installer 4.5</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\file.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

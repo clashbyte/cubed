@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using Cubed.Data.Editor.Previews;
 
 namespace Cubed.Forms.Common
 {
@@ -21,9 +22,26 @@ namespace Cubed.Forms.Common
 		}
 
 		/// <summary>
+		/// Starting this form
+		/// </summary>
+		/// <returns>Dialog result</returns>
+		public DialogResult Open() {
+
+
+			HandleStartingAction();
+
+
+			return ShowDialog();
+		}
+
+		/// <summary>
 		/// Showing form - process startup events
 		/// </summary>
 		private void MainForm_Shown(object sender, EventArgs e) {
+			
+			// Populating project hierarchy
+			Preview.PreviewReady += Preview_PreviewReady;
+			PopulateProjectView();
 
 		}
 
@@ -50,6 +68,16 @@ namespace Cubed.Forms.Common
 
 
 
+
+		}
+
+		/// <summary>
+		/// Update all logic
+		/// </summary>
+		private void logicTimer_Tick(object sender, EventArgs e) {
+
+			// Handle previews
+			Preview.UpdatePending();
 
 		}
 	}

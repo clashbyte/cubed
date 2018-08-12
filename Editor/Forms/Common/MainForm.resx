@@ -121,6 +121,18 @@
     <value>17, 17</value>
   </metadata>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="projectUpButton.IconImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        xAAADsQBlSsOGwAAAMNJREFUOE/ljLERglAQRBkDSiAipAQCKqACIqpwDGzCwCIMLcCxGCMjYyMD+b7F
+        VQdExNidefPv7+5dNKamaRbC39/EYg1XU9ueJhZKuMDKaC4dj4tiDmfYwMxolpe7NiwKGZxgD7Ft+bE9
+        ZZntrggSOECAXQhh7ijSLM+ZOomjlzCXFLfmqNeRDjw9oa6jYT2K/r79v+pfD1CoIPWshb7aA7wpVJo7
+        aisOeAvNPQpnmoPmjmSiNfQX+6jz8cBk3bei6AYYQJMuBkPUsgAAAABJRU5ErkJggg==
+</value>
+  </data>
+  <metadata name="logicTimer.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>144, 17</value>
+  </metadata>
   <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         AAABAAYAAAAAAAEAIAArKwAAZgAAAICAAAABACAAKAgBAJErAABAQAAAAQAgAChCAAC5MwEAMDAAAAEA
