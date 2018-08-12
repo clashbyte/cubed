@@ -334,6 +334,7 @@
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
 			this.Text = "Cubed Editor";
 			this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
+			this.Activated += new System.EventHandler(this.MainForm_Activated);
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
 			this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainForm_FormClosed);
 			this.Shown += new System.EventHandler(this.MainForm_Shown);

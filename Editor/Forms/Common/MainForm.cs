@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using Cubed.Data.Editor.Previews;
+using Cubed.Data.Projects;
 
 namespace Cubed.Forms.Common
 {
@@ -32,6 +33,16 @@ namespace Cubed.Forms.Common
 
 
 			return ShowDialog();
+		}
+
+		/// <summary>
+		/// Switching to form
+		/// </summary>
+		private void MainForm_Activated(object sender, EventArgs e) {
+
+			// Rescanning project
+			Project.Rescan();
+
 		}
 
 		/// <summary>

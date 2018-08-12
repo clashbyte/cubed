@@ -83,6 +83,89 @@ namespace Cubed.Data.Projects {
 		}
 
 		/// <summary>
+		/// Rescanning project
+		/// </summary>
+		public static void Rescan() {
+
+			// Reading root
+			Folder newFolder = CreateFileTree("/");
+			CompareRecursive(Root, newFolder);
+
+		}
+
+		/// <summary>
+		/// Comparing folders
+		/// </summary>
+		/// <param name="prev"></param>
+		/// <param name="next"></param>
+		static void CompareRecursive(Folder prev, Folder next) {
+
+			// Saving all new folders
+			List<string> prevFolders = new List<string>();
+			List<string> nextFolders = new List<string>();
+			List<Folder> newFolders = new List<Folder>();
+			foreach (Folder fld in next.Folders) {
+				prevFolders.Add(fld.Path);
+			}
+			foreach (Folder fld in prev.Folders) {
+				nextFolders.Add(fld.Path);
+			}
+
+			// Scanning for removed folders
+			foreach (Folder fld in prev.Folders) {
+				if (!nextFolders.Contains(fld.Path)) {
+					Notify(fld, EntryEvent.Deleted);
+				} else {
+					newFolders.Add(fld);
+				}
+			}
+			foreach (Folder nfld in next.Folders) {
+				if (!prevFolders.Contains(nfld.Path)) {
+					nfld.Parent = prev;
+					Notify(nfld, EntryEvent.Created);
+					newFolders.Add(nfld);
+				}
+			}
+			foreach (Folder fl in newFolders) {
+
+			}
+
+			// Scanning for files
+			List<string> prevFiles = new List<string>();
+			List<string> nextFiles = new List<string>();
+			
+
+
+		}
+
+		/// <summary>
+		/// Notifying single entry
+		/// </summary>
+		/// <param name="entry">Entry</param>
+		/// <param name="type">Type of event</param>
+		static void Notify(EntryBase entry, EntryEvent type, bool recursive = false) {
+			if (recursive && entry is Folder) {
+				Folder fld = entry as Folder;
+				foreach (Folder ifd in fld.Folders) {
+					Notify(ifd, type, true);
+				}
+				foreach (Entry en in fld.Entries) {
+					BroadcastEvent(en, type);
+				}
+			}
+			BroadcastEvent(entry, type);
+		}
+
+		/// <summary>
+		/// Broadcasting event for single item
+		/// </summary>
+		/// <param name="entry">Entry</param>
+		/// <param name="ev">Event type</param>
+		static void BroadcastEvent(EntryBase entry, EntryEvent ev) {
+			System.Diagnostics.Debug.WriteLine(entry.Path+" - "+ev);
+		}
+
+		/// <summary>
 		/// Closing the project
 		/// </summary>
 		public static void Close() {
@@ -149,7 +232,7 @@ namespace Cubed.Data.Projects {
 			/// </summary>
 			public EntryBase Parent {
 				get;
-				protected set;
+				set;
 			}
 
 			/// <summary>
@@ -289,6 +372,15 @@ namespace Cubed.Data.Projects {
 				}
 			}
 
+		}
+
+		/// <summary>
+		/// Event for entry
+		/// </summary>
+		public enum EntryEvent {
+			Created,
+			Modified,
+			Deleted
 		}
 
 	}
