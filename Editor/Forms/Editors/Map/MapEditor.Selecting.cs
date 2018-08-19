@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
@@ -7,6 +8,7 @@ using Cubed.Components.Rendering;
 using Cubed.Editing;
 using Cubed.Maths;
 using Cubed.UI;
+using Cubed.UI.Controls;
 using Cubed.World;
 using OpenTK;
 
@@ -30,6 +32,9 @@ namespace Cubed.Forms.Editors.Map {
 		/// </summary>
 		Vector2 draggingScreenLocation;
 
+		/// <summary>
+		/// Opening selection
+		/// </summary>
 		void SelectToolOpen() {
 			if (ent == null) {
 				ent = new Entity();
@@ -53,25 +58,44 @@ namespace Cubed.Forms.Editors.Map {
 			scene.Entities.Add(ent);
 		}
 
+		/// <summary>
+		/// Closing selection
+		/// </summary>
 		void SelectToolClose() {
 			engine.Interface = null;
 			scene.Entities.Remove(ent);
+			if (draggingNewObject != null) {
+				draggingNewObject.Destroy(scene);
+				draggingNewObject = null;
+			}
 		}
 
+		/// <summary>
+		/// Updating
+		/// </summary>
 		void SelectToolUpdate() {
 
 			// Picking current grid position
-			Vector3 camPos = cam.ScreenToPoint(Input.Controls.Mouse.X, Input.Controls.Mouse.Y, 0);
-			Vector3 camDir = cam.ScreenToPoint(Input.Controls.Mouse.X, Input.Controls.Mouse.Y, 1) - camPos;
-			Vector3 pickPos = Vector3.Zero;
-			MapIntersections.Hit hit = MapIntersections.Intersect(camPos, camDir.Normalized(), map);
-			string labelText = "";
-			if (hit != null) {
-				pickPos = hit.Point;
-				labelText = "Cell: " + hit.Cell + " Type: " + hit.Type + " Side: " + hit.Side + " Pos: " + pickPos;
+			Vector2 mousePos = Input.Controls.Mouse;
+			if (draggingNewObject != null) {
+				mousePos = draggingScreenLocation;
 			}
-			tlabel.Text = labelText;
-			ent.Position = pickPos;
+
+			Vector3 camPos = cam.ScreenToPoint(mousePos.X, mousePos.Y, 0);
+			Vector3 camDir = cam.ScreenToPoint(mousePos.X, mousePos.Y, 1) - camPos;
+			Vector3 pickPos = Vector3.Zero;
+			MapIntersections.Hit mapHit = MapIntersections.Intersect(camPos, camDir.Normalized(), map);
+			if (mapHit != null) {
+				pickPos = mapHit.Point;
+			}
+
+			tlabel.Text = mousePos.ToString();;
+
+
+			if (draggingNewObject != null) {
+				draggingNewObject.Prefab.Position = pickPos + Vector3.UnitY * 0.1f;
+				draggingNewObject.EditorUpdate(scene);
+			}
 		}
 
 		/// <summary>
@@ -79,8 +103,27 @@ namespace Cubed.Forms.Editors.Map {
 		/// </summary>
 		private void screen_DragEnter(object sender, DragEventArgs e) {
 			e.Effect = e.AllowedEffect;
-			object data = e.Data.GetData(typeof(object));
+			NSDirectoryInspector.DropData data = (NSDirectoryInspector.DropData)e.Data.GetData(typeof(NSDirectoryInspector.DropData));
+			if (data != null) {
+				if (data.Content is Type) {
+					Type t = data.Content as Type;
+					if (typeof(EditableObject).IsAssignableFrom(t)) {
+						EditableObject eo = Activator.CreateInstance(t) as EditableObject;
+						if (eo != null) {
+							e.Effect = e.AllowedEffect;
+							draggingNewObject = eo;
+							eo.Create(scene);
 
+							Point mouse = screen.PointToClient(new Point(e.X, e.Y));
+							draggingScreenLocation = new Vector2(mouse.X, mouse.Y);
+						}
+					}
+				}
+			}
+			//if (data is Type) {
+			//	Type t = data as Type;
+			//	System.Diagnostics.Debug.WriteLine(t.Name);
+			//} 
 		}
 
 		/// <summary>
@@ -88,7 +131,7 @@ namespace Cubed.Forms.Editors.Map {
 		/// </summary>
 		private void screen_DragLeave(object sender, EventArgs e) {
 			if (draggingNewObject != null) {
-				draggingNewObject.Destroy();
+				draggingNewObject.Destroy(scene);
 				draggingNewObject = null;
 			}
 		}
@@ -98,7 +141,8 @@ namespace Cubed.Forms.Editors.Map {
 		/// </summary>
 		private void screen_DragOver(object sender, DragEventArgs e) {
 			if (draggingNewObject != null) {
-
+				Point mouse = screen.PointToClient(new Point(e.X, e.Y));
+				draggingScreenLocation = new Vector2(mouse.X, mouse.Y);
 			} else {
 				e.Effect = DragDropEffects.None;
 			}
@@ -111,7 +155,9 @@ namespace Cubed.Forms.Editors.Map {
 		/// <param name="e"></param>
 		private void screen_DragDrop(object sender, DragEventArgs e) {
 			if (draggingNewObject != null) {
-
+				Point mouse = screen.PointToClient(new Point(e.X, e.Y));
+				draggingScreenLocation = new Vector2(mouse.X, mouse.Y);
+				draggingNewObject = null;
 			} else {
 				e.Effect = DragDropEffects.None;
 			}

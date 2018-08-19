@@ -130,7 +130,7 @@ namespace Cubed.Forms.Editors.Map {
 			allowMouseLook = true;
 
 			// Map
-			map.Ambient = System.Drawing.Color.White;
+			//map.Ambient = System.Drawing.Color.White;
 
 			// Initializing select
 			SelectToolOpen();

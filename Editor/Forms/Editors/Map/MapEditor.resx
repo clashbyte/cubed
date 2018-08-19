@@ -135,7 +135,7 @@
     <value>0, 0</value>
   </data>
   <data name="screen.Size" type="System.Drawing.Size, System.Drawing">
-    <value>674, 376</value>
+    <value>674, 395</value>
   </data>
   <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="screen.TabIndex" type="System.Int32, mscorlib">
@@ -145,7 +145,7 @@
     <value>screen</value>
   </data>
   <data name="&gt;&gt;screen.Type" xml:space="preserve">
-    <value>Cubed.Drivers.EngineControl, Editor, Version=1.0.6805.39546, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.Drivers.EngineControl, Editor, Version=1.0.6806.909, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;screen.Parent" xml:space="preserve">
     <value>listContainer.Panel1</value>
@@ -178,7 +178,7 @@
     <value>0, 0</value>
   </data>
   <data name="entityList.Size" type="System.Drawing.Size, System.Drawing">
-    <value>674, 120</value>
+    <value>674, 101</value>
   </data>
   <data name="entityList.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -190,7 +190,7 @@
     <value>entityList</value>
   </data>
   <data name="&gt;&gt;entityList.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSDirectoryInspector, Editor, Version=1.0.6805.39546, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSDirectoryInspector, Editor, Version=1.0.6806.909, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;entityList.Parent" xml:space="preserve">
     <value>listContainer.Panel2</value>
@@ -211,13 +211,13 @@
     <value>1</value>
   </data>
   <data name="listContainer.Panel2MinSize" type="System.Int32, mscorlib">
-    <value>150</value>
+    <value>100</value>
   </data>
   <data name="listContainer.Size" type="System.Drawing.Size, System.Drawing">
     <value>674, 500</value>
   </data>
   <data name="listContainer.SplitterDistance" type="System.Int32, mscorlib">
-    <value>376</value>
+    <value>395</value>
   </data>
   <data name="listContainer.TabIndex" type="System.Int32, mscorlib">
     <value>3</value>
@@ -361,7 +361,7 @@
     <value>toolLogics</value>
   </data>
   <data name="&gt;&gt;toolLogics.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSRadioIconicButton, Editor, Version=1.0.6805.39546, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSRadioIconicButton, Editor, Version=1.0.6806.909, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;toolLogics.Parent" xml:space="preserve">
     <value>panel1</value>
@@ -565,7 +565,7 @@
     <value>toolPaint</value>
   </data>
   <data name="&gt;&gt;toolPaint.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSRadioIconicButton, Editor, Version=1.0.6805.39546, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSRadioIconicButton, Editor, Version=1.0.6806.909, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;toolPaint.Parent" xml:space="preserve">
     <value>panel1</value>
@@ -626,7 +626,7 @@
     <value>toolHeightmap</value>
   </data>
   <data name="&gt;&gt;toolHeightmap.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSRadioIconicButton, Editor, Version=1.0.6805.39546, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSRadioIconicButton, Editor, Version=1.0.6806.909, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;toolHeightmap.Parent" xml:space="preserve">
     <value>panel1</value>
@@ -741,7 +741,7 @@
     <value>toolFloors</value>
   </data>
   <data name="&gt;&gt;toolFloors.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSRadioIconicButton, Editor, Version=1.0.6805.39546, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSRadioIconicButton, Editor, Version=1.0.6806.909, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;toolFloors.Parent" xml:space="preserve">
     <value>panel1</value>
@@ -871,7 +871,7 @@
     <value>toolWalls</value>
   </data>
   <data name="&gt;&gt;toolWalls.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSRadioIconicButton, Editor, Version=1.0.6805.39546, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSRadioIconicButton, Editor, Version=1.0.6806.909, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;toolWalls.Parent" xml:space="preserve">
     <value>panel1</value>
@@ -1003,7 +1003,7 @@
     <value>toolSelect</value>
   </data>
   <data name="&gt;&gt;toolSelect.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSRadioIconicButton, Editor, Version=1.0.6805.39546, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSRadioIconicButton, Editor, Version=1.0.6806.909, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;toolSelect.Parent" xml:space="preserve">
     <value>panel1</value>
@@ -1060,7 +1060,7 @@
     <value>nsIconicButton1</value>
   </data>
   <data name="&gt;&gt;nsIconicButton1.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSIconicButton, Editor, Version=1.0.6805.39546, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSIconicButton, Editor, Version=1.0.6806.909, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;nsIconicButton1.Parent" xml:space="preserve">
     <value>panel2</value>
@@ -1094,7 +1094,7 @@
     <value>envOptionsButton</value>
   </data>
   <data name="&gt;&gt;envOptionsButton.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSIconicButton, Editor, Version=1.0.6805.39546, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSIconicButton, Editor, Version=1.0.6806.909, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;envOptionsButton.Parent" xml:space="preserve">
     <value>panel2</value>
@@ -1126,7 +1126,7 @@
     <value>floorDown</value>
   </data>
   <data name="&gt;&gt;floorDown.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSIconicButton, Editor, Version=1.0.6805.39546, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSIconicButton, Editor, Version=1.0.6806.909, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;floorDown.Parent" xml:space="preserve">
     <value>panel2</value>
@@ -1158,7 +1158,7 @@
     <value>floorUp</value>
   </data>
   <data name="&gt;&gt;floorUp.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSIconicButton, Editor, Version=1.0.6805.39546, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSIconicButton, Editor, Version=1.0.6806.909, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;floorUp.Parent" xml:space="preserve">
     <value>panel2</value>
@@ -1194,7 +1194,7 @@
     <value>walkModeEnable</value>
   </data>
   <data name="&gt;&gt;walkModeEnable.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSCheckboxIconicButton, Editor, Version=1.0.6805.39546, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSCheckboxIconicButton, Editor, Version=1.0.6806.909, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;walkModeEnable.Parent" xml:space="preserve">
     <value>panel2</value>
@@ -1224,7 +1224,7 @@
     <value>floorIndex</value>
   </data>
   <data name="&gt;&gt;floorIndex.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSLabel, Editor, Version=1.0.6805.39546, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSLabel, Editor, Version=1.0.6806.909, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;floorIndex.Parent" xml:space="preserve">
     <value>panel2</value>
@@ -1269,6 +1269,6 @@
     <value>MapEditor</value>
   </data>
   <data name="&gt;&gt;$this.Type" xml:space="preserve">
-    <value>Cubed.Forms.Common.EditorForm, Editor, Version=1.0.6805.39546, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.Forms.Common.EditorForm, Editor, Version=1.0.6806.909, Culture=neutral, PublicKeyToken=null</value>
   </data>
 </root>

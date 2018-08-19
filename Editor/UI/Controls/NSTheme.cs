@@ -3540,7 +3540,9 @@ namespace Cubed.UI.Controls
 				if (clickedEntry != hoverEntry && !dragStarted)
 				{
 					dragStarted = true;
-					DoDragDrop((object)clickedEntry.Tag, DragDropEffects.Link);
+					DoDragDrop(new DropData() {
+						Content = clickedEntry.Tag
+					}, DragDropEffects.Link);
 				}
 			}
 		}
@@ -3841,6 +3843,13 @@ namespace Cubed.UI.Controls
 			internal void SetParent(NSDirectoryInspector p) {
 				parent = p;
 			}
+		}
+
+		/// <summary>
+		/// Droppable data
+		/// </summary>
+		public class DropData {
+			public object Content;
 		}
 
 	}

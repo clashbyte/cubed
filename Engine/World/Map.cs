@@ -218,6 +218,27 @@ namespace Cubed.World {
 
 			// Setting block
 			chunk[tx, ty] = block;
+			chunk.QueueRebuild();
+			if (Engine.Current != null) {
+				if (Engine.Current.World != null) {
+					if (Engine.Current.World.Map == this) {
+						Vector3 pos = new Vector3(x, y, z);
+						foreach (Entity ent in Engine.Current.World.Entities) {
+							if (ent is Light) {
+								Light l = ent as Light;
+								if (l.Range >= (l.Position - pos).LengthFast) {
+									l.MakeDirty();
+									foreach (Chunk ch in chunks.Values) {
+										if (ch.TouchesLight(l) && ch != chunk) {
+											ch.QueueRelight();
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
 		}
 
 		/// <summary>
