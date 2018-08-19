@@ -27,9 +27,17 @@ namespace Cubed.Data.Editor {
 				new FileType(
 					"Image",
 					".bmp;.png;.jpg;.jpeg",
-					new UIIcon(DirectoryInspectorIcons.NetworkDrive),
+					new UIIcon(DirectoryInspectorIcons.Image),
 					null,
 					typeof(ImagePreviewGenerator),
+					null
+				),
+				new FileType(
+					"Animated image",
+					".gif;.anim",
+					new UIIcon(DirectoryInspectorIcons.Image),
+					null,
+					typeof(AnimationPreviewGenerator),
 					null
 				),
 			};
@@ -113,6 +121,9 @@ namespace Cubed.Data.Editor {
 		/// <param name="entry">Entry</param>
 		/// <returns>Type or null</returns>
 		static FileType FindByEntry(Project.Entry entry) {
+			if (entry == null) {
+				return null;
+			}
 			string n = System.IO.Path.GetExtension(entry.Name).ToLower();
 			foreach (FileType ft in types) {
 				if (ft.Extensions.Contains(n)) {

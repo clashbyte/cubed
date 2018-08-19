@@ -27,6 +27,42 @@ namespace Cubed.Drivers {
 		}
 
 		/// <summary>
+		/// Flag for focusing
+		/// </summary>
+		public override bool Focused {
+			get {
+				return gl.Focused;
+			}
+		}
+
+		/// <summary>
+		/// Allow dropping here
+		/// </summary>
+		public override bool AllowDrop {
+			get {
+				if (gl != null) {
+					return gl.AllowDrop;
+				}
+				return base.AllowDrop;
+			}
+			set {
+				if (gl != null) {
+					gl.AllowDrop = value;
+				}
+				base.AllowDrop = value;
+			}
+		}
+
+		/// <summary>
+		/// Focusing
+		/// </summary>
+		/// <param name="e"></param>
+		protected override void OnGotFocus(EventArgs e) {
+			base.OnGotFocus(e);
+			gl.Focus();
+		}
+
+		/// <summary>
 		/// GL device control
 		/// </summary>
 		GLControl gl;
@@ -101,6 +137,11 @@ namespace Cubed.Drivers {
 				gl.MouseDown += gl_MouseDown;
 				gl.MouseUp += gl_MouseUp;
 				gl.Dock = DockStyle.Fill;
+				gl.DragEnter += gl_DragEnter;
+				gl.DragOver += gl_DragOver;
+				gl.DragLeave += gl_DragLeave;
+				gl.DragDrop += gl_DragDrop;
+				gl.AllowDrop = true;
 				Controls.Add(gl);
 				ResumeLayout();
 
@@ -240,6 +281,34 @@ namespace Cubed.Drivers {
 				Display.Render(gl.ClientSize);
 			}
 			gl.SwapBuffers();
+		}
+
+		/// <summary>
+		/// Drag enter
+		/// </summary>
+		void gl_DragEnter(object sender, DragEventArgs e) {
+			OnDragEnter(e);
+		}
+
+		/// <summary>
+		/// Drag drop
+		/// </summary>
+		void gl_DragDrop(object sender, DragEventArgs e) {
+			OnDragDrop(e);
+		}
+		
+		/// <summary>
+		/// Drag leave
+		/// </summary>
+		void gl_DragLeave(object sender, EventArgs e) {
+			OnDragLeave(e);
+		}
+
+		/// <summary>
+		/// Drag over
+		/// </summary>
+		void gl_DragOver(object sender, DragEventArgs e) {
+			OnDragOver(e);
 		}
 
 	}

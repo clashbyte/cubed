@@ -66,6 +66,11 @@ namespace Cubed.Components {
 		}
 
 		/// <summary>
+		/// Destroying component
+		/// </summary>
+		internal virtual void Destroy() {}
+
+		/// <summary>
 		/// Режим прозрачности
 		/// </summary>
 		internal enum TransparencyPass {

@@ -58,6 +58,9 @@
     <Compile Include="Data\Files\ContainerChunk.cs" />
     <Compile Include="Data\Files\Chunk.cs" />
     <Compile Include="Data\Files\KeyValueChunk.cs" />
+    <Compile Include="Drivers\Textures\GifImageLoader.cs" />
+    <Compile Include="Drivers\Textures\BasicImageLoader.cs" />
+    <Compile Include="Drivers\Textures\TextureLoader.cs" />
     <Compile Include="World\Collider.cs" />
     <Compile Include="Components\Rendering\AnimatedMeshComponent.cs" />
     <Compile Include="Components\Rendering\MeshComponent.cs" />

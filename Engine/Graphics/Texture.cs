@@ -30,6 +30,26 @@ namespace Cubed.Graphics {
 		}
 
 		/// <summary>
+		/// Current texture frame
+		/// </summary>
+		public int CurrentFrame {
+			get;
+			set;
+		}
+
+		/// <summary>
+		/// Number of frames
+		/// </summary>
+		public int TotalFrames {
+			get {
+				if (tex != null) {
+					return tex.TotalFrames;
+				}
+				return 0;
+			}
+		}
+
+		/// <summary>
 		/// Loading state of texture
 		/// </summary>
 		public LoadingState State {
@@ -48,7 +68,7 @@ namespace Cubed.Graphics {
 		public TransparencyMode Transparency {
 			get {
 				if (tex != null) {
-					return (TransparencyMode)((byte)tex.Transparency);
+					return (TransparencyMode)((byte)tex[CurrentFrame].Transparency);
 				}
 				return TransparencyMode.Opaque;
 			}
@@ -100,7 +120,7 @@ namespace Cubed.Graphics {
 		public int Width {
 			get {
 				if (tex != null) {
-					return tex.Width;
+					return tex[CurrentFrame].Width;
 				}
 				return 0;
 			}
@@ -112,7 +132,19 @@ namespace Cubed.Graphics {
 		public int Height {
 			get {
 				if (tex != null) {
-					return tex.Height;
+					return tex[CurrentFrame].Height;
+				}
+				return 0;
+			}
+		}
+
+		/// <summary>
+		/// Total animation length
+		/// </summary>
+		public int AnimationLength {
+			get {
+				if (tex != null) {
+					return tex.AnimationLength;
 				}
 				return 0;
 			}
@@ -140,7 +172,7 @@ namespace Cubed.Graphics {
 		/// Internal texture generation from image
 		/// </summary>
 		/// <param name="image">Raw image</param>
-		internal Texture(Image image) {
+		public Texture(Image image) {
 			Link = "";
 			WrapHorizontal = WrapMode.Repeat;
 			WrapVertical = WrapMode.Repeat;
@@ -184,13 +216,29 @@ namespace Cubed.Graphics {
 		}
 
 		/// <summary>
+		/// Getting frame delay
+		/// </summary>
+		/// <param name="index">Index</param>
+		/// <returns>Frame delay in ms</returns>
+		public int GetFrameDelay(int index) {
+			if (tex != null) {
+				if (tex.TotalFrames > index) {
+					return tex[index].Delay;
+				}
+			}
+			return 0;
+		}
+
+		/// <summary>
 		/// Texture binding
 		/// </summary>
 		internal void Bind() {
 			bool bindable = false;
 			if (State != LoadingState.Empty) {
-				if (tex.GLTex != 0) {
-					bindable = true;
+				if (tex != null) {
+					if (tex.TotalFrames > 0) {
+						bindable = true;
+					}
 				}
 			}
 
@@ -198,7 +246,7 @@ namespace Cubed.Graphics {
 			if (bindable) {
 
 				// Setting up
-				tex.Bind();
+				tex.Bind(CurrentFrame);
 
 				// Filtering
 				GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);

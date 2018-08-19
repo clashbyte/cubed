@@ -59,6 +59,9 @@ namespace Cubed.Drivers.Files {
 		/// <param name="file">Specified path</param>
 		/// <returns>Full path to file</returns>
 		string calcPath(string file) {
+			if (file.StartsWith("/") || file.StartsWith("\\")) {
+				file = file.Substring(1);
+			}
 			return Path.Combine(RootFolder, file);
 		}
 

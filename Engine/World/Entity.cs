@@ -48,6 +48,11 @@ namespace Cubed.World {
 		protected bool visible = true;
 
 		/// <summary>
+		/// Object destruction flag
+		/// </summary>
+		private bool destroyed;
+
+		/// <summary>
 		/// Object components
 		/// </summary>
 		protected List<EntityComponent> components;
@@ -92,6 +97,9 @@ namespace Cubed.World {
 		/// </summary>
 		public bool Visible {
 			get {
+				if (destroyed) {
+					return false;
+				}
 				Entity d = this;
 				while (d != null) {
 					if (!d.visible) {
@@ -248,6 +256,16 @@ namespace Cubed.World {
 		}
 
 		/// <summary>
+		/// Destroying object
+		/// </summary>
+		public void Destroy() {
+			destroyed = true;
+			foreach (EntityComponent c in components) {
+				c.Destroy();
+			}
+		}
+
+		/// <summary>
 		/// Add component to object
 		/// </summary>
 		/// <param name="c">New component</param>
@@ -312,6 +330,9 @@ namespace Cubed.World {
 		/// </summary>
 		internal IEnumerable<EntityComponent> GetLogicalComponents() {
 			List<EntityComponent> cl = new List<EntityComponent>();
+			if (destroyed) {
+				return cl;
+			}
 			foreach (EntityComponent c in components) {
 				if (c is IUpdatable && c.Enabled) {
 					cl.Add(c);
@@ -325,6 +346,9 @@ namespace Cubed.World {
 		/// </summary>
 		internal IEnumerable<EntityComponent> GetLateLogicalComponents() {
 			List<EntityComponent> cl = new List<EntityComponent>();
+			if (destroyed) {
+				return cl;
+			}
 			foreach (EntityComponent c in components) {
 				if (c is ILateUpdatable && c.Enabled) {
 					cl.Add(c);
@@ -340,6 +364,9 @@ namespace Cubed.World {
 
 			// Component list
 			List<EntityComponent> cl = new List<EntityComponent>();
+			if (destroyed) {
+				return cl;
+			}
 
 			// Rebuilding cull sphere
 			if (needCullRebuild) {

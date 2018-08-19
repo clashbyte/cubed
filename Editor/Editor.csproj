@@ -47,6 +47,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>main-icon.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="OpenTK, Version=3.0.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
       <HintPath>..\packages\OpenTK.3.0.0-pre\lib\net20\OpenTK.dll</HintPath>
@@ -68,11 +71,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\Editor\Attributes\InspectorIconAttribute.cs" />
+    <Compile Include="Data\Editor\Attributes\InspectorNameAttribute.cs" />
     <Compile Include="Data\Editor\FileTypeManager.cs" />
+    <Compile Include="Data\Editor\Previews\AnimationPreviewGenerator.cs" />
     <Compile Include="Data\Editor\Previews\ImagePreviewGenerator.cs" />
     <Compile Include="Data\Editor\Previews\Preview.cs" />
     <Compile Include="Data\Editor\Previews\PreviewGenerator.cs" />
     <Compile Include="Data\Projects\Project.cs" />
+    <Compile Include="Editing\EditableObject.cs" />
+    <Compile Include="Editing\MapLight.cs" />
     <Compile Include="Forms\Common\EditorForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -115,16 +123,90 @@
     <Compile Include="Forms\Dialogs\TextInputDialog.Designer.cs">
       <DependentUpon>TextInputDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\Editors\Map\MapEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Editors\Map\MapEditor.Designer.cs">
+      <DependentUpon>MapEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Editors\Map\MapEditor.Floors.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Editors\Map\MapEditor.Heightmap.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Editors\Map\MapEditor.Logics.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Editors\Map\MapEditor.Movement.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Editors\Map\MapEditor.Painting.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Editors\Map\MapEditor.Selecting.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Editors\Map\MapEditor.Textures.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Editors\Map\MapEditor.Walls.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Inspections\Fields\BoolFieldInspector.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\Inspections\Fields\EnumFieldInspector.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\Inspections\Fields\FieldInspector.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\Inspections\Fields\FieldInspector.Designer.cs">
+      <DependentUpon>FieldInspector.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Inspections\Fields\StringFieldInspector.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\Inspections\Inspector.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Forms\Inspections\InspectorEntry.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Forms\Resources\DirectoryInspectorIcons.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>DirectoryInspectorIcons.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Resources\EditorTextures.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>EditorTextures.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Resources\InspectorIcons.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>InspectorIcons.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Resources\InspectorStrings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>InspectorStrings.resx</DependentUpon>
     </Compile>
     <Compile Include="Forms\Resources\MessageBoxData.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>MessageBoxData.resx</DependentUpon>
     </Compile>
+    <Compile Include="Forms\Resources\MiscIcons.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MiscIcons.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Maths\Lerps.cs" />
+    <Compile Include="Maths\Lines.cs" />
+    <Compile Include="Maths\MapIntersections.cs" />
     <Compile Include="UI\Controls\NSTheme.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -134,7 +216,7 @@
     <Compile Include="Drivers\Rendering\ProxyDisplay.cs" />
     <Compile Include="Drivers\Windows\WinKeyMap.cs" />
     <Compile Include="Map\MapEditor.cs" />
-    <Compile Include="Math\Intersections.cs" />
+    <Compile Include="Maths\Intersections.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UI\Controls\ThemeBase154.cs">
@@ -168,13 +250,47 @@
     <EmbeddedResource Include="Forms\Dialogs\TextInputDialog.resx">
       <DependentUpon>TextInputDialog.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Editors\Map\MapEditor.resx">
+      <DependentUpon>MapEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Editors\Map\MapEditor.ru.resx">
+      <DependentUpon>MapEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Inspections\Fields\BoolFieldInspector.resx">
+      <DependentUpon>BoolFieldInspector.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Inspections\Fields\EnumFieldInspector.resx">
+      <DependentUpon>EnumFieldInspector.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Inspections\Fields\FieldInspector.resx">
+      <DependentUpon>FieldInspector.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Inspections\Fields\StringFieldInspector.resx">
+      <DependentUpon>StringFieldInspector.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\Resources\DirectoryInspectorIcons.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>DirectoryInspectorIcons.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Resources\EditorTextures.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>EditorTextures.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Resources\InspectorIcons.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>InspectorIcons.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Resources\InspectorStrings.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>InspectorStrings.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\Resources\MessageBoxData.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>MessageBoxData.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Resources\MiscIcons.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>MiscIcons.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -280,6 +396,31 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\file.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\texture.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\chevron-l.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\chevron-r.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\menu.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Wall.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Ceiling.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Floor.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="main-icon.ico" />
+    <None Include="Resources\light.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

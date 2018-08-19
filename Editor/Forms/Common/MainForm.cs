@@ -8,11 +8,22 @@ using System.Text;
 using System.Windows.Forms;
 using Cubed.Data.Editor.Previews;
 using Cubed.Data.Projects;
+using Cubed.Forms.Editors.Map;
 
 namespace Cubed.Forms.Common
 {
 	public partial class MainForm : Form
 	{
+
+		/// <summary>
+		/// Handler for updates
+		/// </summary>
+		public static event EventHandler LogicUpdate;
+
+		/// <summary>
+		/// Current main form instance
+		/// </summary>
+		static MainForm Current;
 
 		/// <summary>
 		/// Constructor
@@ -50,9 +61,25 @@ namespace Cubed.Forms.Common
 		/// </summary>
 		private void MainForm_Shown(object sender, EventArgs e) {
 			
+			// Registering form
+			Current = this;
+
 			// Populating project hierarchy
 			Preview.PreviewReady += Preview_PreviewReady;
+			Project.EntriesChangedEvent += Project_EntriesChangedEvent;
 			PopulateProjectView();
+
+			// Open test editor
+			TabPage tp = new TabPage();
+			MapEditor me = new MapEditor();
+			me.TopLevel = false;
+			me.Location = Point.Empty;
+			me.Visible = true;
+			me.BringToFront();
+			tp.Controls.Add(me);
+			tp.Tag = me;
+			me.Dock = DockStyle.Fill;
+			editorsControl.AddTab(tp, true);
 
 		}
 
@@ -90,6 +117,10 @@ namespace Cubed.Forms.Common
 			// Handle previews
 			Preview.UpdatePending();
 
+			// Handle hooks
+			if (LogicUpdate != null) {
+				LogicUpdate(this, EventArgs.Empty);
+			}
 		}
 	}
 }

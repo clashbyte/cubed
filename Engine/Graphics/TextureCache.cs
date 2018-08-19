@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Cubed.Core;
+using Cubed.Drivers.Textures;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
@@ -209,38 +210,6 @@ namespace Cubed.Graphics {
 			}
 
 			/// <summary>
-			/// GL texture
-			/// </summary>
-			public int GLTex {
-				get;
-				private set;
-			}
-
-			/// <summary>
-			/// Data format
-			/// </summary>
-			public OpenTK.Graphics.OpenGL.PixelFormat DataFormat {
-				get;
-				private set;
-			}
-
-			/// <summary>
-			/// Raw scan data
-			/// </summary>
-			public byte[] Data {
-				get;
-				private set;
-			}
-
-			/// <summary>
-			/// Transparency mode
-			/// </summary>
-			public TransparencyMode Transparency {
-				get;
-				private set;
-			}
-
-			/// <summary>
 			/// Internal entry state
 			/// </summary>
 			public EntryState State {
@@ -249,59 +218,46 @@ namespace Cubed.Graphics {
 			}
 
 			/// <summary>
-			/// Width
+			/// Total number of frames
 			/// </summary>
-			public int Width {
-				get;
-				private set;
+			public int TotalFrames {
+				get {
+					if (frames != null) {
+						return frames.Length;
+					}
+					return 0;
+				}
 			}
 
 			/// <summary>
-			/// Height
+			/// Total animation length
 			/// </summary>
-			public int Height {
-				get;
-				private set;
+			public int AnimationLength {
+				get {
+					int total = 0;
+					if (frames != null) {
+						foreach (Frame f in frames) {
+							total += f.Delay;
+						}
+					}
+					return total;
+				}
 			}
 
 			/// <summary>
-			/// Computed width (if NPOT is not supported)
+			/// Current image frames
 			/// </summary>
-			public int ComputedWidth {
-				get;
-				private set;
-			}
+			Frame[] frames;
 
 			/// <summary>
-			/// Computed height (if NPOT is not supported)
+			/// Get frame of this entry
 			/// </summary>
-			public int ComputedHeight {
-				get;
-				private set;
-			}
-
-			/// <summary>
-			/// Horizontal delta for NPOT to POT transformation
-			/// </summary>
-			public float HorizontalDelta {
-				get;
-				private set;
-			}
-
-			/// <summary>
-			/// Vertical delta for NPOT to POT transformation
-			/// </summary>
-			public float VerticalDelta {
-				get;
-				private set;
-			}
-
-			/// <summary>
-			/// NPOT to POT texture transformation matrix
-			/// </summary>
-			public Matrix4 TextureMatrix {
-				get;
-				private set;
+			/// <param name="index">Index</param>
+			/// <returns>Frame</returns>
+			public Frame this[int index] {
+				get {
+					return frames[index];
+				}
 			}
 
 			/// <summary>
@@ -328,7 +284,6 @@ namespace Cubed.Graphics {
 			public CacheEntry(string file) {
 				State = EntryState.Empty;
 				FileName = file;
-				TextureMatrix = Matrix4.Identity;
 			}
 
 			/// <summary>
@@ -337,8 +292,10 @@ namespace Cubed.Graphics {
 			/// <param name="img">Image</param>
 			public CacheEntry(Image img) {
 				FileName = "";
-				ProcessBitmap((Bitmap)img);
-				SendToGL();
+				frames = new Frame[] {
+					new Frame(img)
+				};
+				frames[0].SendToGL();
 			}
 
 			/// <summary>
@@ -368,90 +325,49 @@ namespace Cubed.Graphics {
 				// Reading byte array
 				if (eng.Filesystem.Exists(FileName)) {
 
-					// Loadin image
-					byte[] data = eng.Filesystem.Get(FileName);
-					Bitmap bmp = Bitmap.FromStream(new MemoryStream(data)) as Bitmap;
-					ProcessBitmap(bmp);
-					State = EntryState.NotSent;
+					// Decoding texture scans
+					TextureLoader.Scan[] scans = TextureLoader.Load(FileName, eng.Filesystem);
+					if (scans == null || scans.Length == 0) {
+						State = EntryState.Empty;
+						return;
+					}
 
+					// Creating array
+					List<Frame> flist = new List<Frame>();
+					foreach (TextureLoader.Scan scan in scans) {
+						flist.Add(new Frame(scan.Texture, scan.Delay));
+					}
+					frames = flist.ToArray();
+					State = EntryState.NotSent;
 				} else {
 					State = EntryState.Empty;
 				}
 			}
 
 			/// <summary>
-			/// Bitmap handling
+			/// Binding frame
 			/// </summary>
-			/// <param name="bmp">Bitmap</param>
-			void ProcessBitmap(Bitmap bmp) {
-				Width = bmp.Width;
-				Height = bmp.Height;
-
-				// Handling software NPOT conversion
-				if (!Caps.NonPowerOfTwoTextures) {
-					ComputedWidth = Pow2(Width);
-					ComputedHeight = Pow2(Height);
-					if (Width != ComputedWidth || Height != ComputedHeight) {
-						Bitmap pr = new Bitmap(ComputedWidth, ComputedHeight);
-						using (System.Drawing.Graphics g = System.Drawing.Graphics.FromImage(pr)) {
-							g.DrawImage(bmp, new Rectangle(0, 0, Width, Height), new Rectangle(0, 0, Width, Height), GraphicsUnit.Pixel);
-						}
-						bmp.Dispose();
-						bmp = pr;
-					}
-					HorizontalDelta = (float)Width / (float)ComputedWidth;
-					VerticalDelta = (float)Height / (float)ComputedHeight;
-					TextureMatrix = Matrix4.CreateScale(HorizontalDelta, VerticalDelta, 1f);
-				} else {
-					ComputedWidth = Width;
-					ComputedHeight = Height;
-					HorizontalDelta = 1f;
-					VerticalDelta = 1f;
-					TextureMatrix = Matrix4.Identity;
-				}
-
-				// Converting into scan
-				BitmapData bd = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-				byte[] scan = new byte[Math.Abs(bd.Stride * bd.Height)];
-				Marshal.Copy(bd.Scan0, scan, 0, scan.Length);
-				bmp.UnlockBits(bd);
-				bmp.Dispose();
-
-				// Saving params
-				DataFormat = OpenTK.Graphics.OpenGL.PixelFormat.Bgra;
-				Data = scan;
-
-				// Calculating scan transparency
-				Transparency = TransparencyMode.Opaque;
-				for (int ty = 0; ty < Height; ty++) {
-					for (int tx = 0; tx < Width; tx++) {
-						byte a = scan[(ty * ComputedWidth + tx) * 4 + 3];
-						if (a < 255) {
-							Transparency = TransparencyMode.AlphaCut;
-							if (a > 0) {
-								Transparency = TransparencyMode.AlphaFull;
-								break;
-							}
-						}
-					}
-				}
+			/// <param name="frame">Frame identifier</param>
+			public void Bind(int frame) {
+				frames[frame].Bind();
 			}
 
 			/// <summary>
-			/// Uploading texture to GPU
+			/// Binding default frame
+			/// </summary>
+			public void Bind() {
+				Bind(0);
+			}
+
+			/// <summary>
+			/// Sending scans to Gl
 			/// </summary>
 			public void SendToGL() {
 				State = EntryState.Sending;
 				GL.Enable(EnableCap.Texture2D);
-
-				GLTex = GL.GenTexture();
-				GL.BindTexture(TextureTarget.Texture2D, GLTex);
-				GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Four, ComputedWidth, ComputedHeight, 0, DataFormat, PixelType.UnsignedByte, Data);
-				GL.TexEnv(TextureEnvTarget.TextureEnv, TextureEnvParameter.TextureEnvMode, (int)TextureEnvModeCombine.Modulate);
-				GL.BindTexture(TextureTarget.Texture2D, 0);
-
-				Data = null;
-
+				foreach (Frame f in frames) {
+					f.SendToGL();
+				}
 				State = EntryState.Complete;
 			}
 
@@ -459,48 +375,242 @@ namespace Cubed.Graphics {
 			/// Releasing texture
 			/// </summary>
 			public void Release() {
-				if (GLTex != 0) {
-					if (GL.IsTexture(GLTex)) {
-						GL.DeleteTexture(GLTex);
-					}
-					GLTex = 0;
-				}
-				if (Data != null) {
-					Data = null;
+				foreach (Frame f in frames) {
+					f.Release();
 				}
 				State = EntryState.Empty;
 			}
 
-			/// <summary>
-			/// Binding texture to pipeline
-			/// </summary>
-			public void Bind() {
-
-				// Включение в конвейер
-				GL.BindTexture(TextureTarget.Texture2D, GLTex);
-
-				// Загрузка матрицы
-				if (Caps.ShaderPipeline) {
-					ShaderSystem.TextureMatrix = TextureMatrix;
-				} else {
-					GL.MatrixMode(MatrixMode.Texture);
-					Matrix4 mat = TextureMatrix;
-					GL.LoadMatrix(ref mat);
-					GL.MatrixMode(MatrixMode.Modelview);
-				}
-			}
 
 			/// <summary>
-			/// Calculating highest power of two
+			/// Frame of a texture
 			/// </summary>
-			/// <param name="num">Number</param>
-			/// <returns>Nearest power-of-two number</returns>
-			int Pow2(int num) {
-				int d = 1;
-				while (d < num) {
-					d *= 2;
+			public class Frame {
+
+				/// <summary>
+				/// Width
+				/// </summary>
+				public int Width {
+					get;
+					private set;
 				}
-				return d;
+
+				/// <summary>
+				/// Height
+				/// </summary>
+				public int Height {
+					get;
+					private set;
+				}
+
+				/// <summary>
+				/// Computed width (if NPOT is not supported)
+				/// </summary>
+				public int ComputedWidth {
+					get;
+					private set;
+				}
+
+				/// <summary>
+				/// Computed height (if NPOT is not supported)
+				/// </summary>
+				public int ComputedHeight {
+					get;
+					private set;
+				}
+
+				/// <summary>
+				/// Horizontal delta for NPOT to POT transformation
+				/// </summary>
+				public float HorizontalDelta {
+					get;
+					private set;
+				}
+
+				/// <summary>
+				/// Vertical delta for NPOT to POT transformation
+				/// </summary>
+				public float VerticalDelta {
+					get;
+					private set;
+				}
+
+				/// <summary>
+				/// NPOT to POT texture transformation matrix
+				/// </summary>
+				public Matrix4 TextureMatrix {
+					get;
+					private set;
+				}
+
+				/// <summary>
+				/// GL texture
+				/// </summary>
+				public int GLTex {
+					get;
+					private set;
+				}
+
+				/// <summary>
+				/// Data format
+				/// </summary>
+				public OpenTK.Graphics.OpenGL.PixelFormat DataFormat {
+					get;
+					private set;
+				}
+
+				/// <summary>
+				/// Raw scan data
+				/// </summary>
+				public byte[] Data {
+					get;
+					private set;
+				}
+
+				/// <summary>
+				/// Delay
+				/// </summary>
+				public int Delay {
+					get;
+					private set;
+				}
+
+				/// <summary>
+				/// Transparency mode
+				/// </summary>
+				public TransparencyMode Transparency {
+					get;
+					private set;
+				}
+
+				/// <summary>
+				/// Frame constructor
+				/// </summary>
+				/// <param name="source">Source image</param>
+				/// <param name="delay"></param>
+				public Frame(Image source, int delay = int.MaxValue) {
+					TextureMatrix = Matrix4.Identity;
+					ProcessBitmap((Bitmap)source);
+					Delay = delay;
+				}
+
+				/// <summary>
+				/// Uploading texture to GPU
+				/// </summary>
+				public void SendToGL() {
+					GLTex = GL.GenTexture();
+					GL.BindTexture(TextureTarget.Texture2D, GLTex);
+					GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Four, ComputedWidth, ComputedHeight, 0, DataFormat, PixelType.UnsignedByte, Data);
+					GL.TexEnv(TextureEnvTarget.TextureEnv, TextureEnvParameter.TextureEnvMode, (int)TextureEnvModeCombine.Modulate);
+					GL.BindTexture(TextureTarget.Texture2D, 0);
+					Data = null;
+				}
+
+				/// <summary>
+				/// Releasing texture
+				/// </summary>
+				public void Release() {
+					if (GLTex != 0) {
+						if (GL.IsTexture(GLTex)) {
+							GL.DeleteTexture(GLTex);
+						}
+						GLTex = 0;
+					}
+					if (Data != null) {
+						Data = null;
+					}
+				}
+
+				/// <summary>
+				/// Binding texture to pipeline
+				/// </summary>
+				public void Bind() {
+
+					// Включение в конвейер
+					GL.BindTexture(TextureTarget.Texture2D, GLTex);
+
+					// Загрузка матрицы
+					if (Caps.ShaderPipeline) {
+						ShaderSystem.TextureMatrix = TextureMatrix;
+					} else {
+						GL.MatrixMode(MatrixMode.Texture);
+						Matrix4 mat = TextureMatrix;
+						GL.LoadMatrix(ref mat);
+						GL.MatrixMode(MatrixMode.Modelview);
+					}
+				}
+
+				/// <summary>
+				/// Bitmap handling
+				/// </summary>
+				/// <param name="bmp">Bitmap</param>
+				void ProcessBitmap(Bitmap bmp) {
+					Width = bmp.Width;
+					Height = bmp.Height;
+
+					// Handling software NPOT conversion
+					if (!Caps.NonPowerOfTwoTextures) {
+						ComputedWidth = Pow2(Width);
+						ComputedHeight = Pow2(Height);
+						if (Width != ComputedWidth || Height != ComputedHeight) {
+							Bitmap pr = new Bitmap(ComputedWidth, ComputedHeight);
+							using (System.Drawing.Graphics g = System.Drawing.Graphics.FromImage(pr)) {
+								g.DrawImage(bmp, new Rectangle(0, 0, Width, Height), new Rectangle(0, 0, Width, Height), GraphicsUnit.Pixel);
+							}
+							bmp.Dispose();
+							bmp = pr;
+						}
+						HorizontalDelta = (float)Width / (float)ComputedWidth;
+						VerticalDelta = (float)Height / (float)ComputedHeight;
+						TextureMatrix = Matrix4.CreateScale(HorizontalDelta, VerticalDelta, 1f);
+					} else {
+						ComputedWidth = Width;
+						ComputedHeight = Height;
+						HorizontalDelta = 1f;
+						VerticalDelta = 1f;
+						TextureMatrix = Matrix4.Identity;
+					}
+
+					// Converting into scan
+					BitmapData bd = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+					byte[] scan = new byte[Math.Abs(bd.Stride * bd.Height)];
+					Marshal.Copy(bd.Scan0, scan, 0, scan.Length);
+					bmp.UnlockBits(bd);
+					bmp.Dispose();
+
+					// Saving params
+					DataFormat = OpenTK.Graphics.OpenGL.PixelFormat.Bgra;
+					Data = scan;
+
+					// Calculating scan transparency
+					Transparency = TransparencyMode.Opaque;
+					for (int ty = 0; ty < Height; ty++) {
+						for (int tx = 0; tx < Width; tx++) {
+							byte a = scan[(ty * ComputedWidth + tx) * 4 + 3];
+							if (a < 255) {
+								Transparency = TransparencyMode.AlphaCut;
+								if (a > 0) {
+									Transparency = TransparencyMode.AlphaFull;
+									break;
+								}
+							}
+						}
+					}
+				}
+
+				/// <summary>
+				/// Calculating highest power of two
+				/// </summary>
+				/// <param name="num">Number</param>
+				/// <returns>Nearest power-of-two number</returns>
+				int Pow2(int num) {
+					int d = 1;
+					while (d < num) {
+						d *= 2;
+					}
+					return d;
+				}
+
 			}
 		}
 

@@ -116,7 +116,13 @@ namespace Cubed.World {
 			Ambient = Color.DimGray;
 		}
 
-
+		/// <summary>
+		/// Getting block from coords
+		/// </summary>
+		/// <param name="x">X</param>
+		/// <param name="y">Y</param>
+		/// <param name="z">Z</param>
+		/// <returns>Block or null</returns>
 		public Block GetBlockAtCoords(float x, float y, float z) {
 			int cx = (int)Math.Floor(x / (float)Chunk.BLOCKS);
 			int cy = (int)Math.Floor(y);
@@ -137,6 +143,81 @@ namespace Cubed.World {
 				return chunks[hash][(int)tx, (int)ty];
 			}
 			return null;
+		}
+
+		/// <summary>
+		/// Setting block at coords
+		/// </summary>
+		/// <param name="x">X</param>
+		/// <param name="y">Y</param>
+		/// <param name="z">Z</param>
+		public void SetBlockAtCoords(int x, int y, int z, Block block) {
+			int cx = (int)Math.Floor(x / (float)Chunk.BLOCKS);
+			int cy = y;
+			int cz = (int)Math.Floor(z / (float)Chunk.BLOCKS);
+
+			string hash = Hash(cx, cy, cz);
+			if (!chunks.ContainsKey(hash)) {
+				Chunk ch = new Chunk();
+				chunks.Add(hash, ch);
+				ch.SetParent(this, cx, cy, cz);
+			}
+			Chunk chunk = chunks[hash];
+
+			// Calculating block location
+			int tx = x % Chunk.BLOCKS;
+			int ty = z % Chunk.BLOCKS;
+			if (tx < 0) {
+				tx += Chunk.BLOCKS;
+			}
+			if (ty < 0) {
+				ty += Chunk.BLOCKS;
+			}
+
+			// Checking near chunks
+			if (tx == 0) {
+				hash = Hash(cx - 1, cy, cz);
+				if (!chunks.ContainsKey(hash)) {
+					Chunk ch = new Chunk();
+					chunks.Add(hash, ch);
+					ch.SetParent(this, cx - 1, cy, cz);
+				} else {
+					chunks[hash].QueueRebuild();
+				}
+			}
+			if (tx == Chunk.BLOCKS - 1) {
+				hash = Hash(cx + 1, cy, cz);
+				if (!chunks.ContainsKey(hash)) {
+					Chunk ch = new Chunk();
+					chunks.Add(hash, ch);
+					ch.SetParent(this, cx + 1, cy, cz);
+				} else {
+					chunks[hash].QueueRebuild();
+				}
+			}
+			if (ty == 0) {
+				hash = Hash(cx, cy, cz - 1);
+				if (!chunks.ContainsKey(hash)) {
+					Chunk ch = new Chunk();
+					chunks.Add(hash, ch);
+					ch.SetParent(this, cx, cy, cz - 1);
+				} else {
+					chunks[hash].QueueRebuild();
+				}
+			}
+			if (ty == Chunk.BLOCKS - 1) {
+				hash = Hash(cx, cy, cz + 1);
+				if (!chunks.ContainsKey(hash)) {
+					Chunk ch = new Chunk();
+					chunks.Add(hash, ch);
+					ch.SetParent(this, cx, cy, cz + 1);
+				} else {
+					chunks[hash].QueueRebuild();
+				}
+			}
+
+			// Setting block
+			chunk[tx, ty] = block;
 		}
 
 		/// <summary>
@@ -198,7 +279,7 @@ namespace Cubed.World {
 		/// Get all the chunks
 		/// </summary>
 		/// <returns></returns>
-		internal Chunk[] GetAllChunks() {
+		public Chunk[] GetAllChunks() {
 			return chunks.Values.ToArray();
 		}
 
@@ -326,6 +407,25 @@ namespace Cubed.World {
 						blocks[y, x] = value;
 						blocks[y, x].Parent = this;
 					}
+					if (x == 0 && neighbors[(int)Side.Left] != null) {
+						neighbors[(int)Side.Left].QueueRebuild();
+					}
+					if (x == BLOCKS - 1 && neighbors[(int)Side.Right] != null) {
+						neighbors[(int)Side.Right].QueueRebuild();
+					}
+					if (y == 0 && neighbors[(int)Side.Back] != null) {
+						neighbors[(int)Side.Back].QueueRebuild();
+					}
+					if (y == BLOCKS - 1 && neighbors[(int)Side.Forward] != null) {
+						neighbors[(int)Side.Forward].QueueRebuild();
+					}
+					if (neighbors[(int)Side.Top] != null) {
+						neighbors[(int)Side.Top].QueueRebuild();
+					}
+					if (neighbors[(int)Side.Bottom] != null) {
+						neighbors[(int)Side.Bottom].QueueRebuild();
+					}
+
 					dirty = true;
 					relight = true;
 				}
@@ -341,7 +441,7 @@ namespace Cubed.World {
 				for (int i = 0; i < 6; i++) {
 					SetNeighbor(i);
 				}
-				dirty = true;
+				QueueRebuild();
 			}
 
 			/// <summary>
@@ -723,10 +823,10 @@ namespace Cubed.World {
 											cx + div, cy - div
 										});
 										texCoords.AddRange(new float[]{
-											0f, 0f,
 											1f, 0f,
-											0f, 1f,
-											1f, 1f
+											0f, 0f,
+											1f, 1f,
+											0f, 1f
 										});
 										indices.AddRange(new short[]{
 											(short)(idx + 0), (short)(idx + 1), (short)(idx + 2),
@@ -751,10 +851,10 @@ namespace Cubed.World {
 											cx, cy - div
 										});
 										texCoords.AddRange(new float[]{
-											0f, 0f,
 											1f, 0f,
-											0f, 1f,
-											1f, 1f
+											0f, 0f,
+											1f, 1f,
+											0f, 1f
 										});
 											indices.AddRange(new short[]{
 											(short)(idx + 0), (short)(idx + 1), (short)(idx + 2),
@@ -1161,8 +1261,8 @@ namespace Cubed.World {
 														baseLightCoords[1] + (baseLightCoords[3] - baseLightCoords[1]) * delta,
 													});
 													texCoords.AddRange(new float[]{
-														0f, baseCR,
-														0f, hFR,
+														1f, baseCR,
+														1f, hCR,
 														delta, (baseCL + (baseCR - baseCL) * delta) 
 													});
 												}
@@ -1219,6 +1319,29 @@ namespace Cubed.World {
 					GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
 				}
 				
+				// Cleaning unused buffers
+				List<Texture> groupsToRemove = new List<Texture>();
+				foreach (KeyValuePair<Texture, RenderGroup> pair in groups) {
+					if (!textures.Contains(pair.Key)) {
+						RenderGroup rg = pair.Value;
+						if (rg.VertexBuffer != 0) {
+							GL.DeleteBuffer(rg.VertexBuffer);
+						}
+						if (rg.TexCoordBuffer != 0) {
+							GL.DeleteBuffer(rg.TexCoordBuffer);
+						}
+						if (rg.LightmapCoordBuffer != 0) {
+							GL.DeleteBuffer(rg.LightmapCoordBuffer);
+						}
+						if (rg.IndexBuffer != 0) {
+							GL.DeleteBuffer(rg.IndexBuffer);
+						}
+						groupsToRemove.Add(pair.Key);
+					}
+				}
+				foreach (Texture tex in groupsToRemove) {
+					groups.Remove(tex);
+				}
 
 			}
 

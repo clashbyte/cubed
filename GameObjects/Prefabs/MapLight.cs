@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using Cubed.World;
 
-namespace GameObjects
-{
-    public class Class1
-    {
-    }
+namespace Cubed.Prefabs {
+	class MapLight : Entity {
+	}
 }

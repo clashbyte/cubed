@@ -143,8 +143,8 @@ namespace Cubed.Components.Rendering {
 			cellCount = 30;
 			groupedCells = 10;
 			WireWidth = 0.5f;
-			accentColor = Color.FromArgb(80, 80, 80);
-			mainColor = Color.FromArgb(60, 60, 60);
+			accentColor = Color.FromArgb(100, 100, 100, 100);
+			mainColor = Color.FromArgb(50, 100, 100, 100);
 			cull = new CullSphere();
 			needBuffer = true;
 		}
@@ -158,6 +158,30 @@ namespace Cubed.Components.Rendering {
 				Max = sz,
 				Min = -sz
 			};
+		}
+
+		/// <summary>
+		/// Blending
+		/// </summary>
+		internal override EntityComponent.BlendingMode RenditionBlending {
+			get {
+				if (accentColor.A < 255 || mainColor.A < 255) {
+					return BlendingMode.AlphaChannel;
+				}
+				return BlendingMode.ForceOpaque;
+			}
+		}
+
+		/// <summary>
+		/// Rendering path
+		/// </summary>
+		internal override EntityComponent.TransparencyPass RenditionPass {
+			get {
+				if (accentColor.A < 255 || mainColor.A < 255) {
+					return TransparencyPass.Blend;
+				}
+				return TransparencyPass.Opaque;
+			}
 		}
 
 		/// <summary>

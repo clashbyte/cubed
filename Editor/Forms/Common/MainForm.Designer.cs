@@ -48,12 +48,13 @@
 			this.tabPage2 = new System.Windows.Forms.TabPage();
 			this.filesContainer = new System.Windows.Forms.SplitContainer();
 			this.propsContainer = new System.Windows.Forms.SplitContainer();
+			this.inspector = new Cubed.Forms.Inspections.Inspector();
 			this.panel1 = new System.Windows.Forms.Panel();
 			this.projectControl = new Cubed.UI.Controls.NSDirectoryInspector();
 			this.panel2 = new System.Windows.Forms.Panel();
 			this.projectUpButton = new Cubed.UI.Controls.NSIconicButton();
 			this.projectPath = new Cubed.UI.Controls.NSTextBox();
-			this.nsFileInfo1 = new Cubed.UI.Controls.NSFileInfo();
+			this.projectFileInfo = new Cubed.UI.Controls.NSFileInfo();
 			this.logicTimer = new System.Windows.Forms.Timer(this.components);
 			this.nsMenuStrip1.SuspendLayout();
 			this.editorsControl.SuspendLayout();
@@ -63,6 +64,7 @@
 			this.filesContainer.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.propsContainer)).BeginInit();
 			this.propsContainer.Panel1.SuspendLayout();
+			this.propsContainer.Panel2.SuspendLayout();
 			this.propsContainer.SuspendLayout();
 			this.panel1.SuspendLayout();
 			this.panel2.SuspendLayout();
@@ -101,41 +103,41 @@
 			// newToolStripMenuItem
 			// 
 			this.newToolStripMenuItem.Name = "newToolStripMenuItem";
-			this.newToolStripMenuItem.Size = new System.Drawing.Size(113, 22);
+			this.newToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.newToolStripMenuItem.Text = "New";
 			// 
 			// toolStripSeparator1
 			// 
 			this.toolStripSeparator1.Name = "toolStripSeparator1";
-			this.toolStripSeparator1.Size = new System.Drawing.Size(110, 6);
+			this.toolStripSeparator1.Size = new System.Drawing.Size(149, 6);
 			// 
 			// openToolStripMenuItem
 			// 
 			this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-			this.openToolStripMenuItem.Size = new System.Drawing.Size(113, 22);
+			this.openToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.openToolStripMenuItem.Text = "Open";
 			// 
 			// saveAllToolStripMenuItem
 			// 
 			this.saveAllToolStripMenuItem.Name = "saveAllToolStripMenuItem";
-			this.saveAllToolStripMenuItem.Size = new System.Drawing.Size(113, 22);
+			this.saveAllToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.saveAllToolStripMenuItem.Text = "Save all";
 			// 
 			// closeToolStripMenuItem
 			// 
 			this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
-			this.closeToolStripMenuItem.Size = new System.Drawing.Size(113, 22);
+			this.closeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.closeToolStripMenuItem.Text = "Close";
 			// 
 			// toolStripSeparator2
 			// 
 			this.toolStripSeparator2.Name = "toolStripSeparator2";
-			this.toolStripSeparator2.Size = new System.Drawing.Size(110, 6);
+			this.toolStripSeparator2.Size = new System.Drawing.Size(149, 6);
 			// 
 			// exitToolStripMenuItem
 			// 
 			this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-			this.exitToolStripMenuItem.Size = new System.Drawing.Size(113, 22);
+			this.exitToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.exitToolStripMenuItem.Text = "Exit";
 			// 
 			// createToolStripMenuItem
@@ -172,7 +174,7 @@
 			this.editorsControl.Location = new System.Drawing.Point(0, 0);
 			this.editorsControl.Name = "editorsControl";
 			this.editorsControl.SelectedIndex = 0;
-			this.editorsControl.Size = new System.Drawing.Size(742, 373);
+			this.editorsControl.Size = new System.Drawing.Size(700, 373);
 			this.editorsControl.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
 			this.editorsControl.TabIndex = 1;
 			// 
@@ -180,9 +182,9 @@
 			// 
 			this.tabPage1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(50)))), ((int)(((byte)(50)))));
 			this.tabPage1.Location = new System.Drawing.Point(4, 30);
+			this.tabPage1.Margin = new System.Windows.Forms.Padding(0);
 			this.tabPage1.Name = "tabPage1";
-			this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-			this.tabPage1.Size = new System.Drawing.Size(734, 339);
+			this.tabPage1.Size = new System.Drawing.Size(692, 339);
 			this.tabPage1.TabIndex = 0;
 			this.tabPage1.Text = "tabPage1";
 			// 
@@ -190,6 +192,7 @@
 			// 
 			this.tabPage2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(50)))), ((int)(((byte)(50)))));
 			this.tabPage2.Location = new System.Drawing.Point(4, 30);
+			this.tabPage2.Margin = new System.Windows.Forms.Padding(0);
 			this.tabPage2.Name = "tabPage2";
 			this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
 			this.tabPage2.Size = new System.Drawing.Size(734, 339);
@@ -211,7 +214,7 @@
 			// filesContainer.Panel2
 			// 
 			this.filesContainer.Panel2.Controls.Add(this.panel1);
-			this.filesContainer.Panel2.Controls.Add(this.nsFileInfo1);
+			this.filesContainer.Panel2.Controls.Add(this.projectFileInfo);
 			this.filesContainer.Panel2MinSize = 200;
 			this.filesContainer.Size = new System.Drawing.Size(1008, 537);
 			this.filesContainer.SplitterDistance = 373;
@@ -227,10 +230,23 @@
 			// propsContainer.Panel1
 			// 
 			this.propsContainer.Panel1.Controls.Add(this.editorsControl);
-			this.propsContainer.Panel2MinSize = 200;
+			// 
+			// propsContainer.Panel2
+			// 
+			this.propsContainer.Panel2.Controls.Add(this.inspector);
+			this.propsContainer.Panel2MinSize = 250;
 			this.propsContainer.Size = new System.Drawing.Size(1008, 373);
-			this.propsContainer.SplitterDistance = 742;
+			this.propsContainer.SplitterDistance = 700;
 			this.propsContainer.TabIndex = 2;
+			// 
+			// inspector1
+			// 
+			this.inspector.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(50)))), ((int)(((byte)(50)))));
+			this.inspector.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.inspector.Location = new System.Drawing.Point(0, 0);
+			this.inspector.Name = "inspector1";
+			this.inspector.Size = new System.Drawing.Size(304, 373);
+			this.inspector.TabIndex = 0;
 			// 
 			// panel1
 			// 
@@ -245,7 +261,7 @@
 			// projectControl
 			// 
 			this.projectControl.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.projectControl.EmptyMessage = null;
+			this.projectControl.EmptyMessage = "Directory is empty!";
 			this.projectControl.Font = new System.Drawing.Font("Tahoma", 8F);
 			this.projectControl.Location = new System.Drawing.Point(0, 0);
 			this.projectControl.Name = "projectControl";
@@ -254,6 +270,7 @@
 			this.projectControl.Size = new System.Drawing.Size(888, 123);
 			this.projectControl.TabIndex = 1;
 			this.projectControl.Text = "nsDirectoryInspector1";
+			this.projectControl.SelectionChanged += new Cubed.UI.Controls.NSDirectoryInspector.SelectionChangedEventHandler(this.projectControl_SelectionChanged);
 			this.projectControl.DoubleClick += new System.EventHandler(this.projectControl_DoubleClick);
 			// 
 			// panel2
@@ -302,21 +319,22 @@
 			this.projectPath.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
 			this.projectPath.UseSystemPasswordChar = false;
 			// 
-			// nsFileInfo1
+			// projectFileInfo
 			// 
-			this.nsFileInfo1.Dock = System.Windows.Forms.DockStyle.Right;
-			this.nsFileInfo1.File = null;
-			this.nsFileInfo1.IconPadding = 8;
-			this.nsFileInfo1.Location = new System.Drawing.Point(888, 0);
-			this.nsFileInfo1.Name = "nsFileInfo1";
-			this.nsFileInfo1.Size = new System.Drawing.Size(120, 160);
-			this.nsFileInfo1.TabIndex = 0;
-			this.nsFileInfo1.Text = "nsFileInfo1";
-			this.nsFileInfo1.Vertical = true;
+			this.projectFileInfo.Dock = System.Windows.Forms.DockStyle.Right;
+			this.projectFileInfo.File = null;
+			this.projectFileInfo.IconPadding = 8;
+			this.projectFileInfo.Location = new System.Drawing.Point(888, 0);
+			this.projectFileInfo.Name = "projectFileInfo";
+			this.projectFileInfo.Size = new System.Drawing.Size(120, 160);
+			this.projectFileInfo.TabIndex = 0;
+			this.projectFileInfo.Text = "nsFileInfo1";
+			this.projectFileInfo.Vertical = true;
 			// 
 			// logicTimer
 			// 
 			this.logicTimer.Enabled = true;
+			this.logicTimer.Interval = 10;
 			this.logicTimer.Tick += new System.EventHandler(this.logicTimer_Tick);
 			// 
 			// MainForm
@@ -346,6 +364,7 @@
 			((System.ComponentModel.ISupportInitialize)(this.filesContainer)).EndInit();
 			this.filesContainer.ResumeLayout(false);
 			this.propsContainer.Panel1.ResumeLayout(false);
+			this.propsContainer.Panel2.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.propsContainer)).EndInit();
 			this.propsContainer.ResumeLayout(false);
 			this.panel1.ResumeLayout(false);
@@ -376,11 +395,12 @@
 		private System.Windows.Forms.SplitContainer filesContainer;
 		private System.Windows.Forms.SplitContainer propsContainer;
 		private UI.Controls.NSDirectoryInspector projectControl;
-		private UI.Controls.NSFileInfo nsFileInfo1;
+		private UI.Controls.NSFileInfo projectFileInfo;
 		private System.Windows.Forms.Panel panel1;
 		private System.Windows.Forms.Panel panel2;
 		private System.Windows.Forms.Timer logicTimer;
 		private UI.Controls.NSIconicButton projectUpButton;
 		private UI.Controls.NSTextBox projectPath;
+		private Inspections.Inspector inspector;
 	}
 }

@@ -142,6 +142,14 @@ namespace Cubed.Components.Controls {
 		}
 
 		/// <summary>
+		/// Resetting velocity
+		/// </summary>
+		public void Reset() {
+			velocity = Vector3.Zero;
+			grounded = false;
+		}
+
+		/// <summary>
 		/// Update logic
 		/// </summary>
 		void IUpdatable.Update() {

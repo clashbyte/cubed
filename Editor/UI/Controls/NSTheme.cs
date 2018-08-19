@@ -14,6 +14,11 @@ using System.Runtime.InteropServices;
 using System.Security.Permissions;
 using System.Text;
 using System.Windows.Forms;
+using Cubed.Forms.Common;
+using Cubed.Data.Editor;
+using Cubed.Forms.Resources;
+using Cubed.Data.Editor.Previews;
+using Cubed.Data.Projects;
 
 //IMPORTANT:
 //Please leave these comments in place as they help protect intellectual rights and allow
@@ -551,7 +556,9 @@ namespace Cubed.UI.Controls
 				_Icon = value;
 				if (_Icon != null)
 				{
-					_IconSize = _Icon.Size;
+					if (_IconSize.Width == 0 && _IconSize.Height == 0) {
+						_IconSize = _Icon.Size;
+					}
 				}
 				GenerateShadow();
 				Invalidate();
@@ -2049,6 +2056,7 @@ namespace Cubed.UI.Controls
 				e.Control.BackColor = Color.FromArgb(50, 50, 50);
 			}
 
+
 			base.OnControlAdded(e);
 		}
 
@@ -2139,20 +2147,18 @@ namespace Cubed.UI.Controls
 
 				System.Drawing.Font labelFont = Font;
 				string label = "";
-				/*
-				BaseForm frm = TabPages[I].Tag as BaseForm;
+				EditorForm frm = TabPages[I].Tag as EditorForm;
 				if (frm != null)
 				{
-					label = frm.FileEditor.Title;
-					frm.DrawIcon(G, iconSize.X, iconSize.Y);
+					label = frm.Text;
+					FileTypeManager.GetIcon(frm.File).Draw(G, iconSize);
 					R1.X += iconSize.Width + 8;
 					R1.Width -= iconSize.Width + 8;
-					if (!frm.FileEditor.Saved)
+					if (!frm.Saved)
 					{
-						labelSystem.Drawing.Font = boldSystem.Drawing.Font;
+						labelFont = boldFont;
 					}
 				}
-				*/
 
 
 				R1.X += 0;
@@ -2422,15 +2428,14 @@ namespace Cubed.UI.Controls
 			NSContextMenu cm = new NSContextMenu();
 			foreach (TabPage t in TabPages)
 			{
-				/*
-				BaseForm frm = (BaseForm)t.Tag;
+				
+				EditorForm frm = (EditorForm)t.Tag;
 				if (frm != null)
 				{
-					cm.Items.Add(frm.FileEditor.Title, frm.Icon, (sn, ev) => {
+					cm.Items.Add(frm.Text, null, (sn, ev) => {
 						SelectedTab = t;
 					});
 				}
-				*/
 			}
 
 			Point showPos = Scroller.ListButton.PointToScreen(new Point(0, Scroller.ListButton.Height));
@@ -2988,7 +2993,7 @@ namespace Cubed.UI.Controls
 			this.LeftScroller.Location = new System.Drawing.Point(0, 0);
 			this.LeftScroller.Name = "LeftScroller";
 			this.LeftScroller.Size = new System.Drawing.Size(22, 22);
-			//this.LeftScroller.IconImage = SpriteBoy.global::System.Windows.Forms.ControlImages.left;
+			this.LeftScroller.IconImage = MiscIcons.LeftSmall;
 			this.LeftScroller.IconSize = new Size(8, 8);
 			this.LeftScroller.Corners.TopRight = false;
 			this.LeftScroller.Corners.BottomRight = false;
@@ -3001,7 +3006,7 @@ namespace Cubed.UI.Controls
 			this.RightScroller.Location = new System.Drawing.Point(21, 0);
 			this.RightScroller.Name = "RightScroller";
 			this.RightScroller.Size = new System.Drawing.Size(22, 22);
-			//this.RightScroller.IconImage = SpriteBoy.global::System.Windows.Forms.ControlImages.right;
+			this.RightScroller.IconImage = MiscIcons.RightSmall;
 			this.RightScroller.IconSize = new Size(8, 8);
 			this.RightScroller.Corners.TopLeft = false;
 			this.RightScroller.Corners.BottomLeft = false;
@@ -3014,7 +3019,7 @@ namespace Cubed.UI.Controls
 			this.ListButton.Location = new System.Drawing.Point(44, 0);
 			this.ListButton.Name = "ListButton";
 			this.ListButton.Size = new System.Drawing.Size(22, 22);
-			//this.ListButton.IconImage = SpriteBoy.global::System.Windows.Forms.ControlImages.list;
+			this.ListButton.IconImage = MiscIcons.MenuSmall;
 			this.ListButton.IconSize = new Size(10, 10);
 			this.ListButton.TabIndex = 2;
 			this.ListButton.Click += new EventHandler(CloseButton_Click);
@@ -3535,15 +3540,7 @@ namespace Cubed.UI.Controls
 				if (clickedEntry != hoverEntry && !dragStarted)
 				{
 					dragStarted = true;
-					
-					/*
-					Project.DraggingEntry de = new Project.DraggingEntry()
-					{
-						File = clickedEntry.Tag as Project.Entry
-					};
-					*/
-					
-					//DoDragDrop((object)de, DragDropEffects.Link);
+					DoDragDrop((object)clickedEntry.Tag, DragDropEffects.Link);
 				}
 			}
 		}
@@ -3864,6 +3861,7 @@ namespace Cubed.UI.Controls
 			set
 			{
 				file = value;
+				CheckAnimatedPreview();
 				Invalidate();
 			}
 		}
@@ -3907,6 +3905,26 @@ namespace Cubed.UI.Controls
 		int iconPadding = 8;
 
 		/// <summary>
+		/// Animated
+		/// </summary>
+		bool animated;
+
+		/// <summary>
+		/// First update pos
+		/// </summary>
+		ulong firstUpdate;
+
+		/// <summary>
+		/// Animation frame
+		/// </summary>
+		int currentFrame;
+
+		/// <summary>
+		/// All the frames
+		/// </summary>
+		Preview.Frame[] frames;
+
+		/// <summary>
 		/// Constructor
 		/// </summary>
 		public NSFileInfo()
@@ -3914,6 +3932,7 @@ namespace Cubed.UI.Controls
 
 			SetStyle((global::System.Windows.Forms.ControlStyles)139286, true);
 			SetStyle(global::System.Windows.Forms.ControlStyles.Selectable, false);
+			Preview.PreviewReady += Preview_PreviewReady;
 
 			DoubleBuffered = true;
 		}
@@ -3972,9 +3991,13 @@ namespace Cubed.UI.Controls
 				if (file.BulletIcon != null) {
 					mainIcon = file.BulletIcon;
 				}
-				if (file.MainIcon != null) {
+				if (file.MainIcon != null || frames != null) {
 					subIcon = mainIcon;
-					mainIcon = file.MainIcon;
+					if (animated) {
+						mainIcon = frames[currentFrame].Icon;
+					} else {
+						mainIcon = file.MainIcon;
+					}
 				}
 				
 				// Rendering icons
@@ -4031,29 +4054,49 @@ namespace Cubed.UI.Controls
 		protected override void Dispose(bool disposing)
 		{
 			base.Dispose(disposing);
-			//Preview.PreviewsReady -= Preview_PreviewsReady;
+			Preview.PreviewReady -= Preview_PreviewReady;
 		}
 
-		/*
 		/// <summary>
-		/// Событие загрузки превью
+		/// Completed loading a preview
 		/// </summary>
-		/// <param name="e"></param>
-		void Preview_PreviewsReady(Events.Data.PreviewReadyEventArgs e)
-		{
-			if (file != null)
-			{
-				foreach (Preview p in e.ReadyPreviews)
-				{
-					if (p == file.Icon)
-					{
+		void Preview_PreviewReady(object sender, Preview.PreviewEventArgs e) {
+			if (file != null) {
+				if (file.Tag is Project.Entry) {
+					Project.Entry pe = file.Tag as Project.Entry;
+					if (pe.Icon == e.Preview) {
+						CheckAnimatedPreview();
 						Invalidate();
-						break;
 					}
 				}
 			}
 		}
-		*/
+
+		/// <summary>
+		/// Updating animation
+		/// </summary>
+		void MainForm_LogicUpdate(object sender, EventArgs e) {
+			int frame = 0;
+			int total = 0;
+			foreach (Preview.Frame frm in frames) {
+				total += frm.Delay;
+			}
+			long time = ((DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond) - (long)firstUpdate) % total;
+
+			for (int i = 0; i < frames.Length; i++) {
+				if (frames[i].Delay >= time) {
+					frame = i;
+					break;
+				}
+				time -= frames[i].Delay;
+			}
+			if (currentFrame != frame) {
+				currentFrame = frame;
+				Invalidate();
+			}
+		}
+
+		
 
 		/// <summary>
 		/// Calculating file size
@@ -4070,6 +4113,27 @@ namespace Cubed.UI.Controls
 			}
 			return String.Format("{0:0.##} {1}", len, sizes[order]);
 		}
+
+		/// <summary>
+		/// Checking for animated preview
+		/// </summary>
+		void CheckAnimatedPreview() {
+			MainForm.LogicUpdate -= MainForm_LogicUpdate;
+			currentFrame = 0;
+			animated = false;
+			if (file != null) {
+				if (file.Tag is Project.Entry) {
+					Project.Entry pe = file.Tag as Project.Entry;
+					if (pe.Icon.HasAnimation) {
+						animated = true;
+						frames = pe.Icon.AnimatedIcon;
+						firstUpdate = (ulong)(DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond);
+						MainForm.LogicUpdate += MainForm_LogicUpdate;
+					}
+				}
+			}
+		}
+
 	}
 	/*
 	public class NSAnimationView : global::System.Windows.Forms.Control
@@ -6123,7 +6187,7 @@ namespace Cubed.UI.Controls
 			BSA = new Rectangle(0, Height - ButtonSize, Width, ButtonSize);
 			Shaft = new Rectangle(0, TSA.Bottom + 1, Width, Height - (ButtonSize * 2) - 1);
 
-			ShowThumb = ((_Maximum - _Minimum) > Shaft.Height);
+			ShowThumb = true;//((_Maximum - _Minimum) > Shaft.Height);
 
 			if (ShowThumb)
 			{

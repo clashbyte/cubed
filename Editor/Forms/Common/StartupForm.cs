@@ -17,9 +17,9 @@ namespace Cubed.Forms.Common {
 		/// </summary>
 		public StartupForm() {
 			InitializeComponent();
-			webBrowser.Dock = DockStyle.Fill;
+			//webBrowser.Dock = DockStyle.Fill;
 			loadingLabel.Dock = DockStyle.Fill;
-			webBrowser.Navigate("https://google.com");
+			//webBrowser.Navigate("https://google.com");
 		}
 
 		/// <summary>
@@ -107,11 +107,11 @@ namespace Cubed.Forms.Common {
 		/// Showing web browser when page loads
 		/// </summary>
 		void webBrowser_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e) {
-			webBrowser.Visible = true;
+			//webBrowser.Visible = true;
 		}
 
 		void webBrowser_Navigated(object sender, WebBrowserNavigatedEventArgs e) {
-			webBrowser.Visible = true;
+			//webBrowser.Visible = true;
 		}
 	}
 }

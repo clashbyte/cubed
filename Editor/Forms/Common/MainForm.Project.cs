@@ -16,6 +16,37 @@ namespace Cubed.Forms.Common {
 	partial class MainForm {
 
 		/// <summary>
+		/// Selected inspector object
+		/// </summary>
+		public static object SelectedTarget {
+			get {
+				if (Current != null) {
+					return Current.inspector.Target;
+				}
+				return null;
+			}
+			set {
+				if (Current != null) {
+					Current.inspector.Target = value;
+				}
+			}
+		}
+
+		/// <summary>
+		/// Currently selected entry
+		/// </summary>
+		public static Project.EntryBase SelectedEntry {
+			get {
+				if (Current != null) {
+					if (Current.projectControl.SelectedEntry != null) {
+						return Current.projectControl.SelectedEntry.Tag as Project.EntryBase;
+					}
+				}
+				return null;
+			}
+		}
+
+		/// <summary>
 		/// Current opened folder
 		/// </summary>
 		Project.Folder currentFolder;
@@ -119,6 +150,14 @@ namespace Cubed.Forms.Common {
 				}
 			}
 		}
+
+		/// <summary>
+		/// Picking file for preview
+		/// </summary>
+		private void projectControl_SelectionChanged(object sender) {
+			inspector.Target = projectControl.SelectedEntry;
+			projectFileInfo.File = projectControl.SelectedEntry;
+		}
 		
 		/// <summary>
 		/// Go up
@@ -129,6 +168,18 @@ namespace Cubed.Forms.Common {
 			if (currentFolder.Parent != null) {
 				currentFolder = currentFolder.Parent as Project.Folder;
 				PopulateProjectView();
+			}
+		}
+
+		/// <summary>
+		/// Entries list changed - check for rebuild
+		/// </summary>
+		void Project_EntriesChangedEvent(object sender, Project.MultipleEntryEventArgs e) {
+			foreach (Project.EntryEventArgs evarg in e.Events) {
+				if (evarg.Entry.Parent == currentFolder) {
+					PopulateProjectView();
+					break;
+				}
 			}
 		}
 		

@@ -56,8 +56,6 @@ namespace Cubed.Windows {
 		/// </summary>
 		float gridHeight;
 
-		
-
 		/// <summary>
 		/// Form constructor
 		/// </summary>
@@ -97,7 +95,7 @@ namespace Cubed.Windows {
 				Size = Vector3.One * 1f,
 				Position = Vector3.One * 0.5f,
 				WireWidth = 2f,
-				WireColor = Color.AliceBlue
+				WireColor = Color.Red
 			});
 			scene.Entities.Add(test);
 
@@ -133,7 +131,7 @@ namespace Cubed.Windows {
 			Vector3 pos = cam.ScreenToPoint(Input.Controls.Mouse.X, Input.Controls.Mouse.Y, 0);
 			Vector3 dir = cam.ScreenToPoint(Input.Controls.Mouse.X, Input.Controls.Mouse.Y, 1) - pos;
 			Vector3 ppos = Vector3.Zero;
-			if (Cubed.Math.Intersections.RayPlane(Vector3.Zero, Vector3.UnitY, pos, dir.Normalized(), out ppos)) {
+			if (Cubed.Maths.Intersections.RayPlane(Vector3.Zero, Vector3.UnitY, pos, dir.Normalized(), out ppos)) {
 				ppos = new Vector3((float)System.Math.Floor(ppos.X), 0, (float)System.Math.Floor(ppos.Z));
 				test.Position = ppos;
 			}

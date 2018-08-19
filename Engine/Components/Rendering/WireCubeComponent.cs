@@ -50,6 +50,27 @@ namespace Cubed.Components.Rendering {
 		}
 
 		/// <summary>
+		/// Blending
+		/// </summary>
+		internal override EntityComponent.BlendingMode RenditionBlending {
+			get {
+				if (WireColor.A < 255) {
+					return BlendingMode.AlphaChannel;
+				}
+				return BlendingMode.ForceOpaque;
+			}
+		}
+
+		internal override EntityComponent.TransparencyPass RenditionPass {
+			get {
+				if (WireColor.A < 255) {
+					return TransparencyPass.Blend;
+				}
+				return TransparencyPass.Opaque;
+			}
+		}
+
+		/// <summary>
 		/// Цвет линий
 		/// </summary>
 		public Color WireColor;
@@ -97,6 +118,20 @@ namespace Cubed.Components.Rendering {
 				Min = pos - size / 2,
 				Max = pos + size / 2
 			};
+		}
+
+		/// <summary>
+		/// Destroying component
+		/// </summary>
+		internal override void Destroy() {
+			vertexArray = null;
+			if (vertexBuffer != 0) {
+				GL.DeleteBuffer(vertexBuffer);
+			}
+			if (indexBuffer != 0) {
+				GL.DeleteBuffer(indexBuffer);
+			}
+			needBuffer = false;
 		}
 
 		/// <summary>

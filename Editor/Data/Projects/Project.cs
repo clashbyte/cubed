@@ -16,6 +16,16 @@ namespace Cubed.Data.Projects {
 	public static class Project {
 
 		/// <summary>
+		/// Array for single scan result
+		/// </summary>
+		public static event EventHandler<EntryEventArgs> EntryChangedEvent;
+
+		/// <summary>
+		/// Array for all scan results
+		/// </summary>
+		public static event EventHandler<MultipleEntryEventArgs> EntriesChangedEvent;
+
+		/// <summary>
 		/// Current project information
 		/// </summary>
 		public static ProjectBasicInfo Info {
@@ -63,14 +73,6 @@ namespace Cubed.Data.Projects {
 		/// <returns>True if project opened</returns>
 		public static bool Open(string folder) {
 			if (File.Exists(Path.Combine(folder, ".cubed"))) {
-				if (watcher != null) {
-					watcher.Dispose();
-					watcher = null;
-				}
-				watcher = new FileSystemWatcher(folder) {
-					IncludeSubdirectories = true,
-					EnableRaisingEvents = true
-				};
 				Info = ProjectBasicInfo.Read(folder);
 				rootPath = Path.GetFullPath(folder);
 				driver = new Cubed.Drivers.Files.FolderFileSystem() {
@@ -87,9 +89,19 @@ namespace Cubed.Data.Projects {
 		/// </summary>
 		public static void Rescan() {
 
+			// Accum for entry events
+			List<EntryEventArgs> evList = new List<EntryEventArgs>();
+
 			// Reading root
 			Folder newFolder = CreateFileTree("/");
-			CompareRecursive(Root, newFolder);
+			CompareRecursive(Root, newFolder, evList);
+
+			// Calling hooks
+			if (EntriesChangedEvent != null && evList.Count > 0) {
+				EntriesChangedEvent(null, new MultipleEntryEventArgs() {
+					Events = evList.ToArray()
+				});
+			}
 
 		}
 
@@ -98,23 +110,23 @@ namespace Cubed.Data.Projects {
 		/// </summary>
 		/// <param name="prev"></param>
 		/// <param name="next"></param>
-		static void CompareRecursive(Folder prev, Folder next) {
+		static void CompareRecursive(Folder prev, Folder next, List<EntryEventArgs> evList) {
 
 			// Saving all new folders
 			List<string> prevFolders = new List<string>();
 			List<string> nextFolders = new List<string>();
 			List<Folder> newFolders = new List<Folder>();
-			foreach (Folder fld in next.Folders) {
+			foreach (Folder fld in prev.Folders) {
 				prevFolders.Add(fld.Path);
 			}
-			foreach (Folder fld in prev.Folders) {
+			foreach (Folder fld in next.Folders) {
 				nextFolders.Add(fld.Path);
 			}
 
 			// Scanning for removed folders
 			foreach (Folder fld in prev.Folders) {
 				if (!nextFolders.Contains(fld.Path)) {
-					Notify(fld, EntryEvent.Deleted);
+					evList.AddRange(Notify(fld, EntryEvent.Deleted, true));
 				} else {
 					newFolders.Add(fld);
 				}
@@ -122,20 +134,57 @@ namespace Cubed.Data.Projects {
 			foreach (Folder nfld in next.Folders) {
 				if (!prevFolders.Contains(nfld.Path)) {
 					nfld.Parent = prev;
-					Notify(nfld, EntryEvent.Created);
+					evList.AddRange(Notify(nfld, EntryEvent.Created, true));
 					newFolders.Add(nfld);
 				}
 			}
 			foreach (Folder fl in newFolders) {
-
+				foreach (Folder ofl in prev.Folders) {
+					if (fl.Path == ofl.Path) {
+						CompareRecursive(ofl, fl, evList);
+						break;
+					}
+				}
 			}
 
 			// Scanning for files
 			List<string> prevFiles = new List<string>();
 			List<string> nextFiles = new List<string>();
-			
+			List<Entry> newEntries = new List<Entry>();
+			foreach (Entry ent in prev.Entries) {
+				prevFiles.Add(ent.Path);
+			}
+			foreach (Entry ent in next.Entries) {
+				nextFiles.Add(ent.Path);
+			}
 
+			// Scanning for removed folders
+			foreach (Entry ent in prev.Entries) {
+				if (!nextFiles.Contains(ent.Path)) {
+					evList.AddRange(Notify(ent, EntryEvent.Deleted));
+				} else {
+					foreach (Entry nent in next.Entries) {
+						if (nent.Path == ent.Path) {
+							if (nent.LastModifyTime > ent.LastModifyTime) {
+								ent.LastModifyTime = nent.LastModifyTime;
+								evList.AddRange(Notify(ent, EntryEvent.Modified));
+							}
+							break;
+						}
+					}
+					newEntries.Add(ent);
+				}
+			}
+			foreach (Entry nent in next.Entries) {
+				if (!prevFiles.Contains(nent.Path)) {
+					nent.Parent = prev;
+					evList.AddRange(Notify(nent, EntryEvent.Created));
+					newEntries.Add(nent);
+				}
+			}
 
+			// Setting child entries
+			prev.SetChildren(newFolders, newEntries);
 		}
 
 		/// <summary>
@@ -143,17 +192,25 @@ namespace Cubed.Data.Projects {
 		/// </summary>
 		/// <param name="entry">Entry</param>
 		/// <param name="type">Type of event</param>
-		static void Notify(EntryBase entry, EntryEvent type, bool recursive = false) {
+		static EntryEventArgs[] Notify(EntryBase entry, EntryEvent type, bool recursive = false) {
+			List<EntryEventArgs> lst = new List<EntryEventArgs>();
 			if (recursive && entry is Folder) {
 				Folder fld = entry as Folder;
 				foreach (Folder ifd in fld.Folders) {
-					Notify(ifd, type, true);
+					lst.AddRange(Notify(ifd, type, true));
 				}
 				foreach (Entry en in fld.Entries) {
-					BroadcastEvent(en, type);
+					lst.Add(BroadcastEvent(en, type));
+				}
+			} else if(entry is Entry) {
+				if (type == EntryEvent.Modified) {
+					Preview.Update(entry as Entry);
+				} else if(type == EntryEvent.Deleted) {
+					Preview.Remove(entry as Entry);
 				}
 			}
-			BroadcastEvent(entry, type);
+			lst.Add(BroadcastEvent(entry, type));
+			return lst.ToArray();
 		}
 
 		/// <summary>
@@ -161,8 +218,15 @@ namespace Cubed.Data.Projects {
 		/// </summary>
 		/// <param name="entry">Entry</param>
 		/// <param name="ev">Event type</param>
-		static void BroadcastEvent(EntryBase entry, EntryEvent ev) {
-			System.Diagnostics.Debug.WriteLine(entry.Path+" - "+ev);
+		static EntryEventArgs BroadcastEvent(EntryBase entry, EntryEvent ev) {
+			EntryEventArgs ea = new EntryEventArgs() {
+				Entry = entry,
+				Type = ev
+			};
+			if (EntryChangedEvent != null) {
+				EntryChangedEvent(null, ea);
+			}
+			return ea;
 		}
 
 		/// <summary>
@@ -266,7 +330,7 @@ namespace Cubed.Data.Projects {
 			/// </summary>
 			public DateTime LastModifyTime {
 				get;
-				protected set;
+				set;
 			}
 
 			/// <summary>
@@ -381,6 +445,21 @@ namespace Cubed.Data.Projects {
 			Created,
 			Modified,
 			Deleted
+		}
+
+		/// <summary>
+		/// Arguments for entry event
+		/// </summary>
+		public class EntryEventArgs : EventArgs {
+			public EntryBase Entry;
+			public EntryEvent Type;
+		}
+
+		/// <summary>
+		/// Collection of events
+		/// </summary>
+		public class MultipleEntryEventArgs : EventArgs {
+			public EntryEventArgs[] Events;
 		}
 
 	}
