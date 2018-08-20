@@ -49,6 +49,11 @@ namespace Cubed.Forms.Editors.Map {
 		bool wallsErasing;
 
 		/// <summary>
+		/// Current wall label
+		/// </summary>
+		Label wallHelpLabel;
+
+		/// <summary>
 		/// Opening wall editor
 		/// </summary>
 		void WallToolOpen() {
@@ -57,12 +62,14 @@ namespace Cubed.Forms.Editors.Map {
 			}
 			if (wallsInterface == null) {
 				wallsInterface = new UserInterface();
-				/*
-				wallsInterface.Items.Add(new Label() {
+				wallsInterface.Items.Add(wallHelpLabel = new UI.Basic.Label() {
+					Text = "",
 					Position = Vector2.Zero,
-					Text = "Testing"
+					FontSize = 10f,
+					Anchor = Cubed.UI.Control.AnchorMode.TopLeft,
+					HorizontalAlign = UserInterface.Align.Start,
+					VerticalAlign = UserInterface.Align.Start
 				});
-				*/
 			}
 			engine.Interface = wallsInterface;
 			wallProxies.Clear();
@@ -89,11 +96,18 @@ namespace Cubed.Forms.Editors.Map {
 
 			// Hiding all proxies
 			bool needRebuild = false;
-			if (Input.Controls.MouseHit(MouseButton.Middle) && allowMouseLook) {
+			bool pickVisible = Input.Controls.Mouse != Vector2.One * -1;
+			if (pickVisible && !display.MouseLock) {
+				wallHelpLabel.Position = Input.Controls.Mouse + Vector2.One * 15;
+			} else {
+				wallHelpLabel.Position = -Vector2.UnitY * 1000;
+			}
+
+			if ((Input.Controls.MouseHit(MouseButton.Middle) && allowMouseLook) || !pickVisible) {
 				foreach (WallEditorProxy prx in wallProxies) {
 					prx.Block.Visible = false;
 				}
-			} else if (Input.Controls.MouseReleased(MouseButton.Middle) && allowMouseLook) {
+			} else if (Input.Controls.MouseReleased(MouseButton.Middle) && allowMouseLook && pickVisible) {
 				foreach (WallEditorProxy prx in wallProxies) {
 					prx.Block.Visible = true;
 					needRebuild = true;
@@ -202,11 +216,15 @@ namespace Cubed.Forms.Editors.Map {
 						}
 
 					}
+					wallHelpLabel.Text = wallStartPos.ToString() + " - " + wallCurrentPos.ToString();
 				} else {
-					wp = new WallEditorProxy(scene);
-					wp.WobbleOffset = 0;
-					wp.Block.Position = wallCurrentPos;
-					wallProxies.Add(wp);
+					if (pickVisible) {
+						wp = new WallEditorProxy(scene);
+						wp.WobbleOffset = 0;
+						wp.Block.Position = wallCurrentPos;
+						wallProxies.Add(wp);
+						wallHelpLabel.Text = wallCurrentPos.ToString();
+					}
 				}
 			}
 			

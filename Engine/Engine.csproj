@@ -51,6 +51,7 @@
     <Compile Include="Components\IRenderable.cs" />
     <Compile Include="Components\ILateUpdatable.cs" />
     <Compile Include="Components\IUpdatable.cs" />
+    <Compile Include="Components\Rendering\LineComponent.cs" />
     <Compile Include="Data\Defines\ProjectBasicInfo.cs" />
     <Compile Include="Data\Files\Attributes\ChunkTagAttribute.cs" />
     <Compile Include="Data\Files\BinaryChunk.cs" />

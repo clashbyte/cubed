@@ -94,8 +94,6 @@ namespace Cubed.Components.Rendering {
 						);
 					}
 					return na;
-				} else {
-
 				}
 				return null;
 			}

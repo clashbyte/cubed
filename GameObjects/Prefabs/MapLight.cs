@@ -26,6 +26,7 @@ namespace Cubed.Prefabs {
 				Range = 5
 			};
 			light.Parent = this;
+			
 		}
 
 		/// <summary>

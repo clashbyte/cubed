@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using Cubed.Components.Rendering;
+using Cubed.Core;
 using Cubed.Editing;
 using Cubed.Maths;
 using Cubed.UI;
@@ -15,12 +16,16 @@ using OpenTK;
 namespace Cubed.Forms.Editors.Map {
 
 	partial class MapEditor {
+		
+		/// <summary>
+		/// Main selection interface
+		/// </summary>
+		UserInterface selectInterface = null;
 
-		Entity ent;
-
-		UserInterface ui = null;
-
-		UI.Basic.Label tlabel;
+		/// <summary>
+		/// Selected label
+		/// </summary>
+		UI.Basic.Label selectLabel;
 
 		/// <summary>
 		/// Currently dragging object
@@ -33,29 +38,32 @@ namespace Cubed.Forms.Editors.Map {
 		Vector2 draggingScreenLocation;
 
 		/// <summary>
+		/// Current scene objects
+		/// </summary>
+		List<EditableObject> sceneObjects;
+
+		/// <summary>
 		/// Opening selection
 		/// </summary>
 		void SelectToolOpen() {
-			if (ent == null) {
-				ent = new Entity();
-				ent.AddComponent(new WireCubeComponent() {
-					Size = Vector3.One * 0.2f,
-					WireColor = System.Drawing.Color.Green,
-					WireWidth = 2f
-				});
-			}
-			if (ui == null) {
-				ui = new UserInterface();
-				ui.Items.Add(tlabel = new UI.Basic.Label() {
+			if (selectInterface == null) {
+				selectInterface = new UserInterface();
+				selectInterface.Items.Add(selectLabel = new UI.Basic.Label() {
 					Text = "",
 					Position = Vector2.Zero,
+					FontSize = 10f,
 					Anchor = Cubed.UI.Control.AnchorMode.TopLeft,
 					HorizontalAlign = UserInterface.Align.Start,
 					VerticalAlign = UserInterface.Align.Start
 				});
 			}
-			engine.Interface = ui;
-			scene.Entities.Add(ent);
+			if (sceneObjects == null) {
+				sceneObjects = new List<EditableObject>();
+			}
+			engine.Interface = selectInterface;
+			foreach (EditableObject eo in sceneObjects) {
+				eo.StopPlayMode(scene);
+			}
 		}
 
 		/// <summary>
@@ -63,10 +71,12 @@ namespace Cubed.Forms.Editors.Map {
 		/// </summary>
 		void SelectToolClose() {
 			engine.Interface = null;
-			scene.Entities.Remove(ent);
 			if (draggingNewObject != null) {
 				draggingNewObject.Destroy(scene);
 				draggingNewObject = null;
+			}
+			foreach (EditableObject eo in sceneObjects) {
+				eo.StartPlayMode(scene);
 			}
 		}
 
@@ -80,20 +90,71 @@ namespace Cubed.Forms.Editors.Map {
 			if (draggingNewObject != null) {
 				mousePos = draggingScreenLocation;
 			}
+			bool pickVisible = mousePos != Vector2.One * -1;
+			if (pickVisible && !display.MouseLock) {
+				selectLabel.Position = mousePos + new Vector2(15, 15);
+			} else {
+				selectLabel.Position = new Vector2(0, -1000);
+			}
 
+			// Calculating cam
 			Vector3 camPos = cam.ScreenToPoint(mousePos.X, mousePos.Y, 0);
 			Vector3 camDir = cam.ScreenToPoint(mousePos.X, mousePos.Y, 1) - camPos;
 			Vector3 pickPos = Vector3.Zero;
+			bool pickedWorld = false;
+			World.Map.Side pickSide = World.Map.Side.Top;
+
+			// Picking map
 			MapIntersections.Hit mapHit = MapIntersections.Intersect(camPos, camDir.Normalized(), map);
 			if (mapHit != null) {
 				pickPos = mapHit.Point;
+				pickSide = mapHit.Side;
+				pickedWorld = true;
 			}
 
-			tlabel.Text = mousePos.ToString();;
+			// Picking grid
+			Vector3 gridPickPos = Vector3.Zero;
+			float gridh = (((cam.Position.Y < gridHeight + 1) && (cam.Angles.X < 0)) ? gridHeight + 1 : gridHeight);
+			if (Intersections.RayPlane(Vector3.UnitY * gridh, Vector3.UnitY, camPos, camDir.Normalized(), out gridPickPos)) {
+				if (pickedWorld) {
+					if ((gridPickPos - camPos).LengthFast < (pickPos - camPos).LengthFast) {
+						pickPos = gridPickPos;
+						pickedWorld = true;
+						pickSide = gridh < cam.Position.Y ? World.Map.Side.Top : World.Map.Side.Bottom;
+					}
+				} else {
+					pickPos = gridPickPos;
+					pickedWorld = true;
+					pickSide = gridh < cam.Position.Y ? World.Map.Side.Top : World.Map.Side.Bottom;
+				}
+			}
 
 
-			if (draggingNewObject != null) {
-				draggingNewObject.Prefab.Position = pickPos + Vector3.UnitY * 0.1f;
+
+			if (draggingNewObject != null && pickedWorld) {
+				Vector3 newPos = pickPos - draggingNewObject.BoundPosition;
+				Vector3 bound = draggingNewObject.BoundSize / 2f + Vector3.One * 0.05f;
+				switch (pickSide) {
+					case World.Map.Side.Forward:
+						newPos.Z += bound.Z; 
+						break;
+					case World.Map.Side.Right:
+						newPos.X += bound.X;
+						break;
+					case World.Map.Side.Back:
+						newPos.Z -= bound.Z;
+						break;
+					case World.Map.Side.Left:
+						newPos.X -= bound.X;
+						break;
+					case World.Map.Side.Top:
+						newPos.Y += bound.Y;
+						break;
+					case World.Map.Side.Bottom:
+						newPos.Y -= bound.Y;
+						break;
+				}
+				draggingNewObject.Prefab.Position = newPos;
 				draggingNewObject.EditorUpdate(scene);
 			}
 		}
@@ -112,6 +173,7 @@ namespace Cubed.Forms.Editors.Map {
 						if (eo != null) {
 							e.Effect = e.AllowedEffect;
 							draggingNewObject = eo;
+							engine.MakeCurrent();
 							eo.Create(scene);
 
 							Point mouse = screen.PointToClient(new Point(e.X, e.Y));

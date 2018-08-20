@@ -65,6 +65,11 @@ namespace Cubed.Forms.Editors.Map {
 		Entity[] heightGizmos;
 
 		/// <summary>
+		/// Line entity
+		/// </summary>
+		Entity heightChangeGizmo;
+
+		/// <summary>
 		/// Bounds
 		/// </summary>
 		Vector2 heightBoundsMin, heightBoundsMax;
@@ -155,6 +160,14 @@ namespace Cubed.Forms.Editors.Map {
 					heightGizmos[i] = gizmo;
 				}
 			}
+			if (heightChangeGizmo == null) {
+				Entity gizmo = new Entity();
+				gizmo.AddComponent(new LineComponent() {
+					WireWidth = 2f
+				});
+				heightChangeGizmo = gizmo;
+			}
+			scene.Entities.Add(heightChangeGizmo);
 			foreach (Entity gizmo in heightGizmos) {
 				scene.Entities.Add(gizmo);
 			}
@@ -186,7 +199,8 @@ namespace Cubed.Forms.Editors.Map {
 			foreach (PaintEditorProxy prx in heightProxies) {
 				prx.Kill();
 			}
-			
+			scene.Entities.Remove(heightChangeGizmo);
+
 
 		}
 
@@ -197,6 +211,7 @@ namespace Cubed.Forms.Editors.Map {
 
 			// Rebuilding
 			bool needRebuild = false;
+			bool pickVisible = Input.Controls.Mouse != Vector2.One * -1;
 
 			// Picking current grid position
 			Vector3 camPos = cam.ScreenToPoint(Input.Controls.Mouse.X, Input.Controls.Mouse.Y, 0);
@@ -227,6 +242,9 @@ namespace Cubed.Forms.Editors.Map {
 						}
 					}
 				}
+			}
+			if (!pickVisible) {
+				pickedBlock = null;
 			}
 
 			// Picking
@@ -310,6 +328,11 @@ namespace Cubed.Forms.Editors.Map {
 					Vector3 pos = heightGizmos[currentHeightGizmo].Position;
 					pos.Y = level + heightCells[0].Pos.Y;
 					heightGizmos[currentHeightGizmo].Position = pos;
+
+					heightChangeGizmo.GetComponent<LineComponent>().Vertices = new Vector3[] {
+						new Vector3(pos.X, pos.Y, pos.Z),
+						new Vector3(pos.X, heightGizmoOriginal, pos.Z),
+					};
 				}
 
 			} else if(heightCellSelecting) {
@@ -379,6 +402,10 @@ namespace Cubed.Forms.Editors.Map {
 			}
 
 			// Block gizmos
+			heightChangeGizmo.Visible = heightChanging;
+			if (currentGizmo != -1) {
+				heightChangeGizmo.GetComponent<LineComponent>().WireColor = System.Drawing.Color.FromArgb((int)((System.Math.Sin(wobble * System.Math.PI * 2) * 0.5 + 0.5) * 64f + 63f * heightGizmoAlpha[currentGizmo]) + 128, NSTheme.UI_ACCENT);
+			}
 			for (int i = 0; i < heightGizmos.Length; i++) {
 				heightGizmoAlpha[i] = Math.Max(Math.Min(heightGizmoAlpha[i] + ((currentHeightGizmo == i) ? 0.2f : -0.2f), 1f), 0f);
 				Entity gizmo = heightGizmos[i];

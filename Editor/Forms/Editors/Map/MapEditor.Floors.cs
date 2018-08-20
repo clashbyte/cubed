@@ -76,11 +76,12 @@ namespace Cubed.Forms.Editors.Map {
 		void FloorToolUpdate() {
 			// Hiding all proxies
 			bool needRebuild = false;
-			if (Input.Controls.MouseHit(MouseButton.Middle) && allowMouseLook) {
+			bool pickVisible = Input.Controls.Mouse != Vector2.One * -1;
+			if (Input.Controls.MouseHit(MouseButton.Middle) && allowMouseLook || !pickVisible) {
 				foreach (FloorEditorProxy prx in floorProxies) {
 					prx.Block.Visible = false;
 				}
-			} else if (Input.Controls.MouseReleased(MouseButton.Middle) && allowMouseLook) {
+			} else if (Input.Controls.MouseReleased(MouseButton.Middle) && allowMouseLook && pickVisible) {
 				foreach (FloorEditorProxy prx in floorProxies) {
 					prx.Block.Visible = true;
 					needRebuild = true;
@@ -92,7 +93,7 @@ namespace Cubed.Forms.Editors.Map {
 			Vector3 camDir = cam.ScreenToPoint(Input.Controls.Mouse.X, Input.Controls.Mouse.Y, 1) - camPos;
 			Vector3 pickPos = Vector3.Zero;
 			float gridh = (((cam.Position.Y < gridHeight + 1) && (cam.Angles.X < 0)) ? gridHeight + 1 : gridHeight);
-			if (Cubed.Maths.Intersections.RayPlane(Vector3.UnitY * gridh, Vector3.UnitY, camPos, camDir.Normalized(), out pickPos)) {
+			if (Maths.Intersections.RayPlane(Vector3.UnitY * gridh, Vector3.UnitY, camPos, camDir.Normalized(), out pickPos)) {
 				pickPos = new Vector3((float)System.Math.Floor(pickPos.X), gridh, (float)System.Math.Floor(pickPos.Z));
 				Vector2 pcam = pickPos.Xz - cam.Position.Xz;
 				float mag = pcam.Length;
@@ -145,12 +146,13 @@ namespace Cubed.Forms.Editors.Map {
 							floorProxies.Add(fp);
 						}
 					}
-					
 				} else {
-					fp = new FloorEditorProxy(scene);
-					fp.WobbleOffset = 0;
-					fp.Block.Position = floorCurrentPos;
-					floorProxies.Add(fp);
+					if (pickVisible) {
+						fp = new FloorEditorProxy(scene);
+						fp.WobbleOffset = 0;
+						fp.Block.Position = floorCurrentPos;
+						floorProxies.Add(fp);
+					}
 				}
 			}
 

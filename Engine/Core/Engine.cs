@@ -101,6 +101,13 @@ namespace Cubed.Core {
 		}
 
 		/// <summary>
+		/// Making this engine current
+		/// </summary>
+		public void MakeCurrent() {
+			Current = this;
+		}
+
+		/// <summary>
 		/// Update engine
 		/// </summary>
 		/// <param name="display">Display device</param>
