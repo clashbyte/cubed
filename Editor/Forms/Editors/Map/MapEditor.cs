@@ -9,9 +9,11 @@ using System.Windows.Forms;
 using Cubed.Components.Controls;
 using Cubed.Components.Rendering;
 using Cubed.Core;
+using Cubed.Data.Editor.Attributes;
 using Cubed.Data.Projects;
 using Cubed.Drivers.Files;
 using Cubed.Drivers.Rendering;
+using Cubed.Editing;
 using Cubed.Forms.Common;
 using Cubed.Forms.Resources;
 using Cubed.Graphics;
@@ -87,6 +89,11 @@ namespace Cubed.Forms.Editors.Map {
 		bool editorInitialized;
 
 		/// <summary>
+		/// Environment params
+		/// </summary>
+		EnvironmentInfo environment;
+
+		/// <summary>
 		/// Constructor
 		/// </summary>
 		public MapEditor() {
@@ -94,6 +101,9 @@ namespace Cubed.Forms.Editors.Map {
 			cachedTextures = new Dictionary<Project.Entry, Texture>();
 			textureAnimators = new Dictionary<Texture, TextureAnimator>();
 			listContainer.Panel2Collapsed = true;
+
+			// Environment and scripts
+			environment = new EnvironmentInfo(this);
 
 			// Making engine
 			engine = new Engine();
@@ -129,10 +139,12 @@ namespace Cubed.Forms.Editors.Map {
 			gridHeight = 0;
 			allowMouseLook = true;
 
-			// Map
-			//map.Ambient = System.Drawing.Color.White;
+			// Handling updates
+			Project.EntriesChangedEvent += Project_EntriesChangedEvent;
 
 			// Initializing select
+			sceneObjects = new List<EditableObject>();
+			sceneSelectedObjects = new List<EditableObject>();
 			SelectToolOpen();
 		}
 
@@ -140,6 +152,9 @@ namespace Cubed.Forms.Editors.Map {
 		/// Engine updating
 		/// </summary>
 		void engine_UpdateLogic(object sender, Engine.UpdateEventArgs e) {
+
+			// Making engine current
+			MainForm.CurrentEngine = engine;
 
 			// Initialization
 			if (!editorInitialized) {
@@ -168,6 +183,11 @@ namespace Cubed.Forms.Editors.Map {
 				emptyWallTex = new Texture(EditorTextures.Wall);
 				emptyFloorTex = new Texture(EditorTextures.Floor);
 				emptyCeilTex = new Texture(EditorTextures.Ceiling);
+
+				// Updating flags
+				skyboxEnabledFlag_CheckedChanged(null);
+				lightsEnabledFlag_CheckedChanged(null);
+				soundsEnabledFlag_CheckedChanged(null);
 
 				// Init complete
 				editorInitialized = true;
@@ -310,6 +330,9 @@ namespace Cubed.Forms.Editors.Map {
 		/// </summary>
 		private void walkModeEnable_CheckedChanged(object sender) {
 			if (walkModeEnable.Checked) {
+				foreach (EditableObject eo in sceneObjects) {
+					eo.StartPlayMode(scene);
+				}
 				scene.Camera = playerCamera;
 				player.Position = cam.Position;
 				playerCamHolder.Angles = cam.Angles;
@@ -337,6 +360,9 @@ namespace Cubed.Forms.Editors.Map {
 				}
 				screen.Focus();
 			} else {
+				foreach (EditableObject eo in sceneObjects) {
+					eo.StopPlayMode(scene);
+				}
 				scene.Camera = cam;
 				display.MouseLock = false;
 				switch (currentTool) {
@@ -363,6 +389,55 @@ namespace Cubed.Forms.Editors.Map {
 		}
 
 		/// <summary>
+		/// Showing environment parameters
+		/// </summary>
+		private void envOptionsButton_Click(object sender, EventArgs e) {
+			MainForm.SelectedTarget = environment;
+		}
+
+		/// <summary>
+		/// Showing scripting parameters
+		/// </summary>
+		private void scriptOptionsButton_Click(object sender, EventArgs e) {
+			MainForm.SelectedTarget = environment;
+		}
+
+		/// <summary>
+		/// Skybox flag
+		/// </summary>
+		private void skyboxEnabledFlag_CheckedChanged(object sender) {
+			if (skyboxEnabledFlag.Checked) {
+				scene.Sky = environment.Sky;
+				if (environment.FogEnabled) {
+					scene.Fog = environment.FogData;
+				} else {
+					scene.Fog = null;
+				}
+			} else {
+				scene.Sky = null;
+				scene.Fog = null;
+			}
+		}
+
+		/// <summary>
+		/// Lighting flag
+		/// </summary>
+		private void lightsEnabledFlag_CheckedChanged(object sender) {
+			if (lightsEnabledFlag.Checked) {
+				map.Ambient = environment.Ambient;
+			} else {
+				map.Ambient = Color.White;
+			}
+		}
+
+		/// <summary>
+		/// Sounds flag
+		/// </summary>
+		private void soundsEnabledFlag_CheckedChanged(object sender) {
+
+		}
+
+		/// <summary>
 		/// Type of tools
 		/// </summary>
 		enum ToolType {
@@ -374,5 +449,244 @@ namespace Cubed.Forms.Editors.Map {
 			Logics
 		}
 
+		/// <summary>
+		/// Environment parameters
+		/// </summary>
+		[InspectorIcon("Environment")]
+		[InspectorName("EnvironmentInfo")]
+		[InspectorDescription("EnvironmentInfoDesc")]
+		[InspectorSection(0, "EnvLightGroup", "LightGroup")]
+		[InspectorSection(1, "FogGroup", "FogGroup")]
+		[InspectorSection(2, "SkyGroup", "SkyGroup")]
+		[InspectorSection(3, "SoundGroup", "SoundGroup")]
+		public class EnvironmentInfo {
+
+			/// <summary>
+			/// Ambient color
+			/// </summary>
+			[InspectorSection(0)]
+			[InspectorName("AmbientLight")]
+			public Color Ambient {
+				get {
+					return ambientColor;
+				}
+				set {
+					parent.Saved = false;
+					ambientColor = value;
+					if (parent.lightsEnabledFlag.Checked) {
+						parent.map.Ambient = ambientColor;
+					}
+				}
+			}
+
+			/// <summary>
+			/// Sky top Texture
+			/// </summary>
+			[InspectorSection(2)]
+			[InspectorName("SkyTop")]
+			public Texture SkyTop {
+				get {
+					return Sky[Skybox.Side.Top];
+				}
+				set {
+					parent.Saved = false;
+					Sky[Skybox.Side.Top] = value;
+				}
+			}
+
+
+			/// <summary>
+			/// Sky top Texture
+			/// </summary>
+			[InspectorSection(2)]
+			[InspectorName("SkyBottom")]
+			public Texture SkyBottom {
+				get {
+					return Sky[Skybox.Side.Bottom];
+				}
+				set {
+					parent.Saved = false;
+					Sky[Skybox.Side.Bottom] = value;
+				}
+			}
+
+
+			/// <summary>
+			/// Sky left Texture
+			/// </summary>
+			[InspectorSection(2)]
+			[InspectorName("SkyLeft")]
+			public Texture SkyLeft {
+				get {
+					return Sky[Skybox.Side.Left];
+				}
+				set {
+					parent.Saved = false;
+					Sky[Skybox.Side.Left] = value;
+				}
+			}
+
+
+			/// <summary>
+			/// Sky right Texture
+			/// </summary>
+			[InspectorSection(2)]
+			[InspectorName("SkyRight")]
+			public Texture SkyRight {
+				get {
+					return Sky[Skybox.Side.Right];
+				}
+				set {
+					parent.Saved = false;
+					Sky[Skybox.Side.Right] = value;
+				}
+			}
+
+
+			/// <summary>
+			/// Sky front Texture
+			/// </summary>
+			[InspectorSection(2)]
+			[InspectorName("SkyFront")]
+			public Texture SkyFront {
+				get {
+					return Sky[Skybox.Side.Front];
+				}
+				set {
+					parent.Saved = false;
+					Sky[Skybox.Side.Front] = value;
+				}
+			}
+
+
+			/// <summary>
+			/// Sky back Texture
+			/// </summary>
+			[InspectorSection(2)]
+			[InspectorName("SkyBack")]
+			public Texture SkyBack {
+				get {
+					return Sky[Skybox.Side.Back];
+				}
+				set {
+					parent.Saved = false;
+					Sky[Skybox.Side.Back] = value;
+				}
+			}
+			
+			/// <summary>
+			/// Fog mode
+			/// </summary>
+			[InspectorSection(1)]
+			[InspectorName("Enabled")]
+			public bool FogEnabled {
+				get {
+					return fogEnabled;
+				}
+				set {
+					parent.Saved = false;
+					fogEnabled = value;
+					if (parent.skyboxEnabledFlag.Checked) {
+						if (fogEnabled) {
+							parent.scene.Fog = FogData;
+						} else {
+							parent.scene.Fog = null;
+						}
+					}
+				}
+			}
+
+			/// <summary>
+			/// Fog color
+			/// </summary>
+			[InspectorSection(1)]
+			[InspectorName("FogColor")]
+			public Color FogColor {
+				get {
+					return FogData.Color;
+				}
+				set {
+					parent.Saved = false;
+					FogData.Color = value;
+				}
+			}
+
+			/// <summary>
+			/// Fog color
+			/// </summary>
+			[InspectorSection(1)]
+			[InspectorName("FogNear")]
+			public float FogNear {
+				get {
+					return FogData.Near;
+				}
+				set {
+					parent.Saved = false;
+					FogData.Near = value;
+				}
+			}
+
+			/// <summary>
+			/// Fog color
+			/// </summary>
+			[InspectorSection(1)]
+			[InspectorName("FogFar")]
+			public float FogFar {
+				get {
+					return FogData.Far;
+				}
+				set {
+					parent.Saved = false;
+					FogData.Far = value;
+				}
+			}
+
+			/// <summary>
+			/// Internal sky
+			/// </summary>
+			[InspectorHidden]
+			public Skybox Sky {
+				get;
+				private set;
+			}
+
+			/// <summary>
+			/// Internal fog data
+			/// </summary>
+			[InspectorHidden]
+			public Fog FogData {
+				get;
+				private set;
+			}
+
+			/// <summary>
+			/// Ambient color data
+			/// </summary>
+			Color ambientColor;
+
+			/// <summary>
+			/// Flag for fog
+			/// </summary>
+			bool fogEnabled;
+
+			/// <summary>
+			/// Parent map editor
+			/// </summary>
+			MapEditor parent;
+
+			/// <summary>
+			/// Environment constructor
+			/// </summary>
+			public EnvironmentInfo(MapEditor parent) {
+				this.parent = parent;
+				ambientColor = Color.FromArgb(100, 100, 100);
+				Sky = new Skybox();
+				FogData = new Fog();
+			}
+		}
+
+		public class ScriptInfo {
+
+		}
 	}
 }

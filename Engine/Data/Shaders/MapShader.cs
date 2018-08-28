@@ -78,11 +78,63 @@ namespace Cubed.Data.Shaders {
 			}
 		}
 
+		/// <summary>
+		/// Fog enabled
+		/// </summary>
+		public bool FogEnabled {
+			get {
+				return fogEnabled.Value;
+			}
+			set {
+				fogEnabled.Value = value;
+			}
+		}
+
+		/// <summary>
+		/// Fog color
+		/// </summary>
+		public Color FogColor {
+			get {
+				return fogColor.Color;
+			}
+			set {
+				fogColor.Color = value;
+			}
+		}
+
+		/// <summary>
+		/// Fog near
+		/// </summary>
+		public float FogNear {
+			get {
+				return fogNear.Value;
+			}
+			set {
+				fogNear.Value = value;
+			}
+		}
+
+		/// <summary>
+		/// Fog fab
+		/// </summary>
+		public float FogFar {
+			get {
+				return fogFar.Value;
+			}
+			set {
+				fogFar.Value = value;
+			}
+		}
+
 		// Скрытые параметры
 		TextureUniform textureUniform;
 		TextureUniform lightmapUniform;
 		ColorUniform ambientColor;
+		ColorUniform fogColor;
 		MatrixUniform textureMatrix;
+		BoolUniform fogEnabled;
+		FloatUniform fogNear;
+		FloatUniform fogFar;
 		VertexAttribute vertexAttrib;
 		VertexAttribute texCoordAttrib;
 		VertexAttribute lightCoordAttrib;
@@ -118,6 +170,22 @@ namespace Cubed.Data.Shaders {
 			if (textureMatrix == null) {
 				textureMatrix = new MatrixUniform("textureMatrix");
 				uniforms.Add(textureMatrix);
+			}
+			if (fogEnabled == null) {
+				fogEnabled = new BoolUniform("fog");
+				uniforms.Add(fogEnabled);
+			}
+			if (fogColor == null) {
+				fogColor = new ColorUniform("fogColor");
+				uniforms.Add(fogColor);
+			}
+			if (fogNear == null) {
+				fogNear = new FloatUniform("fogNear");
+				uniforms.Add(fogNear);
+			}
+			if (fogFar == null) {
+				fogFar = new FloatUniform("fogFar");
+				uniforms.Add(fogFar);
 			}
 		}
 

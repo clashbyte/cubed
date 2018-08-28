@@ -30,6 +30,14 @@ namespace Cubed.Graphics {
 		}
 
 		/// <summary>
+		/// Texture
+		/// </summary>
+		public TextureAnimator Animator {
+			get;
+			private set;
+		}
+
+		/// <summary>
 		/// Current texture frame
 		/// </summary>
 		public int CurrentFrame {
@@ -67,7 +75,7 @@ namespace Cubed.Graphics {
 		/// </summary>
 		public TransparencyMode Transparency {
 			get {
-				if (tex != null) {
+				if (State == LoadingState.Complete) {
 					return (TransparencyMode)((byte)tex[CurrentFrame].Transparency);
 				}
 				return TransparencyMode.Opaque;
@@ -166,6 +174,7 @@ namespace Cubed.Graphics {
 			WrapVertical = WrapMode.Repeat;
 			tex = Engine.Current.TextureCache.Get(file, loadMode == LoadingMode.Instant);
 			tex.IncrementReference();
+			Animator = new TextureAnimator(this);
 		}
 
 		/// <summary>
@@ -178,6 +187,7 @@ namespace Cubed.Graphics {
 			WrapVertical = WrapMode.Repeat;
 			tex = Engine.Current.TextureCache.GetFromImage(image);
 			tex.IncrementReference();
+			Animator = new TextureAnimator(this);
 		}
 
 		/// <summary>
@@ -212,7 +222,16 @@ namespace Cubed.Graphics {
 		/// Освобождение текстуры
 		/// </summary>
 		public void Release() {
+			Dispose();
+		}
 
+		/// <summary>
+		/// Refreshing texture
+		/// </summary>
+		public void Reload() {
+			if (tex != null) {
+				Engine.Current.TextureCache.Refresh(tex, false);
+			}
 		}
 
 		/// <summary>
@@ -244,6 +263,9 @@ namespace Cubed.Graphics {
 
 			// If texture is bindable
 			if (bindable) {
+
+				// Updating animator
+				Animator.Update();
 
 				// Setting up
 				tex.Bind(CurrentFrame);

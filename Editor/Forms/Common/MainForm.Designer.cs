@@ -103,41 +103,41 @@
 			// newToolStripMenuItem
 			// 
 			this.newToolStripMenuItem.Name = "newToolStripMenuItem";
-			this.newToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.newToolStripMenuItem.Size = new System.Drawing.Size(113, 22);
 			this.newToolStripMenuItem.Text = "New";
 			// 
 			// toolStripSeparator1
 			// 
 			this.toolStripSeparator1.Name = "toolStripSeparator1";
-			this.toolStripSeparator1.Size = new System.Drawing.Size(149, 6);
+			this.toolStripSeparator1.Size = new System.Drawing.Size(110, 6);
 			// 
 			// openToolStripMenuItem
 			// 
 			this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-			this.openToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.openToolStripMenuItem.Size = new System.Drawing.Size(113, 22);
 			this.openToolStripMenuItem.Text = "Open";
 			// 
 			// saveAllToolStripMenuItem
 			// 
 			this.saveAllToolStripMenuItem.Name = "saveAllToolStripMenuItem";
-			this.saveAllToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.saveAllToolStripMenuItem.Size = new System.Drawing.Size(113, 22);
 			this.saveAllToolStripMenuItem.Text = "Save all";
 			// 
 			// closeToolStripMenuItem
 			// 
 			this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
-			this.closeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.closeToolStripMenuItem.Size = new System.Drawing.Size(113, 22);
 			this.closeToolStripMenuItem.Text = "Close";
 			// 
 			// toolStripSeparator2
 			// 
 			this.toolStripSeparator2.Name = "toolStripSeparator2";
-			this.toolStripSeparator2.Size = new System.Drawing.Size(149, 6);
+			this.toolStripSeparator2.Size = new System.Drawing.Size(110, 6);
 			// 
 			// exitToolStripMenuItem
 			// 
 			this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-			this.exitToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.exitToolStripMenuItem.Size = new System.Drawing.Size(113, 22);
 			this.exitToolStripMenuItem.Text = "Exit";
 			// 
 			// createToolStripMenuItem
@@ -195,7 +195,7 @@
 			this.tabPage2.Margin = new System.Windows.Forms.Padding(0);
 			this.tabPage2.Name = "tabPage2";
 			this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-			this.tabPage2.Size = new System.Drawing.Size(734, 339);
+			this.tabPage2.Size = new System.Drawing.Size(692, 339);
 			this.tabPage2.TabIndex = 1;
 			this.tabPage2.Text = "tabPage2";
 			// 
@@ -239,14 +239,15 @@
 			this.propsContainer.SplitterDistance = 700;
 			this.propsContainer.TabIndex = 2;
 			// 
-			// inspector1
+			// inspector
 			// 
 			this.inspector.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(50)))), ((int)(((byte)(50)))));
 			this.inspector.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.inspector.Location = new System.Drawing.Point(0, 0);
-			this.inspector.Name = "inspector1";
+			this.inspector.Name = "inspector";
 			this.inspector.Size = new System.Drawing.Size(304, 373);
 			this.inspector.TabIndex = 0;
+			this.inspector.Target = null;
 			// 
 			// panel1
 			// 
@@ -260,6 +261,7 @@
 			// 
 			// projectControl
 			// 
+			this.projectControl.AllowDragging = true;
 			this.projectControl.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.projectControl.EmptyMessage = "Directory is empty!";
 			this.projectControl.Font = new System.Drawing.Font("Tahoma", 8F);

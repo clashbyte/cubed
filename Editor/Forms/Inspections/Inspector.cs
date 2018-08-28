@@ -9,6 +9,10 @@ using System.Windows.Forms;
 using Cubed.UI.Controls;
 using System.Reflection;
 using Cubed.Forms.Inspections.Fields;
+using Cubed.Data.Editor.Attributes;
+using OpenTK;
+using Cubed.Graphics;
+using Cubed.UI.Graphics;
 
 namespace Cubed.Forms.Inspections {
 	public partial class Inspector : Panel {
@@ -17,8 +21,21 @@ namespace Cubed.Forms.Inspections {
 		/// Assigned editors for props
 		/// </summary>
 		static readonly Dictionary<Type, Type> fieldTypes = new Dictionary<Type, Type>() {
-			{ typeof(string), typeof(StringFieldInspector) },
-			{ typeof(bool), typeof(BoolFieldInspector) },
+			{ typeof(string),	typeof(StringFieldInspector) },
+			{ typeof(bool),		typeof(BoolFieldInspector) },
+			{ typeof(int),		typeof(NumberFieldInspector) },
+			{ typeof(uint),		typeof(NumberFieldInspector) },
+			{ typeof(short),	typeof(NumberFieldInspector) },
+			{ typeof(ushort),	typeof(NumberFieldInspector) },
+			{ typeof(byte),		typeof(NumberFieldInspector) },
+			{ typeof(sbyte),	typeof(NumberFieldInspector) },
+			{ typeof(long),		typeof(NumberFieldInspector) },
+			{ typeof(ulong),	typeof(NumberFieldInspector) },
+			{ typeof(float),	typeof(NumberFieldInspector) },
+			{ typeof(Vector2),	typeof(Vector2FieldInspector) },
+			{ typeof(Vector3),	typeof(Vector3FieldInspector) },
+			{ typeof(Color),	typeof(ColorFieldInspector) },
+			{ typeof(Texture),	typeof(FileFieldInspector) },
 		};
 
 
@@ -126,7 +143,6 @@ namespace Cubed.Forms.Inspections {
 			infoPanel = new Panel() {
 				AutoScroll = false,
 				Dock = DockStyle.Top,
-				BackColor = Color.Lime,
 				Size = new Size(1, 57)
 			};
 			infoPanel.Controls.Add(fileInfo);
@@ -148,49 +164,127 @@ namespace Cubed.Forms.Inspections {
 		/// Rebuilding all components
 		/// </summary>
 		void Rebuild() {
+			SuspendLayout();
 			if (target != null) {
 
-				// Decoding properties
+				// Picking info
+				Type type = target.GetType();
+				NSDirectoryInspector.Entry mainInfo = new NSDirectoryInspector.Entry();
+				InspectorNameAttribute nameAttrib = (InspectorNameAttribute)Attribute.GetCustomAttribute(type, typeof(InspectorNameAttribute));
+				if (nameAttrib != null) {
+					mainInfo.Name = nameAttrib.Name;
+				} else {
+					mainInfo.Name = type.Name;
+				}
+				InspectorDescriptionAttribute descAttrib = (InspectorDescriptionAttribute)Attribute.GetCustomAttribute(type, typeof(InspectorDescriptionAttribute));
+				if (descAttrib != null) {
+					mainInfo.SubName = descAttrib.Description;
+				}
+				InspectorIconAttribute iconAttrib = (InspectorIconAttribute)Attribute.GetCustomAttribute(type, typeof(InspectorIconAttribute));
+				if (iconAttrib != null) {
+					mainInfo.MainIcon = iconAttrib.Icon;
+				}
+				fileInfo.File = mainInfo;
+
+				// Reading sections
+				Dictionary<int, FieldGroup> groups = new Dictionary<int, FieldGroup>();
+				InspectorSectionAttribute[] sectionAttribs = (InspectorSectionAttribute[])Attribute.GetCustomAttributes(type, typeof(InspectorSectionAttribute));
+				if (sectionAttribs == null) {
+					sectionAttribs = new InspectorSectionAttribute[0];
+				}
+				foreach (InspectorSectionAttribute sattr in sectionAttribs) {
+					if (!groups.ContainsKey(sattr.ID)) {
+						groups.Add(sattr.ID, new FieldGroup());
+					}
+					FieldGroup fg = groups[sattr.ID];
+					fg.Name = sattr.Name;
+					fg.Icon = sattr.Icon;
+				}
+				if (!groups.ContainsKey(-1)) {
+					groups.Add(-1, new FieldGroup() {
+						Name = InspectorNameAttribute.GetName("DefaultGroup"),
+						Icon = InspectorIconAttribute.GetIcon("DefaultGroup"),
+					});
+				}
+
+				// Reading properties
+				PropertyInfo[] pinfos = type.GetProperties();
+				foreach (PropertyInfo p in pinfos) {
+					if (p.CanRead && p.GetGetMethod().IsPublic && Attribute.GetCustomAttribute(p, typeof(InspectorHiddenAttribute)) == null) {
+						int section = -1;
+						InspectorSectionAttribute sattr = (InspectorSectionAttribute)Attribute.GetCustomAttribute(p, typeof(InspectorSectionAttribute));
+						if (sattr != null) {
+							if (groups.ContainsKey(sattr.ID)) {
+								section = sattr.ID;
+							}
+						}
+						groups[section].Properties.Add(p);
+					}
+				}
+
+				// Halting
+				int py = 0;
+				List<Control> controlsToDispose = new List<Control>();
+				foreach (Control c in subPanel.Controls) {
+					controlsToDispose.Add(c);
+				}
 				hostPanel.SuspendLayout();
 				subPanel.SuspendLayout();
 				subPanel.Controls.Clear();
-				Type type = target.GetType();
-				PropertyInfo[] pinfos = type.GetProperties();
-				fields = new Dictionary<PropertyInfo, InspectorEntry>();
-				int py = 0;
-				foreach (PropertyInfo p in pinfos) {
-					if (p.CanRead) {
-						Type tp = null;
-						if (p.PropertyType.IsEnum) {
-							tp = typeof(EnumFieldInspector);
-						} else if (fieldTypes.ContainsKey(p.PropertyType)) {
-							tp = fieldTypes[p.PropertyType];
-						}
-						if (tp != null) {
-							FieldInspector fi = Activator.CreateInstance(tp) as FieldInspector;
-							InspectorEntry ie = new InspectorEntry(p, fi);
-							fi.SetParent(this, p, p.CanWrite);
-							fi.UpdateValue();
+				foreach (Control c in controlsToDispose) {
+					c.Dispose();
+				}
 
-							subPanel.Controls.Add(ie);
-							ie.Location = new Point(0, py);
-							ie.Size = new Size(subPanel.Width, ie.Height);
-							ie.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-							py += ie.Height;
-							fields.Add(p, ie);
+				// Iterating fields
+				int[] indices = groups.Keys.ToArray();
+				FieldGroup[] fgroups = groups.Values.ToArray();
+				Array.Sort(indices, fgroups);
+				foreach (FieldGroup fg in fgroups) {
+					if (fg.Properties.Count > 0) {
+
+						// Adding separator
+						InspectorSplitter splitter = new InspectorSplitter(fg.Name, fg.Icon);
+						splitter.Location = new Point(0, py + 3);
+						splitter.Size = new Size(hostPanel.Width, splitter.Height);
+						splitter.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+						subPanel.Controls.Add(splitter);
+						py += splitter.Height + 6;
+
+						// Adding fields
+						foreach (PropertyInfo p in fg.Properties) {
+							Type tp = null;
+							if (p.PropertyType.IsEnum) {
+								tp = typeof(EnumFieldInspector);
+							} else if (fieldTypes.ContainsKey(p.PropertyType)) {
+								tp = fieldTypes[p.PropertyType];
+							}
+							if (tp != null) {
+								FieldInspector fi = Activator.CreateInstance(tp) as FieldInspector;
+								InspectorEntry ie = new InspectorEntry(p, fi);
+								fi.SetParent(this, p, p.CanWrite && p.GetGetMethod().IsPublic);
+								fi.UpdateValue(); 
+								
+								ie.Location = new Point(0, py);
+								ie.Size = new Size(hostPanel.Width, ie.Height);
+								ie.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+								subPanel.Controls.Add(ie);
+								py += ie.Height;
+								fg.Entries.Add(p, ie);
+							}
 						}
+						py += 10;
+						
 					}
 				}
 				totalHeight = py;
-				subPanel.Size = new System.Drawing.Size(hostPanel.Width, py);
 				subPanel.ResumeLayout();
 				hostPanel.ResumeLayout();
-
 			} else {
-				subPanel.Size = new System.Drawing.Size(hostPanel.Width, 1);
+				totalHeight = 1;
 			}
 			hostPanel.Visible = infoPanel.Visible = target != null;
 			emptyLabel.Visible = target == null;
+			ResumeLayout();
 			AdjustScrollbar();
 		}
 
@@ -239,7 +333,44 @@ namespace Cubed.Forms.Inspections {
 				scrollBar.Value = 0;
 			} else {
 				scrollBar.Visible = false;
+				scrollBar.Value = 0;
 			}
+			subPanel.Size = new System.Drawing.Size(hostPanel.Width, totalHeight);
+		}
+
+		/// <summary>
+		/// Field group
+		/// </summary>
+		class FieldGroup {
+
+			/// <summary>
+			/// Name
+			/// </summary>
+			public string Name;
+
+			/// <summary>
+			/// Icon
+			/// </summary>
+			public UIIcon Icon;
+
+			/// <summary>
+			/// Entries
+			/// </summary>
+			public List<PropertyInfo> Properties;
+
+			/// <summary>
+			/// Entries
+			/// </summary>
+			public Dictionary<PropertyInfo, InspectorEntry> Entries;
+
+			/// <summary>
+			/// Constructor
+			/// </summary>
+			public FieldGroup() {
+				Properties = new List<PropertyInfo>();
+				Entries = new Dictionary<PropertyInfo, InspectorEntry>();
+			}
+
 		}
 	}
 }

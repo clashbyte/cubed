@@ -6,12 +6,17 @@ using System.Text;
 using System.Windows.Forms;
 using Cubed.Components.Rendering;
 using Cubed.Core;
+using Cubed.Data.Projects;
 using Cubed.Editing;
+using Cubed.Editing.Gizmos;
+using Cubed.Forms.Common;
+using Cubed.Graphics;
 using Cubed.Maths;
 using Cubed.UI;
 using Cubed.UI.Controls;
 using Cubed.World;
 using OpenTK;
+using OpenTK.Input;
 
 namespace Cubed.Forms.Editors.Map {
 
@@ -43,6 +48,36 @@ namespace Cubed.Forms.Editors.Map {
 		List<EditableObject> sceneObjects;
 
 		/// <summary>
+		/// Current objects
+		/// </summary>
+		List<EditableObject> sceneSelectedObjects;
+
+		/// <summary>
+		/// Dragging current object
+		/// </summary>
+		bool draggingObjects;
+
+		/// <summary>
+		/// Vertical mode
+		/// </summary>
+		bool dragVerticalMode;
+
+		/// <summary>
+		/// Dragging start location
+		/// </summary>
+		Vector3 draggingOrigin;
+
+		/// <summary>
+		/// Array of dragging entities
+		/// </summary>
+		Entity[] draggingPathEntities;
+
+		/// <summary>
+		/// Origins of all dragging entities
+		/// </summary>
+		Vector3[] draggingEntityOrigins;
+
+		/// <summary>
 		/// Opening selection
 		/// </summary>
 		void SelectToolOpen() {
@@ -57,13 +92,7 @@ namespace Cubed.Forms.Editors.Map {
 					VerticalAlign = UserInterface.Align.Start
 				});
 			}
-			if (sceneObjects == null) {
-				sceneObjects = new List<EditableObject>();
-			}
 			engine.Interface = selectInterface;
-			foreach (EditableObject eo in sceneObjects) {
-				eo.StopPlayMode(scene);
-			}
 		}
 
 		/// <summary>
@@ -74,9 +103,6 @@ namespace Cubed.Forms.Editors.Map {
 			if (draggingNewObject != null) {
 				draggingNewObject.Destroy(scene);
 				draggingNewObject = null;
-			}
-			foreach (EditableObject eo in sceneObjects) {
-				eo.StartPlayMode(scene);
 			}
 		}
 
@@ -129,8 +155,120 @@ namespace Cubed.Forms.Editors.Map {
 				}
 			}
 
+			// Picking entity
+			EditableObject pickedObject = null;
+			Vector3 objectPickPos = Vector3.Zero;
+			if (draggingNewObject == null) {
+				float dist = float.MaxValue;
+				foreach (EditableObject eo in sceneObjects) {
+					Vector3 pos = eo.Prefab.Position + eo.BoundPosition;
+					Vector3 size = eo.BoundSize / 2f;
+					Vector3 min = pos - size;
+					Vector3 max = pos + size;
+					float hdist = 0;
+					if (Intersections.RayIntersectsBox(camPos, camDir, min, max, out hdist)) {
+						if (hdist < dist) {
+							pickedObject = eo;
+							objectPickPos = camPos + camDir * hdist;
+							dist = hdist;
+						}
+					}
+				}
+			}
+
+			// Picking gizmo
+			Gizmo pickedGizmo = null;
 
 
+
+
+			// Selection
+			if (Input.Controls.MouseHit(MouseButton.Left) && !display.MouseLock) {
+				if (pickedObject != null) {
+					if (pickedGizmo != null) {
+
+					} else {
+						SelectEntity(pickedObject);
+						draggingObjects = true;
+						draggingOrigin = objectPickPos;
+						dragVerticalMode = Input.Controls.KeyDown(Key.ControlLeft);
+						draggingPathEntities = new Entity[sceneSelectedObjects.Count];
+						draggingEntityOrigins = new Vector3[sceneSelectedObjects.Count];
+						int idx = 0;
+						foreach (EditableObject eo in sceneSelectedObjects) {
+							Entity ent = new Entity();
+							ent.Parent = eo.Prefab;
+							ent.LocalPosition = Vector3.Zero;
+							ent.AddComponent(new LineComponent() {
+								WireColor = Color.Gray,
+								WireWidth = 1f
+							});
+							draggingPathEntities[idx] = ent;
+							draggingEntityOrigins[idx] = eo.Prefab.Position;
+							scene.Entities.Add(ent);
+							idx++;
+						}
+					}
+				} else {
+					SelectEntity(null);
+				}
+				
+				allowMouseLook = false;
+			} else if (Input.Controls.MouseReleased(MouseButton.Left)) {
+				if (draggingPathEntities != null) {
+					foreach (Entity ent in draggingPathEntities) {
+						scene.Entities.Remove(ent);
+					}
+				}
+				draggingPathEntities = null;
+				draggingObjects = false;
+				allowMouseLook = true;
+			}
+
+			// Dragging
+			if (draggingObjects) {
+				bool picked = false;
+				Vector3 dragPickPos = Vector3.Zero;
+				if (dragVerticalMode) {
+					Vector3 forw = cam.VectorToWorld(-Vector3.UnitZ);
+					forw.Y = 0;
+					forw.Normalize();
+					if (Intersections.RayPlane(draggingOrigin, forw, camPos, camDir.Normalized(), out dragPickPos)) {
+						dragPickPos.X = draggingOrigin.X;
+						dragPickPos.Z = draggingOrigin.Z;
+						picked = true;
+					}
+				} else {
+					if (Intersections.RayPlane(draggingOrigin, Vector3.UnitY, camPos, camDir.Normalized(), out dragPickPos)) {
+						dragPickPos.Y = draggingOrigin.Y;
+						picked = true;
+					}
+				}
+				if (picked) {
+					int idx = 0;
+					foreach (EditableObject eo in sceneSelectedObjects) {
+						eo.Prefab.Position = draggingEntityOrigins[idx] + (dragPickPos - draggingOrigin);
+						draggingPathEntities[idx].GetComponent<LineComponent>().Vertices = new Vector3[]{
+							eo.BoundPosition,
+							eo.BoundPosition - (dragPickPos - draggingOrigin)
+						};
+						idx++;
+					}
+				}
+			}
+
+			// Removing
+			if (Input.Controls.KeyHit(Key.Delete) && !Input.Controls.MouseDown(MouseButton.Left)) {
+				foreach (EditableObject reo in sceneSelectedObjects) {
+					reo.Deselect(scene);
+					reo.Destroy(scene);
+					sceneObjects.Remove(reo);
+				}
+				sceneSelectedObjects.Clear();
+				MainForm.SelectedTarget = null;
+			}
+
+			// Dragging new object on scene
 			if (draggingNewObject != null && pickedWorld) {
 				Vector3 newPos = pickPos - draggingNewObject.BoundPosition;
 				Vector3 bound = draggingNewObject.BoundSize / 2f + Vector3.One * 0.05f;
@@ -160,10 +298,41 @@ namespace Cubed.Forms.Editors.Map {
 		}
 
 		/// <summary>
+		/// Selecting object
+		/// </summary>
+		/// <param name="eo">Object to select</param>
+		void SelectEntity(EditableObject eo) {
+			if (eo == null || !sceneSelectedObjects.Contains(eo)) {
+				EditableObject inspectorObject = null;
+				if (!Input.Controls.KeyDown(Key.ShiftLeft)) {
+					foreach (EditableObject e in sceneSelectedObjects) {
+						e.Deselect(scene);
+
+						// Removing gizmos here
+					}
+					sceneSelectedObjects.Clear();
+				}
+				if (eo != null) {
+					eo.Select(scene);
+					sceneSelectedObjects.Add(eo);
+
+					// Adding gizmos here
+
+					if (sceneSelectedObjects.Count == 1) {
+						inspectorObject = eo;
+					}
+				}
+				MainForm.SelectedTarget = inspectorObject;
+			}
+		}
+
+		/// <summary>
 		/// Entering drag entry
 		/// </summary>
 		private void screen_DragEnter(object sender, DragEventArgs e) {
-			e.Effect = e.AllowedEffect;
+			if (currentTool != ToolType.Select && currentTool != ToolType.Logics) {
+				return;
+			}
 			NSDirectoryInspector.DropData data = (NSDirectoryInspector.DropData)e.Data.GetData(typeof(NSDirectoryInspector.DropData));
 			if (data != null) {
 				if (data.Content is Type) {
@@ -180,7 +349,33 @@ namespace Cubed.Forms.Editors.Map {
 							draggingScreenLocation = new Vector2(mouse.X, mouse.Y);
 						}
 					}
+				} else if (data.Content is Project.Entry) {
+					Project.Entry en = data.Content as Project.Entry;
+					engine.MakeCurrent();
+					EditableObject eo = null;
+
+					// Making simple sprite
+					string ext = System.IO.Path.GetExtension(en.Name).ToLower();
+					if (".jpg;.jpeg;.png;.gif;.anim;.bmp;".Split(';').Contains(ext)) {
+
+						Texture tex = new Texture(en.Path, Texture.LoadingMode.Queued);
+						eo = new MapSprite();
+						eo.Create(scene);
+						(eo as MapSprite).Texture = tex;
+
+					}
+
+					// Adding object
+					if (eo != null) {
+						e.Effect = e.AllowedEffect;
+						Point mouse = screen.PointToClient(new Point(e.X, e.Y));
+						draggingScreenLocation = new Vector2(mouse.X, mouse.Y);
+						draggingNewObject = eo;
+					}
 				}
+			}
+			if (draggingNewObject != null) {
+				e.Effect = e.AllowedEffect;
 			}
 			//if (data is Type) {
 			//	Type t = data as Type;
@@ -219,11 +414,16 @@ namespace Cubed.Forms.Editors.Map {
 			if (draggingNewObject != null) {
 				Point mouse = screen.PointToClient(new Point(e.X, e.Y));
 				draggingScreenLocation = new Vector2(mouse.X, mouse.Y);
+
+				// Dropping item
+				sceneObjects.Add(draggingNewObject);
+				SelectEntity(draggingNewObject);
 				draggingNewObject = null;
 			} else {
 				e.Effect = DragDropEffects.None;
 			}
 		}
+
 
 	}
 }

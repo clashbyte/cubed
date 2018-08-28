@@ -282,6 +282,19 @@ namespace Cubed.Components.Rendering {
 					pmat;
 			}
 
+			// Picking color
+			Color color = Tint;
+			if (AffectedByLight) {
+				Vector3 pos = Parent.Position;
+				Color light = Scene.Current.GetLightAtPoint(pos.X, pos.Y, pos.Z);
+				color = Color.FromArgb(
+					color.A,
+					(byte)(((float)color.R / 255f) * ((float)light.R / 255f) * 255f),
+					(byte)(((float)color.G / 255f) * ((float)light.G / 255f) * 255f),
+					(byte)(((float)color.B / 255f) * ((float)light.B / 255f) * 255f) 
+				);
+			}
+
 			// Binding texture
 			if (Texture != null) {
 				Texture.Bind();
@@ -289,19 +302,6 @@ namespace Cubed.Components.Rendering {
 				Texture.BindEmpty();
 			}
 			GL.Disable(EnableCap.CullFace);
-
-			Color color = Tint;
-			if (AffectedByLight) {
-				Vector3 pos = Parent.Position;
-				Color light = Scene.Current.GetLightAtPoint(pos.X, pos.Y, pos.Z);
-				color = Color.FromArgb(
-					Tint.A,
-					(byte)(((float)color.R / 255f) * ((float)light.R / 255f) * 255f),
-					(byte)(((float)color.G / 255f) * ((float)light.G / 255f) * 255f),
-					(byte)(((float)color.B / 255f) * ((float)light.B / 255f) * 255f) 
-				);
-			}
-
 
 			// Handling
 			if (Caps.ShaderPipeline) {
@@ -311,6 +311,16 @@ namespace Cubed.Components.Rendering {
 
 				SpriteShader shader = SpriteShader.Shader;
 				shader.DiffuseColor = color;
+
+				// Setting up fog
+				Fog fog = Scene.Current.Fog;
+				shader.FogEnabled = fog != null;
+				if (fog != null) {
+					shader.FogNear = fog.Near;
+					shader.FogFar = fog.Far;
+					shader.FogColor = fog.Color;
+				}
+
 				shader.Bind();
 				GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBuffer);
 				GL.VertexAttribPointer(shader.VertexBufferLocation, 3, VertexAttribPointerType.Float, false, 0, 0);

@@ -52,6 +52,9 @@ namespace Cubed.UI.Graphics {
 		/// </summary>
 		/// <param name="to">Icon dimensions</param>
 		public void Draw(System.Drawing.Graphics g, Rectangle to, float offset = 2f) {
+			if (img == null) {
+				return;
+			}
 			float padX = to.X, padY = to.Y;
 			float sizeX = img.Width, sizeY = img.Height;
 			float dtX = (float)to.Width / sizeX;

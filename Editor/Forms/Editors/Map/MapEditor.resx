@@ -145,7 +145,7 @@
     <value>screen</value>
   </data>
   <data name="&gt;&gt;screen.Type" xml:space="preserve">
-    <value>Cubed.Drivers.EngineControl, Editor, Version=1.0.6806.909, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.Drivers.EngineControl, Editor, Version=1.0.6811.41787, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;screen.Parent" xml:space="preserve">
     <value>listContainer.Panel1</value>
@@ -190,7 +190,7 @@
     <value>entityList</value>
   </data>
   <data name="&gt;&gt;entityList.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSDirectoryInspector, Editor, Version=1.0.6806.909, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSDirectoryInspector, Editor, Version=1.0.6811.41787, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;entityList.Parent" xml:space="preserve">
     <value>listContainer.Panel2</value>
@@ -361,7 +361,7 @@
     <value>toolLogics</value>
   </data>
   <data name="&gt;&gt;toolLogics.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSRadioIconicButton, Editor, Version=1.0.6806.909, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSRadioIconicButton, Editor, Version=1.0.6811.41787, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;toolLogics.Parent" xml:space="preserve">
     <value>panel1</value>
@@ -565,7 +565,7 @@
     <value>toolPaint</value>
   </data>
   <data name="&gt;&gt;toolPaint.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSRadioIconicButton, Editor, Version=1.0.6806.909, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSRadioIconicButton, Editor, Version=1.0.6811.41787, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;toolPaint.Parent" xml:space="preserve">
     <value>panel1</value>
@@ -626,7 +626,7 @@
     <value>toolHeightmap</value>
   </data>
   <data name="&gt;&gt;toolHeightmap.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSRadioIconicButton, Editor, Version=1.0.6806.909, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSRadioIconicButton, Editor, Version=1.0.6811.41787, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;toolHeightmap.Parent" xml:space="preserve">
     <value>panel1</value>
@@ -741,7 +741,7 @@
     <value>toolFloors</value>
   </data>
   <data name="&gt;&gt;toolFloors.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSRadioIconicButton, Editor, Version=1.0.6806.909, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSRadioIconicButton, Editor, Version=1.0.6811.41787, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;toolFloors.Parent" xml:space="preserve">
     <value>panel1</value>
@@ -871,7 +871,7 @@
     <value>toolWalls</value>
   </data>
   <data name="&gt;&gt;toolWalls.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSRadioIconicButton, Editor, Version=1.0.6806.909, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSRadioIconicButton, Editor, Version=1.0.6811.41787, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;toolWalls.Parent" xml:space="preserve">
     <value>panel1</value>
@@ -1003,7 +1003,7 @@
     <value>toolSelect</value>
   </data>
   <data name="&gt;&gt;toolSelect.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSRadioIconicButton, Editor, Version=1.0.6806.909, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSRadioIconicButton, Editor, Version=1.0.6811.41787, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;toolSelect.Parent" xml:space="preserve">
     <value>panel1</value>
@@ -1035,7 +1035,97 @@
   <data name="&gt;&gt;panel1.ZOrder" xml:space="preserve">
     <value>1</value>
   </data>
-  <data name="nsIconicButton1.IconImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+  <data name="soundsEnabledFlag.IconImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        xAAADsQBlSsOGwAAAJRJREFUKFNjoBr49++fHhDvhHJxA6AiKSCeC8TP/wMBVBgkzgZmAMXqoNgBKBgE
+        xK+BuBOIBWAagGwmIF4LxDYgDSCwH4jrgAIgTXJgk4AAJAGigWKbgRhk2G6YBrAtYFVIACQBooEKq4A4
+        A4ifkq2BGCeFADHYSQQ9DQJA/nogtoJyEQAoiD9YcQGgAuIiDj9gYAAAwqTs/ZSffQEAAAAASUVORK5C
+        YII=
+</value>
+  </data>
+  <data name="soundsEnabledFlag.Location" type="System.Drawing.Point, System.Drawing">
+    <value>309, 2</value>
+  </data>
+  <data name="soundsEnabledFlag.Size" type="System.Drawing.Size, System.Drawing">
+    <value>24, 24</value>
+  </data>
+  <data name="soundsEnabledFlag.TabIndex" type="System.Int32, mscorlib">
+    <value>8</value>
+  </data>
+  <data name="&gt;&gt;soundsEnabledFlag.Name" xml:space="preserve">
+    <value>soundsEnabledFlag</value>
+  </data>
+  <data name="&gt;&gt;soundsEnabledFlag.Type" xml:space="preserve">
+    <value>Cubed.UI.Controls.NSCheckboxIconicButton, Editor, Version=1.0.6811.41787, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;soundsEnabledFlag.Parent" xml:space="preserve">
+    <value>panel2</value>
+  </data>
+  <data name="&gt;&gt;soundsEnabledFlag.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="lightsEnabledFlag.IconImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        xAAADsQBlSsOGwAAAK9JREFUKFOdkTEKwkAURJcgOYSHsAoWYi2W1haSI1ilSOENPEuqnEE8g4gHEbJ5
+        A2OWGNM48ODP+z+wkPBJ13ULj5oPcHQd7YYgK9hBDlujeQ+Vz1KQGazhBXejWS7z2TgsblC6qpdyrinI
+        BlbwhtxaXk+S066xTkE+oHBVL+Rcp2F5htZVvZVznYalnvCEjdE8PPFnOKjhamrr+XC0jDFehGbr+fzz
+        gX7gyXz9sBB69+zQ41TT47IAAAAASUVORK5CYII=
+</value>
+  </data>
+  <data name="lightsEnabledFlag.Location" type="System.Drawing.Point, System.Drawing">
+    <value>286, 2</value>
+  </data>
+  <data name="lightsEnabledFlag.Size" type="System.Drawing.Size, System.Drawing">
+    <value>24, 24</value>
+  </data>
+  <data name="lightsEnabledFlag.TabIndex" type="System.Int32, mscorlib">
+    <value>7</value>
+  </data>
+  <data name="&gt;&gt;lightsEnabledFlag.Name" xml:space="preserve">
+    <value>lightsEnabledFlag</value>
+  </data>
+  <data name="&gt;&gt;lightsEnabledFlag.Type" xml:space="preserve">
+    <value>Cubed.UI.Controls.NSCheckboxIconicButton, Editor, Version=1.0.6811.41787, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;lightsEnabledFlag.Parent" xml:space="preserve">
+    <value>panel2</value>
+  </data>
+  <data name="&gt;&gt;lightsEnabledFlag.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="skyboxEnabledFlag.IconImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        xAAADsQBlSsOGwAAAKlJREFUKFOlkCEOwkAABE8QBKrpQxoEz+ABFSjegEDhKgiCdyD6HIJGoQgac8ds
+        s5RAD0HYZJK73WnSNvydGGMFK1O5zgehgTPsjc6N5/cwzOEEhSt1BRy1uXqF8gBLX/vQLbT52hUltHCF
+        mes+dFO42SlV6LCFkZ1B2MZ2Wl3uMPH2NXLk6qA/MXiVz8iRq0MNF9illDY5tNmpn0/rw9Y5WWiT08m/
+        JYQHdLzddwXSCQoAAAAASUVORK5CYII=
+</value>
+  </data>
+  <data name="skyboxEnabledFlag.Location" type="System.Drawing.Point, System.Drawing">
+    <value>263, 2</value>
+  </data>
+  <data name="skyboxEnabledFlag.Size" type="System.Drawing.Size, System.Drawing">
+    <value>24, 24</value>
+  </data>
+  <data name="skyboxEnabledFlag.TabIndex" type="System.Int32, mscorlib">
+    <value>6</value>
+  </data>
+  <data name="&gt;&gt;skyboxEnabledFlag.Name" xml:space="preserve">
+    <value>skyboxEnabledFlag</value>
+  </data>
+  <data name="&gt;&gt;skyboxEnabledFlag.Type" xml:space="preserve">
+    <value>Cubed.UI.Controls.NSCheckboxIconicButton, Editor, Version=1.0.6811.41787, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;skyboxEnabledFlag.Parent" xml:space="preserve">
+    <value>panel2</value>
+  </data>
+  <data name="&gt;&gt;skyboxEnabledFlag.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="scriptOptionsButton.IconImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
         xAAADsQBlSsOGwAAAKhJREFUKFOdkDEKwkAUREMIIVjkGB7EIlVInXN4CY+XwsITWFlZWITg4ryfCQqJ
@@ -1044,29 +1134,29 @@
         y17JTs8XpWgcfAAAAABJRU5ErkJggg==
 </value>
   </data>
-  <data name="nsIconicButton1.Location" type="System.Drawing.Point, System.Drawing">
+  <data name="scriptOptionsButton.Location" type="System.Drawing.Point, System.Drawing">
     <value>155, 2</value>
   </data>
-  <data name="nsIconicButton1.Size" type="System.Drawing.Size, System.Drawing">
+  <data name="scriptOptionsButton.Size" type="System.Drawing.Size, System.Drawing">
     <value>102, 24</value>
   </data>
-  <data name="nsIconicButton1.TabIndex" type="System.Int32, mscorlib">
+  <data name="scriptOptionsButton.TabIndex" type="System.Int32, mscorlib">
     <value>5</value>
   </data>
-  <data name="nsIconicButton1.Text" xml:space="preserve">
+  <data name="scriptOptionsButton.Text" xml:space="preserve">
     <value>Events</value>
   </data>
-  <data name="&gt;&gt;nsIconicButton1.Name" xml:space="preserve">
-    <value>nsIconicButton1</value>
+  <data name="&gt;&gt;scriptOptionsButton.Name" xml:space="preserve">
+    <value>scriptOptionsButton</value>
   </data>
-  <data name="&gt;&gt;nsIconicButton1.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSIconicButton, Editor, Version=1.0.6806.909, Culture=neutral, PublicKeyToken=null</value>
+  <data name="&gt;&gt;scriptOptionsButton.Type" xml:space="preserve">
+    <value>Cubed.UI.Controls.NSIconicButton, Editor, Version=1.0.6811.41787, Culture=neutral, PublicKeyToken=null</value>
   </data>
-  <data name="&gt;&gt;nsIconicButton1.Parent" xml:space="preserve">
+  <data name="&gt;&gt;scriptOptionsButton.Parent" xml:space="preserve">
     <value>panel2</value>
   </data>
-  <data name="&gt;&gt;nsIconicButton1.ZOrder" xml:space="preserve">
-    <value>0</value>
+  <data name="&gt;&gt;scriptOptionsButton.ZOrder" xml:space="preserve">
+    <value>3</value>
   </data>
   <data name="envOptionsButton.IconImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
@@ -1094,13 +1184,13 @@
     <value>envOptionsButton</value>
   </data>
   <data name="&gt;&gt;envOptionsButton.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSIconicButton, Editor, Version=1.0.6806.909, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSIconicButton, Editor, Version=1.0.6811.41787, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;envOptionsButton.Parent" xml:space="preserve">
     <value>panel2</value>
   </data>
   <data name="&gt;&gt;envOptionsButton.ZOrder" xml:space="preserve">
-    <value>1</value>
+    <value>4</value>
   </data>
   <data name="floorDown.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Right</value>
@@ -1126,13 +1216,13 @@
     <value>floorDown</value>
   </data>
   <data name="&gt;&gt;floorDown.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSIconicButton, Editor, Version=1.0.6806.909, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSIconicButton, Editor, Version=1.0.6811.41787, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;floorDown.Parent" xml:space="preserve">
     <value>panel2</value>
   </data>
   <data name="&gt;&gt;floorDown.ZOrder" xml:space="preserve">
-    <value>2</value>
+    <value>5</value>
   </data>
   <data name="floorUp.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Right</value>
@@ -1158,13 +1248,13 @@
     <value>floorUp</value>
   </data>
   <data name="&gt;&gt;floorUp.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSIconicButton, Editor, Version=1.0.6806.909, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSIconicButton, Editor, Version=1.0.6811.41787, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;floorUp.Parent" xml:space="preserve">
     <value>panel2</value>
   </data>
   <data name="&gt;&gt;floorUp.ZOrder" xml:space="preserve">
-    <value>3</value>
+    <value>6</value>
   </data>
   <data name="walkModeEnable.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Right</value>
@@ -1194,13 +1284,13 @@
     <value>walkModeEnable</value>
   </data>
   <data name="&gt;&gt;walkModeEnable.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSCheckboxIconicButton, Editor, Version=1.0.6806.909, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSCheckboxIconicButton, Editor, Version=1.0.6811.41787, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;walkModeEnable.Parent" xml:space="preserve">
     <value>panel2</value>
   </data>
   <data name="&gt;&gt;walkModeEnable.ZOrder" xml:space="preserve">
-    <value>4</value>
+    <value>7</value>
   </data>
   <data name="floorIndex.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Right</value>
@@ -1224,13 +1314,13 @@
     <value>floorIndex</value>
   </data>
   <data name="&gt;&gt;floorIndex.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSLabel, Editor, Version=1.0.6806.909, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSLabel, Editor, Version=1.0.6811.41787, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;floorIndex.Parent" xml:space="preserve">
     <value>panel2</value>
   </data>
   <data name="&gt;&gt;floorIndex.ZOrder" xml:space="preserve">
-    <value>5</value>
+    <value>8</value>
   </data>
   <data name="panel2.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
     <value>Top</value>
@@ -1269,6 +1359,6 @@
     <value>MapEditor</value>
   </data>
   <data name="&gt;&gt;$this.Type" xml:space="preserve">
-    <value>Cubed.Forms.Common.EditorForm, Editor, Version=1.0.6806.909, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.Forms.Common.EditorForm, Editor, Version=1.0.6811.41787, Culture=neutral, PublicKeyToken=null</value>
   </data>
 </root>

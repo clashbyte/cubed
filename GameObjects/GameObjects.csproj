@@ -45,8 +45,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\Game\Attributes\PrefabAttribute.cs" />
+    <Compile Include="Formats\MapReader.cs" />
     <Compile Include="Prefabs\GamePrefab.cs" />
     <Compile Include="Prefabs\MapLight.cs" />
+    <Compile Include="Prefabs\MapSprite.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

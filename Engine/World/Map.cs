@@ -266,8 +266,32 @@ namespace Cubed.World {
 				return chunks[hash].GetLightLevel(
 					tx, ty
 				);
+			} else {
+
+				// Calculating raw light distances
+				Vector2 pos = new Vector2(x, z);
+				float r = ambient.R, g = ambient.G, b = ambient.B;
+				foreach (Entity ent in Engine.Current.World.Entities) {
+					if (ent is Light) {
+						Light l = ent as Light;
+						Vector3 lpos = ent.Position;
+						if (Math.Floor(lpos.Y) == Math.Floor(y)) {
+							float magSquared = (pos - lpos.Xz).LengthSquared;
+							if (magSquared < l.Range * l.Range) {
+								float amount = 1f - (float)Math.Sqrt(magSquared) / l.Range;
+								r += l.Color.R * amount;
+								g += l.Color.G * amount;
+								b += l.Color.B * amount;
+							}
+						}
+					}
+				}
+				return Color.FromArgb(
+					(byte)Math.Min(r, 255),
+					(byte)Math.Min(g, 255),
+					(byte)Math.Min(b, 255)
+				);
 			}
-			return ambient;
 		}
 
 		/// <summary>
@@ -285,8 +309,8 @@ namespace Cubed.World {
 		internal void Update(List<Light> lights, bool forceRebuild = false) {
 			for (int i = 0; i < 2; i++) {
 				foreach (Light l in lights) {
-					l.UpdateForMap(this);
 					if (i == 1) {
+						l.UpdateForMap(this);
 						l.Cleanup();
 					}
 				}
@@ -481,6 +505,19 @@ namespace Cubed.World {
 			/// <param name="y"></param>
 			/// <returns></returns>
 			internal Color GetLightLevel(float x, float y) {
+
+				// Checking for lights
+				List<Light> lights = new List<Light>();
+				foreach (Entity ent in Engine.Current.World.Entities) {
+					if (ent is Light) {
+						lights.Add(ent as Light);
+					}
+				}
+				
+				// Updating all lights
+				Parent.Update(lights);
+
+				// Getting color
 				if (lightingTex != 0) {
 
 					// Check for cache
@@ -507,11 +544,17 @@ namespace Cubed.World {
 
 					// Resolving light level
 					y = (float)Chunk.BLOCKS - y;
-					int cx = (int)Math.Floor(x / (float)Chunk.BLOCKS * (float)Chunk.LIGHTMAP_SIZE);
-					int cy = (int)Math.Floor(y / (float)Chunk.BLOCKS * (float)Chunk.LIGHTMAP_SIZE);
-					return lightCache[cy, cx];
+					int cx = Math.Min((int)Math.Floor(x / (float)Chunk.BLOCKS * (float)Chunk.LIGHTMAP_SIZE), LIGHTMAP_SIZE - 1);
+					int cy = Math.Min((int)Math.Floor(y / (float)Chunk.BLOCKS * (float)Chunk.LIGHTMAP_SIZE), LIGHTMAP_SIZE - 1);
+					Color cached = lightCache[cy, cx];
+					Color ambient = Engine.Current.World.Map.ambient;
+					return Color.FromArgb(
+						Math.Min(ambient.R + cached.R, 255),
+						Math.Min(ambient.G + cached.G, 255),
+						Math.Min(ambient.B + cached.B, 255)
+					);
 				}
-				return Color.White;
+				return Color.Red;
 			}
 
 			/// <summary>
@@ -599,7 +642,7 @@ namespace Cubed.World {
 			/// Check for rebuild and relighting
 			/// </summary>
 			/// <param name="forceRebuild"></param>
-			internal void Update(List<Light> lights, bool forceRebuild = false) {
+			internal void Update(List<Light> lights, bool forceRebuild = false, bool allowRelight = true) {
 				foreach (Light l1 in lights) {
 					if (TouchesLight(l1) && !affectedLights.Contains(l1)) {
 						affectedLights.Add(l1);
@@ -625,9 +668,9 @@ namespace Cubed.World {
 					relight = true;
 					dirty = false;
 				}
-				if (relight) {
+				if (relight && allowRelight) {
+					RebuildObstructors();
 					RecalculateLight();
-					lightCache = null;
 					relight = false;
 				}
 			}
@@ -648,6 +691,17 @@ namespace Cubed.World {
 					// Drawing surfaces
 					MapShader.Shader.Bind();
 					MapShader.Shader.AmbientColor = Parent.Ambient;
+
+					// Setting up fog
+					Fog fog = Scene.Current.Fog;
+					MapShader.Shader.FogEnabled = fog != null;
+					if (fog != null) {
+						MapShader.Shader.FogNear = fog.Near;
+						MapShader.Shader.FogFar = fog.Far;
+						MapShader.Shader.FogColor = fog.Color;
+					}
+
+					// Rendering surfaces
 					foreach (KeyValuePair<Texture, RenderGroup> group in groups) {
 						RenderSingle(group.Key, group.Value);
 					}
@@ -1088,8 +1142,8 @@ namespace Cubed.World {
 											case Side.Back:
 												baseFL = floorHeight[1];
 												baseFR = floorHeight[0];
-												baseCL = floorHeight[0];
-												baseCR = floorHeight[1];
+												baseCL = ceilingHeight[0];
+												baseCR = ceilingHeight[1];
 												hFL = ofh[3];
 												hFR = ofh[2];
 												hCL = och[2];
@@ -1503,7 +1557,7 @@ namespace Cubed.World {
 				 */
 				// Rendering light one by one
 				GL.Enable(EnableCap.Blend);
-				GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.One);
+				GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.One);		
 				GL.Enable(EnableCap.Texture2D);
 				foreach (Light l in affectedLights) {
 					Vector2 pos = new Vector2(l.Position.X - Location.X * BLOCKS, l.Position.Z - Location.Z * BLOCKS);
@@ -1511,13 +1565,14 @@ namespace Cubed.World {
 					GL.BindTexture(TextureTarget.Texture2D, l.textureBuffer);
 					GL.Begin(PrimitiveType.Quads);
 					GL.Color4(Color.White);
-					GL.TexCoord2(0, l.textureFactor);
+					float tf = l.textureFactor;
+					GL.TexCoord2(0.5f - tf * 0.5f, 0.5f + tf * 0.5f);
 					GL.Vertex2(pos.X - l.Range, (pos.Y - l.Range));
-					GL.TexCoord2(l.textureFactor, l.textureFactor);
+					GL.TexCoord2(0.5f + tf * 0.5f, 0.5f + tf * 0.5f);
 					GL.Vertex2(pos.X + l.Range, (pos.Y - l.Range));
-					GL.TexCoord2(l.textureFactor, 0);
+					GL.TexCoord2(0.5f + tf * 0.5f, 0.5f - tf * 0.5f);
 					GL.Vertex2(pos.X + l.Range, (pos.Y + l.Range));
-					GL.TexCoord2(0, 0);
+					GL.TexCoord2(0.5f - tf * 0.5f, 0.5f - tf * 0.5f);
 					GL.Vertex2(pos.X - l.Range, (pos.Y + l.Range));
 					GL.End();
 				}
@@ -1538,6 +1593,7 @@ namespace Cubed.World {
 
 				// Returning attributes
 				GL.PopAttrib();
+				lightCache = null;
 			}
 
 			/// <summary>

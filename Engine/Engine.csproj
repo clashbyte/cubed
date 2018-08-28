@@ -62,6 +62,7 @@
     <Compile Include="Drivers\Textures\GifImageLoader.cs" />
     <Compile Include="Drivers\Textures\BasicImageLoader.cs" />
     <Compile Include="Drivers\Textures\TextureLoader.cs" />
+    <Compile Include="Graphics\TextureAnimator.cs" />
     <Compile Include="World\Collider.cs" />
     <Compile Include="Components\Rendering\AnimatedMeshComponent.cs" />
     <Compile Include="Components\Rendering\MeshComponent.cs" />
@@ -124,6 +125,7 @@
     <Compile Include="UI\UserInterface.cs" />
     <Compile Include="World\Camera.cs" />
     <Compile Include="World\Entity.cs" />
+    <Compile Include="World\Fog.cs" />
     <Compile Include="World\Light.cs" />
     <Compile Include="World\Map.cs" />
     <Compile Include="World\Scene.cs" />

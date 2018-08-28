@@ -112,6 +112,11 @@ namespace Cubed.World {
 			}
 			if (dirty) {
 				RebuildTexture(map);
+				foreach (Map.Chunk ch in map.GetAllChunks()) {
+					if (ch.TouchesLight(this)) {
+						ch.QueueRelight();
+					}
+				}
 			}
 		}
 
@@ -129,18 +134,10 @@ namespace Cubed.World {
 			// Pushing state
 			GL.PushAttrib(AttribMask.AllAttribBits);
 			int realSize = (int)Math.Ceiling((float)TEXELS_PER_UNIT * range * 2);
-			int size = Math.Min(realSize, TEXTURE_MAX_SIZE);
-			int texSize = MathHelper.NextPowerOfTwo(size);
-			textureFactor = (float)size / (float)texSize;
-
-			// Storing matrices
-			Matrix4 projMatrix = Matrix4.CreateOrthographic(range * 2, -range * 2, -1, 1);
-			GL.MatrixMode(MatrixMode.Projection);
-			GL.PushMatrix();
-			GL.LoadMatrix(ref projMatrix);
-			GL.MatrixMode(MatrixMode.Modelview);
-			GL.PushMatrix();
-			GL.LoadIdentity();
+			int size = Math.Min(MathHelper.NextPowerOfTwo(realSize), TEXTURE_MAX_SIZE);
+			float factor = Math.Max((float)size / (float)realSize, 1);
+			textureFactor = 1f / factor;
+			Matrix4 projMatrix = Matrix4.CreateOrthographic(range * 2f * factor, -range * 2f * factor, -1, 1);
 
 			/*
 			Matrix4 oldCam = ShaderSystem.CameraMatrix;
@@ -162,14 +159,14 @@ namespace Cubed.World {
 			if (textureBuffer == 0 || !GL.IsTexture(textureBuffer)) {
 				textureBuffer = GL.GenTexture();
 				GL.BindTexture(TextureTarget.Texture2D, textureBuffer);
-				GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba8, texSize, texSize, 0, PixelFormat.Rgb, PixelType.UnsignedByte, IntPtr.Zero);
 				GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)All.Nearest);
 				GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)All.Nearest);
-				GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)All.Clamp);
-				GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)All.Clamp);
+				GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)All.Repeat);
+				GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)All.Repeat);
 			} else {
 				GL.BindTexture(TextureTarget.Texture2D, textureBuffer);
 			}
+			GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba8, size, size, 0, PixelFormat.Rgb, PixelType.UnsignedByte, IntPtr.Zero);
 
 			// Preparing framebuffer
 			if (frameBuffer == 0 || !GL.IsFramebuffer(frameBuffer)) {
@@ -181,10 +178,21 @@ namespace Cubed.World {
 
 			// Clearing surface
 			GL.ClearColor(0, 0, 0, 1);
-			GL.Viewport(new Size(size, size));
+			GL.Viewport(0, 0, size, size);
 			GL.Clear(ClearBufferMask.ColorBufferBit);
 			GL.Disable(EnableCap.CullFace);
 			GL.Disable(EnableCap.Texture2D);
+
+			// Storing matrices
+			GL.MatrixMode(MatrixMode.Projection);
+			GL.PushMatrix();
+			GL.LoadMatrix(ref projMatrix);
+			GL.MatrixMode(MatrixMode.Modelview);
+			GL.PushMatrix();
+			GL.LoadIdentity();
+			GL.MatrixMode(MatrixMode.Texture);
+			GL.PushMatrix();
+			GL.LoadIdentity();
 
 			// Rendering brightmap
 			if (texture != null && texture.State == Graphics.Texture.LoadingState.Complete) {
@@ -220,13 +228,14 @@ namespace Cubed.World {
 				GL.Begin(PrimitiveType.TriangleFan);
 				GL.Color4(color);
 				GL.Vertex2(0, 0);
-				GL.Color4(Color.Black);
-				
+				GL.Color4(System.Drawing.Color.Black);
+
 				for (float i = 0; i <= 360; i += 10) {
 					float rad = i / 180f * (float)Math.PI;
 					GL.Vertex2(Math.Sin(rad) * range, Math.Cos(rad) * range);
 				}
 				GL.End();
+
 			}
 
 			// Rendering shadows
@@ -299,6 +308,8 @@ namespace Cubed.World {
 			GL.MatrixMode(MatrixMode.Projection);
 			GL.PopMatrix();
 			GL.MatrixMode(MatrixMode.Modelview);
+			GL.PopMatrix();
+			GL.MatrixMode(MatrixMode.Texture);
 			GL.PopMatrix();
 
 			// Returning attributes

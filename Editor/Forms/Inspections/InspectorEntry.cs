@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Windows.Forms;
+using Cubed.Data.Editor.Attributes;
 using Cubed.Forms.Inspections.Fields;
 using Cubed.UI.Controls;
 
@@ -55,14 +56,20 @@ namespace Cubed.Forms.Inspections {
 		/// </summary>
 		public InspectorEntry(PropertyInfo info, FieldInspector fi) {
 
+
+			// Text
 			string name = info.Name;
 			Size = new System.Drawing.Size(Width, fi.Height);
+			InspectorNameAttribute nameAttrib = (InspectorNameAttribute)Attribute.GetCustomAttribute(info, typeof(InspectorNameAttribute));
+			if (nameAttrib != null) {
+				name = nameAttrib.Name;
+			}
 
 			// Label
 			label = new NSLabel() {
 				ForeColor = info.CanWrite ? Color.White : Color.DarkGray,
 				Width = 125,
-				Height = fi.Height,
+				Height = 30,
 				Location = new Point(5, 0),
 				TextAlign = ContentAlignment.MiddleLeft,
 				Text = name

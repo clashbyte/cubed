@@ -264,7 +264,7 @@ namespace Cubed.World {
 												if (y + 1f > target.Y && mfb.HasCeiling) {
 													float dist = 0f;
 													if (CollideCeilHorizontal(ps, bsz, mfb.CeilingHeight, right, out dist)) {
-														dist += z;
+														dist += x;
 														if (right) {
 															barrier = Math.Min(dist, barrier);
 														} else {
@@ -367,9 +367,9 @@ namespace Cubed.World {
 											if (blk != null) {
 												if (blk is Map.WallBlock) {
 													if (velocity.Y > 0) {
-														ceilh = Math.Min(ceilh, h);
+														ceilh = Math.Min(ceilh, h + 1);
 													} else {
-														floorh = Math.Max(floorh, h + 1);
+														floorh = Math.Max(floorh, h);
 													}
 												} else if (blk is Map.FloorBlock) {
 													Map.FloorBlock mfb = blk as Map.FloorBlock;

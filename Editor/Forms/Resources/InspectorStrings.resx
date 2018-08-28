@@ -117,7 +117,70 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AmbientLight" xml:space="preserve">
+    <value>Ambient color</value>
+  </data>
+  <data name="DefaultGroup" xml:space="preserve">
+    <value>Main</value>
+  </data>
+  <data name="Enabled" xml:space="preserve">
+    <value>Enabled</value>
+  </data>
+  <data name="EnvironmentInfo" xml:space="preserve">
+    <value>Map environment</value>
+  </data>
+  <data name="EnvironmentInfoDesc" xml:space="preserve">
+    <value>Sky, ambient color, fog, sounds</value>
+  </data>
+  <data name="EnvLightGroup" xml:space="preserve">
+    <value>Environment light</value>
+  </data>
+  <data name="FogColor" xml:space="preserve">
+    <value>Fog color</value>
+  </data>
+  <data name="FogFar" xml:space="preserve">
+    <value>End distance</value>
+  </data>
+  <data name="FogGroup" xml:space="preserve">
+    <value>Fog</value>
+  </data>
+  <data name="FogNear" xml:space="preserve">
+    <value>Start distance</value>
+  </data>
   <data name="Light" xml:space="preserve">
     <value>Light</value>
+  </data>
+  <data name="LightDesc" xml:space="preserve">
+    <value>Makes bright points on your map</value>
+  </data>
+  <data name="SkyBack" xml:space="preserve">
+    <value>Back (-Z)</value>
+  </data>
+  <data name="SkyBottom" xml:space="preserve">
+    <value>Bottom (-Y)</value>
+  </data>
+  <data name="SkyFront" xml:space="preserve">
+    <value>Front (+Z)</value>
+  </data>
+  <data name="SkyGroup" xml:space="preserve">
+    <value>Sky</value>
+  </data>
+  <data name="SkyLeft" xml:space="preserve">
+    <value>Left (-X)</value>
+  </data>
+  <data name="SkyRight" xml:space="preserve">
+    <value>Right (+X)</value>
+  </data>
+  <data name="SkyTop" xml:space="preserve">
+    <value>Top (+Y)</value>
+  </data>
+  <data name="SoundGroup" xml:space="preserve">
+    <value>Ambient sounds</value>
+  </data>
+  <data name="Sprite" xml:space="preserve">
+    <value>Sprite</value>
+  </data>
+  <data name="SpriteDesc" xml:space="preserve">
+    <value>Thing to decorate maps</value>
   </data>
 </root>

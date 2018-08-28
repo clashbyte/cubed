@@ -121,15 +121,18 @@
     <value>#version 120
 
 uniform vec4 ambient;
+uniform vec4 fogColor;
 uniform sampler2D texture;
 uniform sampler2D lightmap;
 varying vec2 texCoord;
 varying vec2 lightTexCoord;
+varying float fogAmount;
 
 void main() {
-	gl_FragColor = 
+	vec4 color = 
 		texture2D(texture, texCoord) * 
-		max(texture2D(lightmap, lightTexCoord), ambient);
+		clamp(texture2D(lightmap, lightTexCoord) + ambient, 0, 1);
+	gl_FragColor = mix(color, fogColor, fogAmount);
 }</value>
   </data>
   <data name="MapVertex" xml:space="preserve">
@@ -143,9 +146,13 @@ uniform mat4 projectionMatrix;
 uniform mat4 cameraMatrix;
 uniform mat4 entityMatrix;
 uniform mat4 textureMatrix;
+uniform bool fog;
+uniform float fogNear;
+uniform float fogFar;
 
 varying vec2 texCoord;
 varying vec2 lightTexCoord;
+varying float fogAmount;
 
 void main() {
 	mat4 m = projectionMatrix * cameraMatrix * entityMatrix;
@@ -153,6 +160,12 @@ void main() {
 	texCoord = (textureMatrix * vec4(inTexCoord, 0.0, 0.0)).xy;
 	lightTexCoord = inLightCoord;
 	gl_Position = m * v;
+
+	fogAmount = 0;
+	if(fog) {
+		float dist = length(gl_Position.xyz);
+		fogAmount = 1.0 - clamp((fogFar - dist) / (fogFar - fogNear), 0.0, 1.0);
+	}
 }</value>
   </data>
   <data name="MeshFragment" xml:space="preserve">
@@ -298,9 +311,11 @@ void main() {
   <data name="SpriteFragment" xml:space="preserve">
     <value>#version 120
 
+uniform vec4 fogColor;
 uniform vec4 diffuseColor;
 uniform sampler2D texture;
 uniform bool discardPass;
+varying float fogAmount;
 
 varying vec2 texCoord;
 
@@ -309,7 +324,7 @@ void main() {
 	if(discardPass){
 		if(c.a &lt; 1.0) discard;
 	}
-	gl_FragColor = c;
+	gl_FragColor = vec4(mix(c.rgb, fogColor.rgb, fogAmount), c.a);
 }</value>
   </data>
   <data name="SpriteVertex" xml:space="preserve">
@@ -322,14 +337,24 @@ uniform mat4 projectionMatrix;
 uniform mat4 cameraMatrix;
 uniform mat4 entityMatrix;
 uniform mat4 textureMatrix;
+uniform bool fog;
+uniform float fogNear;
+uniform float fogFar;
 
 varying vec2 texCoord;
+varying float fogAmount;
 
 void main() {
 	mat4 m = projectionMatrix * cameraMatrix * entityMatrix;
 	vec4 v = vec4(inPosition, 1.0);
 	texCoord = (textureMatrix * vec4(inTexCoord, 0.0, 0.0)).xy;
 	gl_Position = m * v;
+
+	fogAmount = 0;
+	if(fog) {
+		float dist = length(gl_Position.xyz);
+		fogAmount = 1.0 - clamp((fogFar - dist) / (fogFar - fogNear), 0.0, 1.0);
+	}
 }</value>
   </data>
   <data name="WireCubeFragment" xml:space="preserve">

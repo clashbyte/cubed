@@ -7,7 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using Cubed.Data.Editor;
+using Cubed.Data.Files;
 using Cubed.Data.Projects;
+using Cubed.Forms.Dialogs;
 
 namespace Cubed.Forms.Common {
 
@@ -33,8 +35,17 @@ namespace Cubed.Forms.Common {
 		/// Is current file saved
 		/// </summary>
 		public bool Saved {
-			get;
-			private set;
+			get {
+				return saved;
+			}
+			set {
+				saved = value;
+				if (Parent != null) {
+					if (Parent.Parent != null) {
+						Parent.Parent.Invalidate();
+					}
+				}
+			}
 		}
 
 		/// <summary>
@@ -44,6 +55,11 @@ namespace Cubed.Forms.Common {
 			get;
 			protected set;
 		}
+
+		/// <summary>
+		/// Saved flag
+		/// </summary>
+		bool saved = true;
 
 
 		/// <summary>
@@ -56,8 +72,61 @@ namespace Cubed.Forms.Common {
 
 		protected override void OnShown(EventArgs e) {
 			base.OnShown(e);
-			
+
 		}
 
+		/// <summary>
+		/// Setting file
+		/// </summary>
+		/// <param name="entry">File to read</param>
+		public void SetFile(Project.Entry entry) {
+			File = entry;
+			Load();
+			Saved = true;
+		}
+
+		/// <summary>
+		/// Reading file data
+		/// </summary>
+		/// <returns>Chunk or null</returns>
+		public Chunk Read() {
+			if (System.IO.File.Exists(File.FullPath)) {
+				return ChunkedFile.Read(File.FullPath, true);
+			}
+			return null;
+		}
+
+		/// <summary>
+		/// Writing data to file
+		/// </summary>
+		/// <param name="content">Data to write</param>
+		public void Write(Chunk content) {
+			string error = "";
+			if (content != null) {
+				if (!ChunkedFile.Write(File.FullPath, content, out error)) {
+					MessageDialog.Open("Error", error, MessageBoxButtons.OK, MessageBoxIcon.Error);
+				}
+			}
+		}
+
+		/// <summary>
+		/// Pausing editor
+		/// </summary>
+		public virtual void Pause() { }
+
+		/// <summary>
+		/// Resuming editor
+		/// </summary>
+		public virtual void Resume() { }
+
+		/// <summary>
+		/// Saving file
+		/// </summary>
+		public virtual void Save() { }
+
+		/// <summary>
+		/// Loading file
+		/// </summary>
+		public virtual void Load() { }
 	}
 }

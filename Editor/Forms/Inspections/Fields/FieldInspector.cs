@@ -73,6 +73,11 @@ namespace Cubed.Forms.Inspections.Fields {
 		public virtual void UpdateValue(){}
 
 		/// <summary>
+		/// Detecting stuff on parent change
+		/// </summary>
+		public virtual void DetectType() { }
+
+		/// <summary>
 		/// Setting value for element
 		/// </summary>
 		/// <param name="inspector">Owner inspector</param>
@@ -82,6 +87,7 @@ namespace Cubed.Forms.Inspections.Fields {
 			this.inspector = inspector;
 			this.field = type;
 			this.writable = writable;
+			DetectType();
 			UpdateValue();
 		}
 	}

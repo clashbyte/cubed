@@ -33,15 +33,11 @@ namespace Cubed.Data.Editor.Attributes {
 		}
 
 		/// <summary>
-		/// Current entry name
+		/// Retrieving name from resources
 		/// </summary>
-		string name;
-
-		/// <summary>
-		/// Constructor
-		/// </summary>
-		/// <param name="key">Key data</param>
-		public InspectorNameAttribute(string key) {
+		/// <param name="key">Key</param>
+		/// <returns>String</returns>
+		internal static string GetName(string key) {
 			if (lines == null) {
 				lines = new Dictionary<string, string>();
 			}
@@ -51,7 +47,20 @@ namespace Cubed.Data.Editor.Attributes {
 				}
 				lines.Add(key, manager.GetString(key));
 			}
-			name = lines[key];
+			return lines[key];
+		}
+
+		/// <summary>
+		/// Current entry name
+		/// </summary>
+		string name;
+
+		/// <summary>
+		/// Constructor
+		/// </summary>
+		/// <param name="key">Key data</param>
+		public InspectorNameAttribute(string key) {
+			name = GetName(key);
 		}  
 
 	}

@@ -2640,7 +2640,6 @@ namespace Cubed.UI.Controls
 		}
 	}
 
-	/*
 	[DefaultEvent("FileChanged")]
 	public class NSFileDropControl : global::System.Windows.Forms.Control
 	{
@@ -2669,10 +2668,7 @@ namespace Cubed.UI.Controls
 				file = value;
 				if (file != null)
 				{
-					if (file.Icon == null)
-					{
-						file.Icon = Preview.Get(file.FullPath);
-					}
+					CheckAnimatedPreview();
 				}
 				Invalidate();
 				if (FileChanged != null)
@@ -2722,7 +2718,7 @@ namespace Cubed.UI.Controls
 		/// <summary>
 		/// Окно-пикер
 		/// </summary>
-		ProjectPickerDialog picker;
+		//ProjectPickerDialog picker;
 
 		/// <summary>
 		/// Выбраный файл
@@ -2735,19 +2731,40 @@ namespace Cubed.UI.Controls
 		string[] types;
 
 		/// <summary>
+		/// Animated
+		/// </summary>
+		bool animated;
+
+		/// <summary>
+		/// First update pos
+		/// </summary>
+		ulong firstUpdate;
+
+		/// <summary>
+		/// Animation frame
+		/// </summary>
+		int currentFrame;
+
+		/// <summary>
+		/// All the frames
+		/// </summary>
+		Preview.Frame[] frames;
+
+
+		/// <summary>
 		/// Создание контрола
 		/// </summary>
-		public NSFileDropglobal::System.Windows.Forms.Control()
-		{
+		public NSFileDropControl() {
 			SetStyle((global::System.Windows.Forms.ControlStyles)139286, true);
 			SetStyle(global::System.Windows.Forms.ControlStyles.Selectable, false);
 
+			SuspendLayout();
 			BackColor = Color.FromArgb(50, 50, 50);
-			System.Drawing.Font = new System.Drawing.System.Drawing.Font("Tahoma", 8);
+			Font = new System.Drawing.Font("Tahoma", 8);
 
 			pickerButton = new NSIconicButton();
 			pickerButton.Size = new Size(30, 18);
-			pickerButton.IconImage = global::System.Windows.Forms.ControlImages.pickdots;
+			//pickerButton.IconImage = global::System.Windows.Forms.ControlImages.pickdots;
 			pickerButton.IconSize = new System.Drawing.Size(17, 5);
 			pickerButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
 			pickerButton.Location = new Point(-31, -18);
@@ -2758,12 +2775,11 @@ namespace Cubed.UI.Controls
 				TopLeft = false,
 				TopRight = false
 			};
-			global::System.Windows.Forms.Controls.Add(pickerButton);
-			Size = new System.Drawing.Size(100, 100);
+			pickerButton.MouseClick += pickerButton_Click;
+			Controls.Add(pickerButton);
+			ResumeLayout();
 			AllowDrop = true;
-			Preview.PreviewsReady += Preview_PreviewsReady;
-
-			pickerButton.Click += pickerButton_Click;
+			Preview.PreviewReady += Preview_PreviewReady;
 		}
 
 		/// <summary>
@@ -2785,6 +2801,7 @@ namespace Cubed.UI.Controls
 
 		void pickerButton_Click(object sender, EventArgs e)
 		{
+			/*
 			picker = new ProjectPickerDialog();
 			picker.Dropper = this;
 
@@ -2806,26 +2823,13 @@ namespace Cubed.UI.Controls
 
 
 			picker.Show();
+			 * */
 		}
 
-		void Preview_PreviewsReady(Events.Data.PreviewReadyEventArgs e)
-		{
-			if (file != null)
-			{
-				foreach (Preview p in e.ReadyPreviews)
-				{
-					if (p == file.Icon)
-					{
-						Invalidate();
-						break;
-					}
-				}
-			}
-		}
 
 		protected override void OnPaint(PaintEventArgs e)
 		{
-			Graphics G = e.Graphics;
+			System.Drawing.Graphics G = e.Graphics;
 			G.Clear(BackColor);
 
 			ThemeModule.Corners corners = new ThemeModule.Corners()
@@ -2859,20 +2863,59 @@ namespace Cubed.UI.Controls
 				rc.Y = 8;
 				rc.Width -= 16;
 				rc.Height -= 16 + 18;
-				if (file.Icon != null)
-				{
-					file.Icon.LargeIcon.Draw(G, rc);
+
+				UIIcon mainIcon = null;
+				UIIcon subIcon = null;
+				if (file.Icon.SubIcon != null) {
+					mainIcon = file.Icon.SubIcon;
 				}
+				if (file.Icon.Icon != null || frames != null) {
+					subIcon = mainIcon;
+					if (animated) {
+						mainIcon = frames[currentFrame].Icon;
+					} else {
+						mainIcon = file.Icon.Icon;
+					}
+				}
+
+				// Rendering icons
+				if (mainIcon != null) {
+					mainIcon.Draw(G, rc);
+				}
+				if (subIcon != null) {
+					Rectangle bulletBox = new Rectangle(
+							rc.Right - 23,
+							rc.Bottom - 23,
+							24, 24
+						);
+					Rectangle bulletRect = new Rectangle(
+						bulletBox.X + 4,
+						bulletBox.Y + 4,
+						bulletBox.Width - 8,
+						bulletBox.Height - 8
+					);
+
+					GraphicsPath bgp1 = ThemeModule.CreateRoundIncomplete(bulletBox, 3, new ThemeModule.Corners() {
+						BottomLeft = true,
+						BottomRight = true,
+						TopLeft = true,
+						TopRight = true
+					});
+					G.FillPath(new SolidBrush(Color.FromArgb(128, 0, 0, 0)), bgp1);
+
+					subIcon.Draw(G, bulletRect);
+				}
+
 				label = System.IO.Path.GetFileNameWithoutExtension(file.Name);
 			}
 
 			int mw = ClientRectangle.Width - 32;
-			SizeF sz = G.MeasureString(label, System.Drawing.Font);
+			SizeF sz = G.MeasureString(label, Font);
 			if (sz.Width > mw)
 			{
 				for (int j = label.Length; j > 0; j--)
 				{
-					sz = G.MeasureString(label.Substring(0, j) + "...", System.Drawing.Font);
+					sz = G.MeasureString(label.Substring(0, j) + "...", Font);
 					if (sz.Width <= mw)
 					{
 						label = label.Substring(0, j) + "...";
@@ -2880,9 +2923,9 @@ namespace Cubed.UI.Controls
 					}
 				}
 			}
-			PointF txtp = new PointF(2 /*mw / 2 - sz.Width / 2*/ /*, ClientSize.Height - 9 - sz.Height / 2);
-			G.DrawString(label, System.Drawing.Font, Brushes.Black, txtp.X + 1, txtp.Y + 1);
-			G.DrawString(label, System.Drawing.Font, Brushes.White, txtp.X, txtp.Y);
+			PointF txtp = new PointF(2 /*mw / 2 - sz.Width / 2*/ , ClientSize.Height - 9 - sz.Height / 2);
+			G.DrawString(label, Font, Brushes.Black, txtp.X + 1, txtp.Y + 1);
+			G.DrawString(label, Font, Brushes.White, txtp.X, txtp.Y);
 
 			G.DrawPath(P2, GP1);
 			G.DrawPath(P1, GP2);
@@ -2891,16 +2934,17 @@ namespace Cubed.UI.Controls
 		protected override void OnDragEnter(DragEventArgs drgevent)
 		{
 			DragDropEffects de = DragDropEffects.None;
-			if (drgevent.Data.GetData(typeof(Project.DraggingEntry)) != null)
+			if (drgevent.Data.GetData(typeof(NSDirectoryInspector.DropData)) != null)
 			{
-				Project.Entry e = (drgevent.Data.GetData(typeof(Project.DraggingEntry)) as Project.DraggingEntry).File;
-				string ex = System.IO.Path.GetExtension(e.Name);
-				foreach (string ds in types)
-				{
-					if (ds.ToLower() == ex)
-					{
-						de = DragDropEffects.Link;
-						break;
+				object content = (drgevent.Data.GetData(typeof(NSDirectoryInspector.DropData)) as NSDirectoryInspector.DropData).Content;
+				if (content is Project.Entry) {
+					Project.Entry e = content as Project.Entry;
+					string ex = System.IO.Path.GetExtension(e.Name);
+					foreach (string ds in types) {
+						if (ds.ToLower() == ex) {
+							de = DragDropEffects.Link;
+							break;
+						}
 					}
 				}
 			}
@@ -2909,33 +2953,89 @@ namespace Cubed.UI.Controls
 
 		protected override void OnDragDrop(DragEventArgs drgevent)
 		{
-			if (drgevent.Data.GetData(typeof(Project.DraggingEntry)) != null)
-			{
-				Project.Entry e = (drgevent.Data.GetData(typeof(Project.DraggingEntry)) as Project.DraggingEntry).File;
-				string ex = System.IO.Path.GetExtension(e.Name);
-				foreach (string ds in types)
-				{
-					if (ds.ToLower() == ex)
-					{
-						file = e;
-						Invalidate();
-						if (FileChanged != null)
-						{
-							FileChanged(this as object, EventArgs.Empty);
+			DragDropEffects de = DragDropEffects.None;
+			if (drgevent.Data.GetData(typeof(NSDirectoryInspector.DropData)) != null) {
+				object content = (drgevent.Data.GetData(typeof(NSDirectoryInspector.DropData)) as NSDirectoryInspector.DropData).Content;
+				if (content is Project.Entry) {
+					Project.Entry e = content as Project.Entry;
+					string ex = System.IO.Path.GetExtension(e.Name);
+					foreach (string ds in types) {
+						if (ds.ToLower() == ex) {
+							de = DragDropEffects.Link;
+							file = e;
+							CheckAnimatedPreview();
+							Invalidate();
+							if (FileChanged != null) {
+								FileChanged(this as object, EventArgs.Empty);
+							}
+							break;
 						}
-						break;
 					}
 				}
 			}
+			drgevent.Effect = de;
 		}
 
+		/// <summary>
+		/// Disposing
+		/// </summary>
 		protected override void Dispose(bool disposing)
 		{
 			base.Dispose(disposing);
-			Preview.PreviewsReady -= Preview_PreviewsReady;
+			Preview.PreviewReady -= Preview_PreviewReady;
+		}
+
+		/// <summary>
+		/// Preview ready
+		/// </summary>
+		void Preview_PreviewReady(object sender, Preview.PreviewEventArgs e) {
+			if (file != null && e.Preview == file.Icon) {
+				CheckAnimatedPreview();
+				Invalidate();
+			}
+		}
+
+		/// <summary>
+		/// Updating animation
+		/// </summary>
+		void MainForm_LogicUpdate(object sender, EventArgs e) {
+			int frame = 0;
+			int total = 0;
+			foreach (Preview.Frame frm in frames) {
+				total += frm.Delay;
+			}
+			long time = ((DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond) - (long)firstUpdate) % total;
+
+			for (int i = 0; i < frames.Length; i++) {
+				if (frames[i].Delay >= time) {
+					frame = i;
+					break;
+				}
+				time -= frames[i].Delay;
+			}
+			if (currentFrame != frame) {
+				currentFrame = frame;
+				Invalidate();
+			}
+		}
+
+		/// <summary>
+		/// Checking for animated preview
+		/// </summary>
+		void CheckAnimatedPreview() {
+			MainForm.LogicUpdate -= MainForm_LogicUpdate;
+			currentFrame = 0;
+			animated = false;
+			if (file != null) {
+				if (file.Icon.HasAnimation) {
+					animated = true;
+					frames = file.Icon.AnimatedIcon;
+					firstUpdate = (ulong)(DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond);
+					MainForm.LogicUpdate += MainForm_LogicUpdate;
+				}
+			}
 		}
 	}
-*/
 
 	#region   Custom Scroller with Close Button
 
@@ -4045,6 +4145,16 @@ namespace Cubed.UI.Controls
 				textWidth = Width - 16;
 				textX = 8;
 				textY = frameSize + 8;
+			} else {
+				int buf = 0;
+				for (int i = 0; i < lines.Length; i++) {
+					SizeF sz = G.MeasureString(lines[i], Font, textWidth);
+					buf += (int)sz.Height;
+					if (i < lines.Length - 1) {
+						buf += 3;
+					}
+				}
+				textY = Height / 2 - buf / 2;
 			}
 
 			for (int i = 0; i < lines.Length; i++)
@@ -6600,572 +6710,467 @@ namespace Cubed.UI.Controls
 	}
 
 	/// <summary>
-	/// Кольцо выбора цвета
+	/// Color wheel
 	/// </summary>
 	public class NSColorPicker : global::System.Windows.Forms.Control
 	{
 
 		/// <summary>
-		/// Конструктор
+		/// Event for value change
+		/// </summary>
+		public event EventHandler ValueChanged;
+
+		/// <summary>
+		/// Selected color
+		/// </summary>
+		public Color SelectedColor {
+			get {
+				return color;
+			}
+			set {
+				color = value;
+
+				int max = Math.Max(color.R, Math.Max(color.G, color.B));
+				int min = Math.Min(color.R, Math.Min(color.G, color.B));
+
+				float h = color.GetHue() / 360f * MathHelper.TwoPi;
+				float s = (max == 0) ? 0 : 1f - (1f * min / max);
+				float v = max / 255f;
+
+				hue = h;
+				saturation = s;
+				val = v;
+
+				CacheTriangle();
+				Invalidate();
+				NotifyChanges();
+			}
+		}
+
+
+		/// <summary>
+		/// Internal color
+		/// </summary>
+		Color color = Color.White;
+
+		/// <summary>
+		/// Color values
+		/// </summary>
+		double hue, saturation, val;
+
+		/// <summary>
+		/// Flag for dragging stuff
+		/// </summary>
+		bool draggingHue, draggingPoint;
+
+		/// <summary>
+		/// Cached ring
+		/// </summary>
+		Image ringCache, triangleCache;
+
+		/// <summary>
+		/// Color picker
+		/// </summary>
+		ColorPicker picker;
+
+		/// <summary>
+		/// Constructor
 		/// </summary>
 		public NSColorPicker()
 		{
 			SetStyle((global::System.Windows.Forms.ControlStyles)139286, true);
 			SetStyle(global::System.Windows.Forms.ControlStyles.Selectable, false);
-			SelectedColor = Color.Red;
-
-
+			hue = 0;
+			saturation = 1;
+			val = 1;
 		}
 
 		/// <summary>
-		/// Выбранный цвет
+		/// Resizing
 		/// </summary>
-		public Color SelectedColor
-		{
-			get
-			{
-				return color;
-			}
-			set
-			{
-				color = value;
-				hue = (float)color.GetHue() / 360f * (float)(System.Math.PI * 2);
-				saturation = color.GetSaturation();
-				brightness = color.GetBrightness();
-				GenerateTriangle();
-				Invalidate();
-			}
+		protected override void OnSizeChanged(EventArgs e) {
+			base.OnSizeChanged(e);
+			CachePicker();
 		}
 
 		/// <summary>
-		/// Изменяется оттенок
+		/// Drawing
 		/// </summary>
-		bool draggingHue;
+		protected override void OnPaint(PaintEventArgs e) {
+			if (Width == 0 || Height == 0) {
+				return;
+			}
+			base.OnPaint(e);
+			System.Drawing.Graphics g = e.Graphics;
+			g.SmoothingMode = SmoothingMode.HighQuality;
+			g.InterpolationMode = InterpolationMode.High;
+
+			g.Clear(Color.FromArgb(50, 50, 50));
+			g.DrawImage(ringCache, Width / 2 - ringCache.Width / 2, Height / 2 - ringCache.Height / 2);
+			g.DrawImage(triangleCache, Width / 2 - triangleCache.Width / 2, Height / 2 - triangleCache.Height / 2);
+
+			// Drawing ring outline
+			Pen pen = new Pen(Color.FromArgb(35, 35, 35), 2f);
+			Point center = new Point(Width / 2, Height / 2);
+			g.DrawArc(pen, new Rectangle(center.X - picker.OuterRadius, center.Y - picker.OuterRadius, picker.OuterRadius * 2, picker.OuterRadius * 2), 0, 360);
+			g.DrawArc(pen, new Rectangle(center.X - picker.InnerRadius, center.Y - picker.InnerRadius, picker.InnerRadius * 2, picker.InnerRadius * 2), 0, 360);
+
+			// Drawing triangle outline
+			Point[] points = new Point[3];
+			points[0].X = 0;
+			points[0].Y = -picker.InnerRadius;
+			points[1].X = (int)(Math.Sin(Math.PI * 2.0 / 3.0) * (double)picker.InnerRadius);
+			points[1].Y = -(int)(Math.Cos(Math.PI * 2.0 / 3.0) * (double)picker.InnerRadius);
+			points[2].X = -points[1].X;
+			points[2].Y = points[1].Y;
+			g.TranslateTransform(Width / 2, Height / 2);
+			g.DrawPolygon(pen, points);
+			g.ResetTransform();
+
+			// Drawing hue point
+			int oval = picker.OuterRadius - picker.InnerRadius;
+			PointD huePoint = picker.GetWheelPosition(hue);
+			huePoint.X += Width / 2 - ringCache.Width / 2;
+			huePoint.Y += Height / 2 - ringCache.Height / 2;
+			Rectangle hueOval = new Rectangle((int)huePoint.X - oval / 2, (int)huePoint.Y - oval / 2, oval, oval);
+			g.FillPie(new SolidBrush(picker.HSV(hue, 1, 1, 1)), hueOval, 0, 360);
+			g.DrawArc(pen, hueOval, 0, 360);
+
+			// Drawing triangle point
+			PointD pickPoint = picker.GetTrianglePosition(saturation, val);
+			pickPoint.X += Width / 2 - ringCache.Width / 2;
+			pickPoint.Y += Height / 2 - ringCache.Height / 2;
+			Rectangle pickOval = new Rectangle((int)pickPoint.X - oval / 2, (int)pickPoint.Y - oval / 2, oval, oval);
+			if (draggingPoint) {
+				pickOval.X -= 3;
+				pickOval.Y -= 3;
+				pickOval.Width += 6;
+				pickOval.Height += 6;
+			}
+			g.FillPie(new SolidBrush(picker.HSV(hue, saturation, val, 1)), pickOval, 0, 360);
+			g.DrawArc(pen, pickOval, 0, 360);
+		}
 
 		/// <summary>
-		/// Изменяется цвет
-		/// </summary>
-		bool draggingTriangle;
-
-		/// <summary>
-		/// Отрисовка кольца Hue
-		/// </summary>
-		Bitmap hueRing;
-
-		/// <summary>
-		/// Изображение треугольника
-		/// </summary>
-		Bitmap triangle;
-
-		/// <summary>
-		/// Выбранный цвет
-		/// </summary>
-		Color color;
-
-		/// <summary>
-		/// Оттенок
-		/// </summary>
-		float hue;
-
-		/// <summary>
-		/// Насыщенность
-		/// </summary>
-		float saturation;
-
-		/// <summary>
-		/// Осветленность
-		/// </summary>
-		float brightness;
-
-		/// <summary>
-		/// Графический путь для треугольника
-		/// </summary>
-		PointF[] trianglePoly;
-
-		/// <summary>
-		/// Отрисовка
+		/// Mouse down
 		/// </summary>
 		/// <param name="e"></param>
-		protected override void OnPaint(System.Windows.Forms.PaintEventArgs e)
-		{
-
-			System.Drawing.Graphics G = e.Graphics;
-			G.SmoothingMode = SmoothingMode.AntiAlias;
-
-			G.Clear(Color.FromArgb(50, 50, 50));
-			Pen P1 = new Pen(Color.FromArgb(65, 65, 65));
-			Pen P2 = new Pen(Color.FromArgb(50, 50, 50));
-			Pen P3 = new Pen(Color.FromArgb(45, 45, 45));
-			Pen P4 = new Pen(Color.FromArgb(30, 30, 30));
-			Pen FP1 = new Pen(Color.FromArgb(45, 45, 45), 2f);
-			Pen FP2 = new Pen(Color.FromArgb(0, 0, 0), 2f);
-
-			if (hueRing != null)
-			{
-				G.DrawImage(hueRing, 8, 8);
-				G.DrawArc(FP1, new Rectangle(8, 8, hueRing.Width, hueRing.Height), 0, 360);
-				G.DrawArc(FP2, new Rectangle(27, 27, hueRing.Width - 38, hueRing.Height - 38), 0, 360);
-			}
-
-			if (triangle != null)
-			{
-				G.DrawImage(triangle, 28, 28);
-				G.TranslateTransform(28, 28);
-				G.DrawPolygon(FP2, trianglePoly);
-				G.ResetTransform();
-			}
-
-			// Выбор Hue
-			Rectangle hueSelect = new Rectangle(
-				hueRing.Width / 2 - 22, -4, 24, 8
-			);
-			if (draggingHue)
-			{
-				hueSelect.X -= 2;
-				hueSelect.Y -= 2;
-				hueSelect.Width += 4;
-				hueSelect.Height += 4;
-			}
-
-			int tsize = 10;
-			if (draggingTriangle)
-			{
-				tsize = 26;
-			}
-			Rectangle triangleOval = new Rectangle(TriangleToCoords(), new Size(tsize, tsize));
-			triangleOval.X += 28 - tsize / 2;
-			triangleOval.Y += 28 - tsize / 2;
-
-			double dr, dg, db;
-
-			if (!draggingTriangle)
-			{
-				HSVToRGB(hue / ((float)System.Math.PI * 2), saturation, brightness, out dr, out dg, out db);
-				G.FillPie(new SolidBrush(Color.FromArgb((byte)(dr * 255), (byte)(dg * 255), (byte)(db * 255))), triangleOval, 0, 360);
-				G.DrawArc(FP1, triangleOval, 0, 360);
-				triangleOval.X -= 1;
-				triangleOval.Y -= 1;
-				triangleOval.Width += 2;
-				triangleOval.Height += 2;
-				G.DrawArc(P1, triangleOval, 0, 360);
-			}
-
-			HSVToRGB(hue / ((float)System.Math.PI * 2), 1.0, 1.0, out dr, out dg, out db);
-			G.TranslateTransform(Width / 2, Height / 2);
-			G.RotateTransform(hue * 360f / (float)(System.Math.PI * 2));
-			G.FillRectangle(new SolidBrush(Color.FromArgb((byte)(dr * 255), (byte)(dg * 255), (byte)(db * 255))), hueSelect);
-			G.DrawRectangle(FP1, hueSelect);
-			hueSelect.X += 1;
-			hueSelect.Y += 1;
-			hueSelect.Width -= 2;
-			hueSelect.Height -= 2;
-			G.DrawRectangle(P4, hueSelect);
-			G.ResetTransform();
-
-			if (draggingTriangle)
-			{
-				HSVToRGB(hue / ((float)System.Math.PI * 2), saturation, brightness, out dr, out dg, out db);
-				G.FillPie(new SolidBrush(Color.FromArgb((byte)(dr * 255), (byte)(dg * 255), (byte)(db * 255))), triangleOval, 0, 360);
-				G.DrawArc(FP1, triangleOval, 0, 360);
-				triangleOval.X -= 1;
-				triangleOval.Y -= 1;
-				triangleOval.Width += 2;
-				triangleOval.Height += 2;
-				G.DrawArc(P1, triangleOval, 0, 360);
-			}
-		}
-
-		protected override void OnSizeChanged(EventArgs e)
-		{
-			GenerateHueRing();
-			GenerateTriangle();
-			base.OnSizeChanged(e);
-		}
-
-		protected override void OnMouseDown(MouseEventArgs e)
-		{
-
-			Point hueCenter = new Point(8 + hueRing.Width / 2, 8 + hueRing.Height / 2);
-			Point centeredPos = new Point(e.X - hueCenter.X, e.Y - hueCenter.Y);
-			int radius = hueRing.Width / 2;
-			int innerRadius = radius - 20;
-			int pos = centeredPos.X * centeredPos.X + centeredPos.Y * centeredPos.Y;
-
-			if (pos >= innerRadius * innerRadius && pos <= radius * radius)
-			{
-				draggingHue = true;
-				CalculateHue(centeredPos);
-			}
-			else
-			{
-				Point p = new Point(e.X - 28, e.Y - 28);
-				if (InsideTriangle(trianglePoly[0], trianglePoly[1], trianglePoly[2], p))
-				{
-					draggingTriangle = true;
-					CalculateTriangle(centeredPos);
+		protected override void OnMouseDown(MouseEventArgs e) {
+			base.OnMouseDown(e);
+			if (e.Button == System.Windows.Forms.MouseButtons.Left) {
+				ColorPicker.PickResult pick = picker.Pick(e.X - Width / 2 + ringCache.Width / 2, e.Y - Height / 2 + ringCache.Height / 2);
+				if (pick.Area == ColorPicker.Area.Wheel) {
+					hue = (float)pick.Hue;
+					draggingHue = true;
+					CacheTriangle();
+					Invalidate();
+					NotifyChanges();
+				} else if(pick.Area == ColorPicker.Area.Triangle) {
+					saturation = (float)pick.Sat;
+					val = (float)pick.Val;
+					draggingPoint = true;
+					Invalidate();
+					NotifyChanges();
 				}
-
 			}
+		}
+
+		/// <summary>
+		/// Moving mouse
+		/// </summary>
+		protected override void OnMouseMove(MouseEventArgs e) {
+			base.OnMouseDown(e);
+			if (draggingHue) {
+				var angle = Math.Atan2(e.Y - Height / 2, e.X - Width / 2) + Math.PI / 2;
+				if (angle < 0) angle += 2 * Math.PI;
+				hue = (float)angle;
+				CacheTriangle();
+				Invalidate();
+				NotifyChanges();
+			} else if(draggingPoint) {
+				Point pick = new Point(e.X - Width / 2 + ringCache.Width / 2, e.Y - Height / 2 + ringCache.Height / 2);
+				var sqrt3 = Math.Sqrt(3);
+				var x1 = (pick.X - picker.CenterX) * 1.0 / picker.InnerRadius;
+				var y1 = (pick.Y - picker.CenterY) * 1.0 / picker.InnerRadius;
+				saturation = Math.Min(Math.Max((1 - 2 * y1) / (sqrt3 * x1 - y1 + 2), 0), 1);
+				val = Math.Min(Math.Max((sqrt3 * x1 - y1 + 2) / 3, 0), 1);
+				Invalidate();
+				NotifyChanges();
+			}
+		}
+
+		/// <summary>
+		/// Mouse release
+		/// </summary>
+		protected override void OnMouseUp(MouseEventArgs e) {
+			base.OnMouseDown(e);
+			if (e.Button == System.Windows.Forms.MouseButtons.Left) {
+				draggingHue = false;
+				draggingPoint = false;
+				Invalidate();
+			}
+		}
+
+		/// <summary>
+		/// Changing values
+		/// </summary>
+		void NotifyChanges() {
+			color = picker.HSV(hue, saturation, val, 1);
+			if (ValueChanged != null) {
+				ValueChanged(this, EventArgs.Empty);
+			}
+		}
+
+		/// <summary>
+		/// Recreating color picker
+		/// </summary>
+		void CachePicker() {
+			int size = (int)Math.Min(Width, Height) - 20;
+			picker = new ColorPicker(size);
+			CacheRing();
+			CacheTriangle();
 			Invalidate();
 		}
 
-		protected override void OnMouseUp(MouseEventArgs e)
-		{
-			draggingHue = false;
-			draggingTriangle = false;
-			Invalidate();
-		}
-
-		protected override void OnMouseMove(MouseEventArgs e)
-		{
-			Point hueCenter = new Point(8 + hueRing.Width / 2, 8 + hueRing.Height / 2);
-			Point centeredPos = new Point(e.X - hueCenter.X, e.Y - hueCenter.Y);
-			if (draggingHue)
-			{
-				CalculateHue(centeredPos);
-				Invalidate();
+		/// <summary>
+		/// Caching ring
+		/// </summary>
+		void CacheRing() {
+			if (picker == null) {
+				CachePicker();
 			}
-			else if (draggingTriangle)
-			{
-				CalculateTriangle(centeredPos);
-				Invalidate();
+			if (ringCache != null) {
+				ringCache.Dispose();
+				ringCache = null;
 			}
-
+			ringCache = picker.DrawImage(hue, saturation, val, true, false);
 		}
 
 		/// <summary>
-		/// Вычисление оттенка
+		/// Cache triangle
 		/// </summary>
-		void CalculateHue(Point c)
-		{
-			hue = (float)System.Math.Atan2(c.Y, c.X);
-			if (hue < 0f)
-			{
-				hue += (float)System.Math.PI * 2f;
+		void CacheTriangle() {
+			if (picker == null) {
+				CachePicker();
 			}
-			GenerateTriangle();
+			if (triangleCache != null) {
+				triangleCache.Dispose();
+				triangleCache = null;
+			}
+			triangleCache = picker.DrawTriangle(hue, saturation, val);
 		}
 
 		/// <summary>
-		/// Рассчёт значений треугольника
+		/// Internal color picker
 		/// </summary>
-		/// <param name="c"></param>
-		void CalculateTriangle(Point c)
+		public class ColorPicker
 		{
+			public int Size { get; private set; }
 
-			Matrix mtx = new Matrix();
-			mtx.Rotate(-hue * 360f / (float)(System.Math.PI * 2));
-			PointF[] tp = new PointF[] { c };
-			mtx.TransformVectors(tp);
-
-			PointF p = tp[0];
-			float radius = triangle.Width / 2;
-
-			// Собираем треугольник
-			PointF[] tri = new PointF[3];
-			tri[0].X = radius;
-			tri[0].Y = 0;
-			tri[1].X = (float)System.Math.Cos(System.Math.PI * 2 / 3f) * radius;
-			tri[1].Y = (float)System.Math.Sin(System.Math.PI * 2 / 3f) * radius;
-			tri[2].X = tri[1].X;
-			tri[2].Y = -tri[1].Y;
-
-			// Ставим точку в пределах треугольника
-			if (!InsideTriangle(tri[0], tri[1], tri[2], p))
-			{
-				PointF dp = p;
-				float dist = float.MaxValue;
-				for (int i = 0; i < 3; i++)
-				{
-					PointF np = ClosestPointToSegment(p, tri[i], tri[(i + 1) % 3]);
-					float dst = (float)System.Math.Sqrt(System.Math.Pow(p.X - np.X, 2) + System.Math.Pow(p.Y - np.Y, 2));
-					if (dst < dist)
-					{
-						dist = dst;
-						dp = np;
-					}
+			public int CenterX {
+				get {
+					return Size / 2;
 				}
-				p = dp;
+			}
+			public int CenterY {
+				get {
+					return Size / 2;
+				}
+			}
+			public int InnerRadius {
+				get {
+					return Size * 5 / 12;
+				}	
+			}
+			public int OuterRadius {
+				get {
+					return Size / 2;
+				}
 			}
 
-			// Вычисление барицентрических координат
-			PointF v0 = Sub(tri[1], tri[0]), v1 = Sub(tri[2], tri[0]), v2 = Sub(p, tri[0]);
-			float d00 = Dot(v0, v0);
-			float d01 = Dot(v0, v1);
-			float d11 = Dot(v1, v1);
-			float d20 = Dot(v2, v0);
-			float d21 = Dot(v2, v1);
-			float denom = d00 * d11 - d01 * d01;
-			float v = (d11 * d20 - d01 * d21) / denom;
-			float w = (d00 * d21 - d01 * d20) / denom;
-			float u = 1f - v - w;
-
-			// Установка значений
-			brightness = 1.0f - v;
-			saturation = u;
-			GenerateTriangle();
-		}
-
-
-		/// <summary>
-		/// Вычитание двух точек
-		/// </summary>
-		/// <returns></returns>
-		PointF Sub(PointF a, PointF b)
-		{
-			return new PointF(a.X - b.X, a.Y - b.Y);
-		}
-
-		/// <summary>
-		/// Дотпродукт двух точек
-		/// </summary>
-		float Dot(PointF a, PointF b)
-		{
-			return a.X * b.X + a.Y * b.Y;
-		}
-
-		/// <summary>
-		/// Ближайшее расстояние от линии до точки
-		/// </summary>
-		PointF ClosestPointToSegment(PointF P, PointF A, PointF B)
-		{
-			PointF a_to_p = new PointF(), a_to_b = new PointF();
-			a_to_p.X = P.X - A.X;
-			a_to_p.Y = P.Y - A.Y;
-			a_to_b.X = B.X - A.X;
-			a_to_b.Y = B.Y - A.Y;
-			float atb2 = a_to_b.X * a_to_b.X + a_to_b.Y * a_to_b.Y;
-			float atp_dot_atb = a_to_p.X * a_to_b.X + a_to_p.Y * a_to_b.Y;
-			float t = Clamp(atp_dot_atb / atb2, 0f, 1f);
-			return new PointF(A.X + a_to_b.X * t, A.Y + a_to_b.Y * t);
-		}
-
-		/// <summary>
-		/// Сжатие значения в установленные пределы
-		/// </summary>
-		float Clamp(float b, float min, float max)
-		{
-			if (b > max)
+			public ColorPicker(int size = 400)
 			{
-				return max;
+				Size = size;
 			}
-			else if (b < min)
+
+			public enum Area
 			{
-				return min;
+				Outside,
+				Wheel,
+				Triangle
 			}
-			return b;
-		}
 
-		/// <summary>
-		/// Координаты на треугольнике
-		/// </summary>
-		/// <returns></returns>
-		Point TriangleToCoords()
-		{
-			float u = saturation;
-			float v = 1.0f - brightness;
-			float w = 1f - u - v;
-
-			return new Point(
-				(int)(
-					trianglePoly[0].X * u +
-					trianglePoly[1].X * v +
-					trianglePoly[2].X * w
-				),
-				(int)(
-					trianglePoly[0].Y * u +
-					trianglePoly[1].Y * v +
-					trianglePoly[2].Y * w
-				)
-			);
-		}
-
-
-
-		/// <summary>
-		/// Генерация изображения кольца
-		/// </summary>
-		void GenerateHueRing()
-		{
-			int sz = Width;
-			if (Height < Width)
+			public struct PickResult
 			{
-				sz = Height;
+				public Area Area { get; set; }
+				public double? Hue { get; set; }
+				public double? Sat { get; set; }
+				public double? Val { get; set; }
 			}
-			sz -= 16;
-			if (sz <= 0)
+
+			public PickResult Pick(double x, double y)
 			{
-				return;
-			}
-			hueRing = new Bitmap(sz, sz);
-
-			// Радиусы
-			int radius = sz / 2;
-			int innerRadius = radius - 19;
-			Point center = new Point(radius, radius);
-			radius *= radius;
-			innerRadius *= innerRadius;
-
-			Color c = Color.Red;
-
-			BitmapData bd = hueRing.LockBits(new Rectangle(0, 0, sz, sz), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
-			byte[] pixels = new byte[sz * sz * 4];
-			for (int y = 0; y < sz; y++)
-			{
-				int pY = center.Y - y;
-				for (int x = 0; x < sz; x++)
+				var distanceFromCenter = Math.Sqrt((x - CenterX) * (x - CenterX) + (y - CenterY) * (y - CenterY));
+				var sqrt3 = Math.Sqrt(3);
+				if (distanceFromCenter > OuterRadius)
 				{
-					int pX = center.X - x;
-					float dist = pX * pX + pY * pY;
-
-					if (dist <= radius)
+					// Outside
+					return new PickResult { Area = Area.Outside };
+				}
+				else if (distanceFromCenter > InnerRadius)
+				{
+					// Wheel
+					var angle = Math.Atan2(y - CenterY, x - CenterX) + Math.PI / 2;
+					if (angle < 0) angle += 2 * Math.PI;
+					var hue = angle;
+					return new PickResult { Area = Area.Wheel, Hue = hue };
+				}
+				else
+				{
+					// Inside
+					var x1 = (x - CenterX) * 1.0 / InnerRadius;
+					var y1 = (y - CenterY) * 1.0 / InnerRadius;
+					if (0 * x1 + 2 * y1 > 1) return new PickResult { Area = Area.Outside };
+					else if (sqrt3 * x1 + (-1) * y1 > 1) return new PickResult { Area = Area.Outside };
+					else if (-sqrt3 * x1 + (-1) * y1 > 1) return new PickResult { Area = Area.Outside };
+					else
 					{
-						int pix = (y * sz + x) * 4;
-						if (dist >= innerRadius)
-						{
-							double theta = System.Math.Atan2(pY, pX);
-							double hue = (theta + System.Math.PI) / (2 * System.Math.PI);
+						// Triangle
+						var sat = (1 - 2 * y1) / (sqrt3 * x1 - y1 + 2);
+						var val = (sqrt3 * x1 - y1 + 2) / 3;
 
-							double dr, dg, db;
-							HSVToRGB(hue, 1.0, 1.0, out dr, out dg, out db);
-
-							pixels[pix + 0] = (byte)(db * 255);     // Синий
-							pixels[pix + 1] = (byte)(dg * 255);     // Зеленый
-							pixels[pix + 2] = (byte)(dr * 255);     // Красный
-						}
-						else
-						{
-							pixels[pix + 0] = (byte)65;     // Синий
-							pixels[pix + 1] = (byte)65;     // Зеленый
-							pixels[pix + 2] = (byte)65;     // Красный
-						}
-						pixels[pix + 3] = 255;
+						return new PickResult { Area = Area.Triangle, Sat = sat, Val = val };
 					}
 				}
 			}
 
-			Marshal.Copy(pixels, 0, bd.Scan0, pixels.Length);
-			hueRing.UnlockBits(bd);
+			public Image DrawImage(double hue = 0.0, double sat = 1.0, double val = 1.0, bool drawRing = true, bool drawTriangle = true)
+			{
+				if (Size < 1) {
+					return null;
+				}
+				Bitmap img = new Bitmap(Size, Size, PixelFormat.Format32bppArgb);
+				BitmapData bd = img.LockBits(new Rectangle(0, 0, Size, Size), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+				byte[] rawData = new byte[Size * Size * 4];
+				int pos = 0;
+				for (int y = 0; y < Size; y++)
+				{
+					for (int x = 0; x < Size; x++)
+					{
+						Color color = Color.Transparent;
+						var result = Pick(x, y);
+						if (result.Area == Area.Wheel && drawRing)
+						{
+							// Wheel
+							color = HSV(result.Hue.Value, 1, 1, 1);
+						}
+						else if (result.Area == Area.Triangle && drawTriangle)
+						{
+							// Triangle
+							color = HSV(hue, result.Sat.Value, result.Val.Value, 1);
+						}
+						rawData[pos + 0] = color.B;
+						rawData[pos + 1] = color.G;
+						rawData[pos + 2] = color.R;
+						rawData[pos + 3] = color.A;
+						pos += 4;
+					}
+				}
+				Marshal.Copy(rawData, 0, bd.Scan0, rawData.Length);
+				img.UnlockBits(bd);
+				return img;
+			}
+
+			public Image DrawTriangle(double hue = 0.0, double sat = 1.0, double val = 1.0) {
+				if (Size < 1) {
+					return null;
+				}
+				Bitmap img = new Bitmap(Size, Size, PixelFormat.Format32bppArgb);
+				using (System.Drawing.Graphics g = System.Drawing.Graphics.FromImage(img)) {
+					
+					// Making colors and center color
+					Color[] colors = new Color[] {
+						HSV(hue, 1, 1, 1), Color.White, Color.Black
+					};
+					int centerR = 0, centerG = 0, centerB = 0;
+					for (int i = 0; i < 3; i++) {
+						centerR += colors[i].R;
+						centerG += colors[i].G;
+						centerB += colors[i].B;
+					}
+					Color centerColor = Color.FromArgb(centerR / 3, centerG / 3, centerB / 3);
+
+					Point[] points = new Point[3];
+					points[0].X = 0;
+					points[0].Y = -InnerRadius;
+					points[1].X = (int)(Math.Sin(Math.PI * 2f / 3f) * (float)InnerRadius);
+					points[1].Y = -(int)(Math.Cos(Math.PI * 2f / 3f) * (float)InnerRadius);
+					points[2].X = -points[1].X;
+					points[2].Y = points[1].Y;
+
+					// Making brush
+					PathGradientBrush pgb = new PathGradientBrush(points);
+					pgb.CenterPoint = Point.Empty;
+					pgb.CenterColor = centerColor;
+					pgb.SurroundColors = colors;
+					
+					// Drawing
+					g.Clear(Color.Transparent);
+					g.TranslateTransform(CenterX, CenterY);
+					g.FillPolygon(pgb, points);
+					g.ResetTransform();
+				}
+				return img;
+			}
+
+			public Color HSV(double hue, double sat, double val, double alpha)
+			{
+				var chroma = val * sat;
+				var step = Math.PI / 3;
+				var interm = chroma * (1 - Math.Abs((hue / step) % 2.0 - 1));
+				var shift = val - chroma;
+				if (hue < 1 * step) return RGB(shift + chroma, shift + interm, shift + 0, alpha);
+				if (hue < 2 * step) return RGB(shift + interm, shift + chroma, shift + 0, alpha);
+				if (hue < 3 * step) return RGB(shift + 0, shift + chroma, shift + interm, alpha);
+				if (hue < 4 * step) return RGB(shift + 0, shift + interm, shift + chroma, alpha);
+				if (hue < 5 * step) return RGB(shift + interm, shift + 0, shift + chroma, alpha);
+				return RGB(shift + chroma, shift + 0, shift + interm, alpha);
+			}
+
+			private Color RGB(double red, double green, double blue, double alpha)
+			{
+				return Color.FromArgb(
+					Math.Min(255, (int)(alpha * 256)),
+					Math.Min(255, (int)(red * 256)),
+					Math.Min(255, (int)(green * 256)),
+					Math.Min(255, (int)(blue * 256)));
+			}
+
+			public PointD GetWheelPosition(double hue)
+			{
+				double middleRadius = (InnerRadius + OuterRadius) / 2;
+				return new PointD
+				{
+					X = CenterX + middleRadius * Math.Sin(hue),
+					Y = CenterY - middleRadius * Math.Cos(hue)
+				};
+			}
+
+			public PointD GetTrianglePosition(double sat, double val)
+			{
+				var sqrt3 = Math.Sqrt(3);
+				return new PointD
+				{
+					X = CenterX + InnerRadius * (2 * val - sat * val - 1) * sqrt3 / 2,
+					Y = CenterY + InnerRadius * (1 - 3 * sat * val) / 2
+				};
+			}
 		}
 
-		/// <summary>
-		/// Генерация изображения с треугольником
-		/// </summary>
-		void GenerateTriangle()
+		public class PointD
 		{
-			int sz = Width;
-			if (Height < Width)
-			{
-				sz = Height;
-			}
-			sz -= 56;
-			if (sz <= 0)
-			{
-				return;
-			}
-			triangle = new Bitmap(sz, sz);
-
-			float angle = hue;
-			float step = (float)System.Math.PI * 2f / 3f;
-			float radius = sz / 2;
-			PointF center = new PointF(radius, radius);
-			trianglePoly = new PointF[3];
-			for (int i = 0; i < 3; i++)
-			{
-				trianglePoly[i] = new PointF(
-					center.X + (float)System.Math.Cos(angle) * radius,
-					center.Y + (float)System.Math.Sin(angle) * radius
-				);
-				angle += step;
-			}
-
-			double dr, dg, db;
-			HSVToRGB(hue / ((float)System.Math.PI * 2), 1.0, 1.0, out dr, out dg, out db);
-
-			GraphicsPath gp = new GraphicsPath();
-			gp.AddPolygon(trianglePoly);
-			PathGradientBrush gb = new PathGradientBrush(gp);
-
-			Color[] colors = new Color[3]{
-				Color.FromArgb((byte)(dr * 255), (byte)(dg * 255), (byte)(db * 255)),
-				Color.Black,
-				Color.White
-			};
-			gb.SurroundColors = colors;
-			gb.CenterColor = Color.FromArgb((255 + colors[0].R) / 3, (255 + colors[0].G) / 3, (255 + colors[0].B) / 3);
-			gb.CenterPoint = center;
-
-			using (System.Drawing.Graphics g = System.Drawing.Graphics.FromImage(triangle))
-			{
-				g.FillPath(gb, gp);
-			}
-		}
-
-		/// <summary>
-		/// Точка внутри треугольника
-		/// </summary>
-		bool InsideTriangle(PointF a, PointF b, PointF c, PointF p)
-		{
-			PointF pa = new PointF(
-				p.X - a.X,
-				p.Y - a.Y
-			);
-
-			bool s = (b.X - a.X) * pa.Y - (b.Y - a.Y) * pa.X > 0;
-			if ((c.X - a.X) * pa.Y - (c.Y - a.Y) * pa.X > 0 == s) return false;
-			if ((c.X - b.X) * (p.Y - b.Y) - (c.Y - b.Y) * (p.X - b.X) > 0 != s) return false;
-			return true;
-		}
-
-		/// <summary>
-		/// Конвертация HSV в RGB
-		/// </summary>
-		void HSVToRGB(double H, double S, double V, out double R, out double G, out double B)
-		{
-			if (H == 1.0)
-			{
-				H = 0.0;
-			}
-			double step = 1.0 / 6.0;
-			double vh = H / step;
-			int i = (int)System.Math.Floor(vh);
-			double f = vh - i;
-			double p = V * (1.0 - S);
-			double q = V * (1.0 - (S * f));
-			double t = V * (1.0 - (S * (1.0 - f)));
-			switch (i)
-			{
-				case 1:
-					R = q;
-					G = V;
-					B = p;
-					break;
-				case 2:
-					R = p;
-					G = V;
-					B = t;
-					break;
-				case 3:
-					R = p;
-					G = q;
-					B = V;
-					break;
-				case 4:
-					R = t;
-					G = p;
-					B = V;
-					break;
-				case 5:
-					R = V;
-					G = p;
-					B = q;
-					break;
-				default:
-					R = V;
-					G = t;
-					B = p;
-					break;
-			}
+			public double X { get; set; }
+			public double Y { get; set; }
 		}
 	}
 
@@ -7230,16 +7235,17 @@ namespace Cubed.UI.Controls
 				PB1.FocusScales = new PointF(0.8f, 0.5f);
 
 				G.FillPath(PB1, GP1);
+				G.FillPath(new SolidBrush(color), ThemeModule.CreateRound(6, 6, Width - 13, Height - 13, 4));
 			}
 			else
 			{
 				LinearGradientBrush GB1 = new LinearGradientBrush(ClientRectangle, Color.FromArgb(60, 60, 60), Color.FromArgb(55, 55, 55), 90f);
 				G.FillPath(GB1, GP1);
+				G.FillPath(new SolidBrush(color), ThemeModule.CreateRound(5, 5, Width - 11, Height - 11, 4));
 			}
 
 			G.DrawPath(P1, GP1);
 			G.DrawPath(P2, GP2);
-
 
 		}
 

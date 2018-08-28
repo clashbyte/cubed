@@ -120,6 +120,11 @@ namespace Cubed.Core {
 			// Updating controls
 			Controls.Update(state);
 
+			// Updating world
+			if (World != null) {
+				World.Update();
+			}
+
 			// Updating world and scene
 			EventHandler<UpdateEventArgs> updateHandle = UpdateLogic;
 			if (updateHandle != null) {
@@ -128,9 +133,6 @@ namespace Cubed.Core {
 					Tween = tween
 				};
 				updateHandle(this, uea);
-			}
-			if (World != null) {
-				World.Update();
 			}
 
 			// Updating interface

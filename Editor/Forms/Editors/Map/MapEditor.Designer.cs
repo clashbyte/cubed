@@ -35,7 +35,10 @@
 			this.toolWalls = new Cubed.UI.Controls.NSRadioIconicButton();
 			this.toolSelect = new Cubed.UI.Controls.NSRadioIconicButton();
 			this.panel2 = new System.Windows.Forms.Panel();
-			this.nsIconicButton1 = new Cubed.UI.Controls.NSIconicButton();
+			this.soundsEnabledFlag = new Cubed.UI.Controls.NSCheckboxIconicButton();
+			this.lightsEnabledFlag = new Cubed.UI.Controls.NSCheckboxIconicButton();
+			this.skyboxEnabledFlag = new Cubed.UI.Controls.NSCheckboxIconicButton();
+			this.scriptOptionsButton = new Cubed.UI.Controls.NSIconicButton();
 			this.envOptionsButton = new Cubed.UI.Controls.NSIconicButton();
 			this.floorDown = new Cubed.UI.Controls.NSIconicButton();
 			this.floorUp = new Cubed.UI.Controls.NSIconicButton();
@@ -180,7 +183,10 @@
 			// 
 			// panel2
 			// 
-			this.panel2.Controls.Add(this.nsIconicButton1);
+			this.panel2.Controls.Add(this.soundsEnabledFlag);
+			this.panel2.Controls.Add(this.lightsEnabledFlag);
+			this.panel2.Controls.Add(this.skyboxEnabledFlag);
+			this.panel2.Controls.Add(this.scriptOptionsButton);
 			this.panel2.Controls.Add(this.envOptionsButton);
 			this.panel2.Controls.Add(this.floorDown);
 			this.panel2.Controls.Add(this.floorUp);
@@ -189,18 +195,60 @@
 			resources.ApplyResources(this.panel2, "panel2");
 			this.panel2.Name = "panel2";
 			// 
-			// nsIconicButton1
+			// soundsEnabledFlag
 			// 
-			this.nsIconicButton1.Corners.BottomLeft = false;
-			this.nsIconicButton1.Corners.BottomRight = true;
-			this.nsIconicButton1.Corners.TopLeft = false;
-			this.nsIconicButton1.Corners.TopRight = true;
-			this.nsIconicButton1.IconImage = ((System.Drawing.Image)(resources.GetObject("nsIconicButton1.IconImage")));
-			this.nsIconicButton1.IconSize = new System.Drawing.Size(12, 12);
-			this.nsIconicButton1.Large = false;
-			resources.ApplyResources(this.nsIconicButton1, "nsIconicButton1");
-			this.nsIconicButton1.Name = "nsIconicButton1";
-			this.nsIconicButton1.Vertical = false;
+			this.soundsEnabledFlag.Checked = true;
+			this.soundsEnabledFlag.Corners.BottomLeft = false;
+			this.soundsEnabledFlag.Corners.BottomRight = true;
+			this.soundsEnabledFlag.Corners.TopLeft = false;
+			this.soundsEnabledFlag.Corners.TopRight = true;
+			this.soundsEnabledFlag.IconImage = ((System.Drawing.Image)(resources.GetObject("soundsEnabledFlag.IconImage")));
+			this.soundsEnabledFlag.IconSize = new System.Drawing.Size(12, 12);
+			this.soundsEnabledFlag.Large = false;
+			resources.ApplyResources(this.soundsEnabledFlag, "soundsEnabledFlag");
+			this.soundsEnabledFlag.Name = "soundsEnabledFlag";
+			this.soundsEnabledFlag.CheckedChanged += new Cubed.UI.Controls.NSCheckboxIconicButton.CheckedChangedEventHandler(this.soundsEnabledFlag_CheckedChanged);
+			// 
+			// lightsEnabledFlag
+			// 
+			this.lightsEnabledFlag.Checked = true;
+			this.lightsEnabledFlag.Corners.BottomLeft = false;
+			this.lightsEnabledFlag.Corners.BottomRight = false;
+			this.lightsEnabledFlag.Corners.TopLeft = false;
+			this.lightsEnabledFlag.Corners.TopRight = false;
+			this.lightsEnabledFlag.IconImage = ((System.Drawing.Image)(resources.GetObject("lightsEnabledFlag.IconImage")));
+			this.lightsEnabledFlag.IconSize = new System.Drawing.Size(12, 12);
+			this.lightsEnabledFlag.Large = false;
+			resources.ApplyResources(this.lightsEnabledFlag, "lightsEnabledFlag");
+			this.lightsEnabledFlag.Name = "lightsEnabledFlag";
+			this.lightsEnabledFlag.CheckedChanged += new Cubed.UI.Controls.NSCheckboxIconicButton.CheckedChangedEventHandler(this.lightsEnabledFlag_CheckedChanged);
+			// 
+			// skyboxEnabledFlag
+			// 
+			this.skyboxEnabledFlag.Checked = true;
+			this.skyboxEnabledFlag.Corners.BottomLeft = true;
+			this.skyboxEnabledFlag.Corners.BottomRight = false;
+			this.skyboxEnabledFlag.Corners.TopLeft = true;
+			this.skyboxEnabledFlag.Corners.TopRight = false;
+			this.skyboxEnabledFlag.IconImage = ((System.Drawing.Image)(resources.GetObject("skyboxEnabledFlag.IconImage")));
+			this.skyboxEnabledFlag.IconSize = new System.Drawing.Size(12, 12);
+			this.skyboxEnabledFlag.Large = false;
+			resources.ApplyResources(this.skyboxEnabledFlag, "skyboxEnabledFlag");
+			this.skyboxEnabledFlag.Name = "skyboxEnabledFlag";
+			this.skyboxEnabledFlag.CheckedChanged += new Cubed.UI.Controls.NSCheckboxIconicButton.CheckedChangedEventHandler(this.skyboxEnabledFlag_CheckedChanged);
+			// 
+			// scriptOptionsButton
+			// 
+			this.scriptOptionsButton.Corners.BottomLeft = false;
+			this.scriptOptionsButton.Corners.BottomRight = true;
+			this.scriptOptionsButton.Corners.TopLeft = false;
+			this.scriptOptionsButton.Corners.TopRight = true;
+			this.scriptOptionsButton.IconImage = ((System.Drawing.Image)(resources.GetObject("scriptOptionsButton.IconImage")));
+			this.scriptOptionsButton.IconSize = new System.Drawing.Size(12, 12);
+			this.scriptOptionsButton.Large = false;
+			resources.ApplyResources(this.scriptOptionsButton, "scriptOptionsButton");
+			this.scriptOptionsButton.Name = "scriptOptionsButton";
+			this.scriptOptionsButton.Vertical = false;
 			// 
 			// envOptionsButton
 			// 
@@ -214,6 +262,7 @@
 			resources.ApplyResources(this.envOptionsButton, "envOptionsButton");
 			this.envOptionsButton.Name = "envOptionsButton";
 			this.envOptionsButton.Vertical = false;
+			this.envOptionsButton.Click += new System.EventHandler(this.envOptionsButton_Click);
 			// 
 			// floorDown
 			// 
@@ -299,9 +348,12 @@
 		private UI.Controls.NSIconicButton floorUp;
 		private UI.Controls.NSLabel floorIndex;
 		private UI.Controls.NSCheckboxIconicButton walkModeEnable;
-		private UI.Controls.NSIconicButton nsIconicButton1;
+		private UI.Controls.NSIconicButton scriptOptionsButton;
 		private UI.Controls.NSIconicButton envOptionsButton;
 		private System.Windows.Forms.SplitContainer listContainer;
 		private UI.Controls.NSDirectoryInspector entityList;
+		private UI.Controls.NSCheckboxIconicButton soundsEnabledFlag;
+		private UI.Controls.NSCheckboxIconicButton lightsEnabledFlag;
+		private UI.Controls.NSCheckboxIconicButton skyboxEnabledFlag;
 	}
 }

@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Cubed.Data.Defines;
 using Cubed.Data.Editor.Previews;
 using Cubed.Drivers.Files;
@@ -44,7 +46,7 @@ namespace Cubed.Data.Projects {
 		/// <summary>
 		/// Watcher for changes tracking
 		/// </summary>
-		static FileSystemWatcher watcher;
+		static ProjectWatcher watcher;
 
 		/// <summary>
 		/// Driver
@@ -55,6 +57,46 @@ namespace Cubed.Data.Projects {
 		/// Path to project folder
 		/// </summary>
 		static string rootPath;
+
+		/// <summary>
+		/// Picking entry by name
+		/// </summary>
+		/// <param name="path">Path in project</param>
+		/// <returns>Entry or null</returns>
+		public static Project.EntryBase GetFile(string path) {
+			path = path.ToLower();
+			string[] parts = path.Split(new char[] {
+				'/', '\\'	
+			}, StringSplitOptions.RemoveEmptyEntries);
+			Folder current = Root;
+			for (int i = 0; i < parts.Length; i++) {
+				bool found = false;
+				foreach (Folder f in ((Folder)current).Folders) {
+					if (f.Name.ToLower() == parts[i]) {
+						if (i < parts.Length - 1) {
+							current = f;
+							found = true;
+							break;
+						} else {
+							return f;
+						}
+					}
+				}
+				if (found) {
+					continue;
+				}
+				foreach (Entry e in ((Folder)current).Entries) {
+					if (e.Name.ToLower() == parts[i]) {
+						if (i == parts.Length - 1) {
+							return e;
+						} else {
+							return null;
+						}
+					}
+				}
+			}
+			return current;
+		}
 
 		/// <summary>
 		/// Get project info by folder
@@ -79,154 +121,92 @@ namespace Cubed.Data.Projects {
 					RootFolder = rootPath
 				};
 				Root = CreateFileTree("/");
+				watcher = new ProjectWatcher();
 				return true;
 			}
 			return false;
 		}
 
 		/// <summary>
-		/// Rescanning project
+		/// Updating project state
 		/// </summary>
-		public static void Rescan() {
-
-			// Accum for entry events
-			List<EntryEventArgs> evList = new List<EntryEventArgs>();
-
-			// Reading root
-			Folder newFolder = CreateFileTree("/");
-			CompareRecursive(Root, newFolder, evList);
-
-			// Calling hooks
-			if (EntriesChangedEvent != null && evList.Count > 0) {
-				EntriesChangedEvent(null, new MultipleEntryEventArgs() {
-					Events = evList.ToArray()
-				});
-			}
-
-		}
-
-		/// <summary>
-		/// Comparing folders
-		/// </summary>
-		/// <param name="prev"></param>
-		/// <param name="next"></param>
-		static void CompareRecursive(Folder prev, Folder next, List<EntryEventArgs> evList) {
-
-			// Saving all new folders
-			List<string> prevFolders = new List<string>();
-			List<string> nextFolders = new List<string>();
-			List<Folder> newFolders = new List<Folder>();
-			foreach (Folder fld in prev.Folders) {
-				prevFolders.Add(fld.Path);
-			}
-			foreach (Folder fld in next.Folders) {
-				nextFolders.Add(fld.Path);
-			}
-
-			// Scanning for removed folders
-			foreach (Folder fld in prev.Folders) {
-				if (!nextFolders.Contains(fld.Path)) {
-					evList.AddRange(Notify(fld, EntryEvent.Deleted, true));
-				} else {
-					newFolders.Add(fld);
-				}
-			}
-			foreach (Folder nfld in next.Folders) {
-				if (!prevFolders.Contains(nfld.Path)) {
-					nfld.Parent = prev;
-					evList.AddRange(Notify(nfld, EntryEvent.Created, true));
-					newFolders.Add(nfld);
-				}
-			}
-			foreach (Folder fl in newFolders) {
-				foreach (Folder ofl in prev.Folders) {
-					if (fl.Path == ofl.Path) {
-						CompareRecursive(ofl, fl, evList);
-						break;
-					}
-				}
-			}
-
-			// Scanning for files
-			List<string> prevFiles = new List<string>();
-			List<string> nextFiles = new List<string>();
-			List<Entry> newEntries = new List<Entry>();
-			foreach (Entry ent in prev.Entries) {
-				prevFiles.Add(ent.Path);
-			}
-			foreach (Entry ent in next.Entries) {
-				nextFiles.Add(ent.Path);
-			}
-
-			// Scanning for removed folders
-			foreach (Entry ent in prev.Entries) {
-				if (!nextFiles.Contains(ent.Path)) {
-					evList.AddRange(Notify(ent, EntryEvent.Deleted));
-				} else {
-					foreach (Entry nent in next.Entries) {
-						if (nent.Path == ent.Path) {
-							if (nent.LastModifyTime > ent.LastModifyTime) {
-								ent.LastModifyTime = nent.LastModifyTime;
-								evList.AddRange(Notify(ent, EntryEvent.Modified));
-							}
-							break;
+		public static void Update() {
+			List<EntryEventArgs> events = new List<EntryEventArgs>();
+			ProjectWatcher.FileChange[] changes = watcher.Update();
+			foreach (ProjectWatcher.FileChange fc in changes) {
+				string path = fc.Path.Substring(rootPath.Length).Replace("\\", "/");
+				Folder parent = GetFile(Path.GetDirectoryName(path)) as Folder;
+				switch (fc.Event) {
+					
+					case EntryEvent.Created:
+						// Added file or folder
+						EntryBase eb = null;
+						if (File.Exists(fc.Path)) {
+							eb = new Entry(path, File.GetLastWriteTime(fc.Path), parent);
+							List<Entry> ffiles = new List<Entry>(parent.Entries);
+							ffiles.Add(eb as Entry);
+							parent.SetChildren(parent.Folders, ffiles.ToArray());
+						} else {
+							eb = ScanSubfolder(path, null, parent);
+							List<Folder> ffolders = new List<Folder>(parent.Folders);
+							ffolders.Add(eb as Folder);
+							parent.SetChildren(ffolders.ToArray(), parent.Entries);
 						}
+						events.AddRange(NotifyEntry(eb, EntryEvent.Created));
+						break;
+
+					case EntryEvent.Modified:
+						// File or folder modified
+						EntryBase mb = GetFile(path);
+						if (mb != null) {
+							events.AddRange(NotifyEntry(mb, EntryEvent.Modified));
+						} else {
+							throw new Exception("Unable to locate modified file");
+						}
+						break;
+
+					case EntryEvent.Deleted:
+						// File or folder removed
+						EntryBase db = GetFile(path);
+						if (db != null) {
+							events.AddRange(NotifyEntry(db, EntryEvent.Deleted));
+							if (db is Entry) {
+								List<Entry> ffiles = new List<Entry>(parent.Entries);
+								ffiles.Remove(db as Entry);
+								parent.SetChildren(parent.Folders, ffiles.ToArray());
+							} else {
+								List<Folder> ffolders = new List<Folder>(parent.Folders);
+								ffolders.Add(db as Folder);
+								parent.SetChildren(ffolders.ToArray(), parent.Entries);
+							}
+						} else {
+							throw new Exception("Unable to locate removed entry");
+						}
+						break;
+
+				}
+			}
+			if (events.Count > 0) {
+				MultipleEntryEventArgs mea = new MultipleEntryEventArgs() {
+					Events = events.ToArray()
+				};
+				foreach (EntryEventArgs ea in mea.Events) {
+					if (ea.Entry is Entry && ea.Type == EntryEvent.Modified) {
+						Preview.Update(ea.Entry as Entry);
 					}
-					newEntries.Add(ent);
+				}
+				if (EntriesChangedEvent != null) {
+					EntriesChangedEvent(null, mea);
+				}
+				if (EntryChangedEvent != null) {
+					foreach (EntryEventArgs ea in mea.Events) {
+						if (ea.Entry is Entry && ea.Type == EntryEvent.Modified) {
+							Preview.Update(ea.Entry as Entry);
+						}
+						EntryChangedEvent(null, ea);
+					}
 				}
 			}
-			foreach (Entry nent in next.Entries) {
-				if (!prevFiles.Contains(nent.Path)) {
-					nent.Parent = prev;
-					evList.AddRange(Notify(nent, EntryEvent.Created));
-					newEntries.Add(nent);
-				}
-			}
-
-			// Setting child entries
-			prev.SetChildren(newFolders, newEntries);
-		}
-
-		/// <summary>
-		/// Notifying single entry
-		/// </summary>
-		/// <param name="entry">Entry</param>
-		/// <param name="type">Type of event</param>
-		static EntryEventArgs[] Notify(EntryBase entry, EntryEvent type, bool recursive = false) {
-			List<EntryEventArgs> lst = new List<EntryEventArgs>();
-			if (recursive && entry is Folder) {
-				Folder fld = entry as Folder;
-				foreach (Folder ifd in fld.Folders) {
-					lst.AddRange(Notify(ifd, type, true));
-				}
-				foreach (Entry en in fld.Entries) {
-					lst.Add(BroadcastEvent(en, type));
-				}
-			} else if(entry is Entry) {
-				if (type == EntryEvent.Modified) {
-					Preview.Update(entry as Entry);
-				} else if(type == EntryEvent.Deleted) {
-					Preview.Remove(entry as Entry);
-				}
-			}
-			lst.Add(BroadcastEvent(entry, type));
-			return lst.ToArray();
-		}
-
-		/// <summary>
-		/// Broadcasting event for single item
-		/// </summary>
-		/// <param name="entry">Entry</param>
-		/// <param name="ev">Event type</param>
-		static EntryEventArgs BroadcastEvent(EntryBase entry, EntryEvent ev) {
-			EntryEventArgs ea = new EntryEventArgs() {
-				Entry = entry,
-				Type = ev
-			};
-			if (EntryChangedEvent != null) {
-				EntryChangedEvent(null, ea);
-			}
-			return ea;
 		}
 
 		/// <summary>
@@ -236,7 +216,7 @@ namespace Cubed.Data.Projects {
 			if (rootPath != string.Empty) {
 				rootPath = "";
 				Info = null;
-				watcher.Dispose();
+				watcher.Stop();
 				watcher = null;
 			}
 		}
@@ -244,16 +224,15 @@ namespace Cubed.Data.Projects {
 		/// <summary>
 		/// Scanning project tree
 		/// </summary>
-		private static Folder CreateFileTree(string path) {
-			Folder f = ScanSubfolder(path);
-			return f;
+		static Folder CreateFileTree(string path) {
+			return ScanSubfolder(path);
 		}
 
 		/// <summary>
 		/// Scanning subfolder for files and other folders
 		/// </summary>
-		/// <param name="path"></param>
-		/// <returns></returns>
+		/// <param name="path">Path to scan</param>
+		/// <returns>Scanned folder</returns>
 		static Folder ScanSubfolder(string path, DirectoryInfo current = null, EntryBase parent = null) {
 
 			List<Entry> entries = new List<Entry>();
@@ -283,6 +262,32 @@ namespace Cubed.Data.Projects {
 			
 			// Making folder
 			return folder;
+		}
+
+		/// <summary>
+		/// Recursive entry notification
+		/// </summary>
+		/// <param name="entry">Entry</param>
+		/// <param name="ev">Event type</param>
+		/// <returns>Array of output events</returns>
+		static EntryEventArgs[] NotifyEntry(EntryBase entry, EntryEvent ev) {
+			List<EntryEventArgs> list = new List<EntryEventArgs>();
+			if (entry is Folder) {
+				Folder fld = entry as Folder;
+				foreach (Folder f in fld.Folders) {
+					list.AddRange(NotifyEntry(f, ev));
+				}
+				foreach (Entry e in fld.Entries) {
+					list.AddRange(NotifyEntry(e, ev));
+				}
+			}
+			if (entry is Folder || entry is Entry) {
+				list.Add(new EntryEventArgs() {
+					Entry = entry,
+					Type = ev
+				});
+			}
+			return list.ToArray();
 		}
 
 
@@ -415,6 +420,8 @@ namespace Cubed.Data.Projects {
 			public Folder(string path, DateTime changed, EntryBase parent) {
 				Path = path;
 				LastModifyTime = changed;
+				Entries = new Entry[0];
+				Folders = new Folder[0];
 				Parent = parent;
 			}
 
@@ -462,5 +469,203 @@ namespace Cubed.Data.Projects {
 			public EntryEventArgs[] Events;
 		}
 
+		/// <summary>
+		/// Watcher for project
+		/// </summary>
+		class ProjectWatcher {
+
+			/// <summary>
+			/// Debounce delay
+			/// </summary>
+			const int DEBOUNCE_DELAY = 300;
+
+			/// <summary>
+			/// Entries last events
+			/// </summary>
+			Dictionary<DebouncedFile, long> entries;
+
+			/// <summary>
+			/// Changes list
+			/// </summary>
+			ConcurrentQueue<FileChange> changeList;
+
+			/// <summary>
+			/// Internal backing thread
+			/// </summary>
+			Thread watchingThread;
+
+			/// <summary>
+			/// Starting watcher
+			/// </summary>
+			public ProjectWatcher() {
+				changeList = new ConcurrentQueue<FileChange>();
+				watchingThread = new Thread(ThreadedWatch);
+				watchingThread.IsBackground = true;
+				watchingThread.Priority = ThreadPriority.BelowNormal;
+				watchingThread.Start();
+			}
+
+			/// <summary>
+			/// Updating data
+			/// </summary>
+			/// <returns></returns>
+			public FileChange[] Update() {
+				List<FileChange> evl = new List<FileChange>();
+				while (!changeList.IsEmpty) {
+					FileChange fc = null;
+					if (changeList.TryDequeue(out fc)) {
+						evl.Add(fc);
+					}
+				}
+				return evl.ToArray();
+			}
+
+			/// <summary>
+			/// Stopping watcher
+			/// </summary>
+			public void Stop() {
+				if (watchingThread != null) {
+					watchingThread.Abort();
+					watchingThread = null;
+				}
+			}
+
+			/// <summary>
+			/// Threaded watching
+			/// </summary>
+			void ThreadedWatch() {
+				entries = new Dictionary<DebouncedFile, long>();
+				FileSystemWatcher fw = new FileSystemWatcher();
+				fw.InternalBufferSize = 8192;
+				fw.Path = rootPath;
+				fw.IncludeSubdirectories = true;
+				fw.EnableRaisingEvents = true;
+				fw.Created += fw_Event;
+				fw.Changed += fw_Event;
+				fw.Renamed += fw_Event;
+				fw.Deleted += fw_Event;
+				try {
+					while (true) {
+						long now = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
+						List<DebouncedFile> dlist = new List<DebouncedFile>();
+						foreach (var d in entries) {
+							if (d.Value < now) {
+								dlist.Add(d.Key);
+							}
+						}
+						foreach (DebouncedFile df in dlist) {
+							changeList.Enqueue(new FileChange() {
+								Event = df.Event,
+								Path = df.Path
+							});
+							entries.Remove(df);
+						}
+						Thread.Sleep(5);
+					}
+				} catch (ThreadAbortException e) { }
+				fw.EnableRaisingEvents = false;
+			}
+
+			/// <summary>
+			/// Handling event
+			/// </summary>
+			/// <param name="sender">Watcher</param>
+			/// <param name="e">Information</param>
+			void fw_Event(object sender, FileSystemEventArgs e) {
+
+				// Decoding data
+				List<DebouncedFile> events = new List<DebouncedFile>();
+				switch (e.ChangeType) {
+					case WatcherChangeTypes.Changed:
+						events.Add(new DebouncedFile() {
+							Path = e.FullPath,
+							Event = EntryEvent.Modified
+						});
+						break;
+					case WatcherChangeTypes.Created:
+						events.Add(new DebouncedFile() {
+							Path = e.FullPath,
+							Event = EntryEvent.Created
+						});
+						break;
+					case WatcherChangeTypes.Deleted:
+						events.Add(new DebouncedFile() {
+							Path = e.FullPath,
+							Event = EntryEvent.Deleted
+						});
+						break;
+					case WatcherChangeTypes.Renamed:
+						events.Add(new DebouncedFile() {
+							Path = (e as RenamedEventArgs).OldFullPath,
+							Event = EntryEvent.Deleted
+						});
+						events.Add(new DebouncedFile() {
+							Path = e.FullPath,
+							Event = EntryEvent.Created
+						});
+						break;
+				}
+
+				// Reading data
+				long now = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
+				foreach (DebouncedFile df in events) {
+					bool found = false;
+					foreach (KeyValuePair<DebouncedFile, long> d in entries) {
+						if (d.Key.Event == df.Event && d.Key.Path == df.Path) {
+							entries[d.Key] = now + DEBOUNCE_DELAY;
+							found = true;
+							break;
+						}
+					}
+					if (!found) {
+						entries.Add(df, now + DEBOUNCE_DELAY);
+					}
+				}
+			}
+
+			/// <summary>
+			/// File change data
+			/// </summary>
+			public class FileChange {
+
+				/// <summary>
+				/// Path to entry
+				/// </summary>
+				public string Path {
+					get;
+					set;
+				}
+
+				/// <summary>
+				/// Event type
+				/// </summary>
+				public EntryEvent Event {
+					get;
+					set;
+				}
+			}
+
+			/// <summary>
+			/// Debounced entry
+			/// </summary>
+			class DebouncedFile {
+				
+				/// <summary>
+				/// File path
+				/// </summary>
+				public string Path {
+					get;
+					set;
+				}
+
+				/// <summary>
+				/// Entry event type
+				/// </summary>
+				public EntryEvent Event {
+					get;
+					set;
+				}
+			}
+		} 
 	}
 }

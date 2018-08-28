@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Windows.Forms;
+using Cubed.Core;
 using Cubed.Data.Editor;
 using Cubed.Data.Editor.Previews;
 using Cubed.Data.Projects;
@@ -47,6 +49,14 @@ namespace Cubed.Forms.Common {
 		}
 
 		/// <summary>
+		/// Current engine
+		/// </summary>
+		public static Engine CurrentEngine {
+			get;
+			set;
+		}
+
+		/// <summary>
 		/// Current opened folder
 		/// </summary>
 		Project.Folder currentFolder;
@@ -59,7 +69,7 @@ namespace Cubed.Forms.Common {
 		/// <summary>
 		/// Fill project view with files
 		/// </summary>
-		public void PopulateProjectView() {
+		public void PopulateProjectView(bool skipPos = false) {
 			
 			// Open root folder
 			if (currentFolder == null) {
@@ -69,6 +79,9 @@ namespace Cubed.Forms.Common {
 			// Suspending browser
 			projectControl.SuspendLayout();
 			projectControl.Entries.Clear();
+			if (!skipPos) {
+				projectControl.Offset = 0;
+			}
 
 			// Creating folders
 			UIIcon folderIcon = new UIIcon(DirectoryInspectorIcons.Folder);
@@ -137,16 +150,33 @@ namespace Cubed.Forms.Common {
 					PopulateProjectView();
 				} else if (obj is Project.Entry)  {
 
-					try {
-						ProcessStartInfo psi = new ProcessStartInfo((obj as Project.Entry).FullPath);
-						psi.UseShellExecute = true;
-						Process.Start(psi);
-					} catch (Exception ex) {
-						MessageDialog.Open("Unable to open", "Failed to start associated app!", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Error);
-						throw;
+					// Picking file
+					foreach (TabPage page in editorsControl.TabPages) {
+						if (page.Tag is EditorForm) {
+							if ((page.Tag as EditorForm).File == (obj as Project.Entry)) {
+								editorsControl.SelectedTab = page;
+								return;
+							}
+						}
 					}
-					
 
+					// Detecting type
+					Type t = FileTypeManager.GetEditor(obj as Project.Entry);
+					if (t != null) {
+						Project_OpenEditor(obj as Project.Entry);
+					} else {
+
+						// Opening file
+						try {
+							ProcessStartInfo psi = new ProcessStartInfo((obj as Project.Entry).FullPath);
+							psi.UseShellExecute = true;
+							Process.Start(psi);
+						} catch (Exception ex) {
+							MessageDialog.Open("Unable to open", "Failed to start associated app!", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Error);
+							throw;
+						}
+
+					}
 				}
 			}
 		}
@@ -155,7 +185,7 @@ namespace Cubed.Forms.Common {
 		/// Picking file for preview
 		/// </summary>
 		private void projectControl_SelectionChanged(object sender) {
-			inspector.Target = projectControl.SelectedEntry;
+			//inspector.Target = projectControl.SelectedEntry;
 			projectFileInfo.File = projectControl.SelectedEntry;
 		}
 		
@@ -175,12 +205,80 @@ namespace Cubed.Forms.Common {
 		/// Entries list changed - check for rebuild
 		/// </summary>
 		void Project_EntriesChangedEvent(object sender, Project.MultipleEntryEventArgs e) {
+			bool changed = false;
+			bool pos = false;
 			foreach (Project.EntryEventArgs evarg in e.Events) {
 				if (evarg.Entry.Parent == currentFolder) {
-					PopulateProjectView();
-					break;
+					if (evarg.Type == Project.EntryEvent.Modified) {
+						foreach (NSDirectoryInspector.Entry en in projectControl.Entries) {
+							if (en.Tag == (evarg.Entry as object)) {
+								projectControl.PatchPreview(en);
+								break;
+							}
+						}
+					}
+					if (evarg.Type != Project.EntryEvent.Modified) {
+						changed = true;
+					}
+					if (evarg.Type == Project.EntryEvent.Deleted) {
+						pos = true;
+					}
 				}
 			}
+			if (changed) {
+				PopulateProjectView(pos);
+			}
+		}
+
+		/// <summary>
+		/// Trying to open editor
+		/// </summary>
+		/// <param name="entry">Entry to edit</param>
+		void Project_OpenEditor(Project.Entry entry) {
+			Type t = FileTypeManager.GetEditor(entry);
+			if (t != null) {
+
+				// Opening editor
+				EditorForm editor = Activator.CreateInstance(t) as EditorForm;
+				if (editor != null) {
+
+					// Creating editor
+					TabPage tp = new TabPage();
+					editor.TopLevel = false;
+					editor.Location = System.Drawing.Point.Empty;
+					editor.Visible = true;
+					editor.BringToFront();
+					editor.SetFile(entry);
+					tp.Controls.Add(editor);
+					tp.Tag = editor;
+					editor.Dock = DockStyle.Fill;
+					editorsControl.AddTab(tp, true);
+
+					// Selecting
+					
+
+				}
+
+			}
+		}
+
+		/// <summary>
+		/// Handling key
+		/// </summary>
+		/// <param name="msg">Message</param>
+		/// <param name="keyData">Key data</param>
+		/// <returns>Bool</returns>
+		protected override bool ProcessCmdKey(ref Message msg, Keys keyData) {
+			if (msg.Msg == 256) {
+				if (keyData == (Keys.Control | Keys.S)) {
+					foreach (TabPage tp in editorsControl.TabPages) {
+						if (tp.Tag is EditorForm) {
+							(tp.Tag as EditorForm).Save();
+						}
+					}
+				}
+			}
+			return base.ProcessCmdKey(ref msg, keyData);
 		}
 		
 	}

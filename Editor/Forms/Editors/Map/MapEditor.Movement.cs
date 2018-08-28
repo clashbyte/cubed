@@ -84,17 +84,23 @@ namespace Cubed.Forms.Editors.Map {
 			} else {
 
 				// Changing height
-				if (Input.Controls.KeyHit(Key.Q) && allowMouseLook) {
-					gridHeight -= 1;
-					floorIndex.Text = gridHeight + "";
-				} else if (Input.Controls.KeyHit(Key.E) && allowMouseLook) {
-					gridHeight += 1;
-					floorIndex.Text = gridHeight + "";
+				if (!Input.Controls.KeyDown(Key.ControlLeft)) {
+					if (Input.Controls.KeyHit(Key.Q) && allowMouseLook) {
+						gridHeight -= 1;
+						floorIndex.Text = gridHeight + "";
+					} else if (Input.Controls.KeyHit(Key.E) && allowMouseLook) {
+						gridHeight += 1;
+						floorIndex.Text = gridHeight + "";
+					}
 				}
-
+				
 				// Mouse look
 				Vector2 mov = Cubed.Input.Controls.Movement * (Input.Controls.KeyDown(Key.ShiftLeft) ? 0.2f : 0.08f);
 				Vector3 rot = Vector3.Zero;
+				if (Input.Controls.KeyDown(Key.ControlLeft)) {
+					mov = Vector2.Zero;
+				}
+				
 				if (Input.Controls.MouseHit(MouseButton.Middle) && allowMouseLook) {
 					display.MouseLock = true;
 				} else if (Input.Controls.MouseReleased(MouseButton.Middle) && allowMouseLook) {

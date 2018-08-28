@@ -145,6 +145,19 @@ namespace Cubed.Graphics {
 		}
 
 		/// <summary>
+		/// Refreshing textures texture
+		/// </summary>
+		internal void Refresh(CacheEntry ce, bool instant) {
+			if (textures.Values.Contains(ce)) {
+				if (instant) {
+					ce.LoadNow(engine);
+				} else {
+					ce.AddToLoadingQueue(engine);
+				}
+			}
+		}
+
+		/// <summary>
 		/// Thread checking
 		/// </summary>
 		void CheckThreads() {
@@ -295,7 +308,7 @@ namespace Cubed.Graphics {
 				frames = new Frame[] {
 					new Frame(img)
 				};
-				frames[0].SendToGL();
+				SendToGL();
 			}
 
 			/// <summary>

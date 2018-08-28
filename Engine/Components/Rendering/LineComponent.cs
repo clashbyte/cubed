@@ -195,15 +195,12 @@ namespace Cubed.Components.Rendering {
 				shader.Bind();
 				GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBuffer);
 				GL.VertexAttribPointer(shader.VertexBufferLocation, 3, VertexAttribPointerType.Float, false, 0, 0);
-				//GL.BindBuffer(BufferTarget.ElementArrayBuffer, indexBuffer);
-				//GL.DrawElements(BeginMode.Lines, indexArray.Length, DrawElementsType.UnsignedShort, 0);
 				GL.DrawArrays(primitive, 0, vertexList.Length);
 				shader.Unbind();
 			} else {
 				GL.Color3(WireColor);
 				GL.EnableClientState(ArrayCap.VertexArray);
 				GL.VertexPointer(3, VertexPointerType.Float, 0, vertexArray);
-				//GL.DrawElements(PrimitiveType.Lines, indexArray.Length, DrawElementsType.UnsignedShort, indexArray);
 				GL.DrawArrays(primitive, 0, vertexList.Length);
 				GL.DisableClientState(ArrayCap.VertexArray);
 			}

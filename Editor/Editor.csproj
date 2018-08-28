@@ -71,8 +71,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\Editor\Attributes\InspectorSectionAttribute.cs" />
+    <Compile Include="Data\Editor\Attributes\InspectorRangeAttribute.cs" />
+    <Compile Include="Data\Editor\Attributes\InspectorHiddenAttribute.cs" />
     <Compile Include="Data\Editor\Attributes\InspectorIconAttribute.cs" />
+    <Compile Include="Data\Editor\Attributes\InspectorDescriptionAttribute.cs" />
     <Compile Include="Data\Editor\Attributes\InspectorNameAttribute.cs" />
+    <Compile Include="Data\Editor\Attributes\TargetPrefabAttribute.cs" />
     <Compile Include="Data\Editor\FileTypeManager.cs" />
     <Compile Include="Data\Editor\Previews\AnimationPreviewGenerator.cs" />
     <Compile Include="Data\Editor\Previews\ImagePreviewGenerator.cs" />
@@ -80,6 +85,8 @@
     <Compile Include="Data\Editor\Previews\PreviewGenerator.cs" />
     <Compile Include="Data\Projects\Project.cs" />
     <Compile Include="Editing\EditableObject.cs" />
+    <Compile Include="Editing\Gizmos\Gizmo.cs" />
+    <Compile Include="Editing\MapSprite.cs" />
     <Compile Include="Editing\MapLight.cs" />
     <Compile Include="Forms\Common\EditorForm.cs">
       <SubType>Form</SubType>
@@ -135,6 +142,9 @@
     <Compile Include="Forms\Editors\Map\MapEditor.Heightmap.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Forms\Editors\Map\MapEditor.IO.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Forms\Editors\Map\MapEditor.Logics.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -153,7 +163,34 @@
     <Compile Include="Forms\Editors\Map\MapEditor.Walls.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Forms\Inspections\Fields\ColorFieldInspector.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="Forms\Inspections\Fields\BoolFieldInspector.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\Inspections\Fields\FileFieldInspector.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\Inspections\Fields\FileFieldInspector.Designer.cs">
+      <DependentUpon>FileFieldInspector.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Inspections\InspectorSplitter.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Forms\Inspections\Fields\Nested\ColorPickerForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Inspections\Fields\Nested\ColorPickerForm.Designer.cs">
+      <DependentUpon>ColorPickerForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Inspections\Fields\Vector3FieldInspector.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\Inspections\Fields\Vector2FieldInspector.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\Inspections\Fields\NumberFieldInspector.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Forms\Inspections\Fields\EnumFieldInspector.cs">
@@ -164,6 +201,12 @@
     </Compile>
     <Compile Include="Forms\Inspections\Fields\FieldInspector.Designer.cs">
       <DependentUpon>FieldInspector.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Inspections\Fields\Nested\NumberEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\Inspections\Fields\Nested\NumberEditor.Designer.cs">
+      <DependentUpon>NumberEditor.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\Inspections\Fields\StringFieldInspector.cs">
       <SubType>UserControl</SubType>
@@ -203,6 +246,11 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>MiscIcons.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Resources\InspectorStrings.ru-RU.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>InspectorStrings.ru-RU.resx</DependentUpon>
     </Compile>
     <Compile Include="Maths\Lerps.cs" />
     <Compile Include="Maths\Lines.cs" />
@@ -256,14 +304,35 @@
     <EmbeddedResource Include="Forms\Editors\Map\MapEditor.ru.resx">
       <DependentUpon>MapEditor.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Inspections\Fields\ColorFieldInspector.resx">
+      <DependentUpon>ColorFieldInspector.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\Inspections\Fields\BoolFieldInspector.resx">
       <DependentUpon>BoolFieldInspector.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Inspections\Fields\FileFieldInspector.resx">
+      <DependentUpon>FileFieldInspector.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Inspections\Fields\Nested\ColorPickerForm.resx">
+      <DependentUpon>ColorPickerForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Inspections\Fields\Vector3FieldInspector.resx">
+      <DependentUpon>Vector3FieldInspector.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Inspections\Fields\Vector2FieldInspector.resx">
+      <DependentUpon>Vector2FieldInspector.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Inspections\Fields\NumberFieldInspector.resx">
+      <DependentUpon>NumberFieldInspector.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Inspections\Fields\EnumFieldInspector.resx">
       <DependentUpon>EnumFieldInspector.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Inspections\Fields\FieldInspector.resx">
       <DependentUpon>FieldInspector.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Inspections\Fields\Nested\NumberEditor.resx">
+      <DependentUpon>NumberEditor.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Inspections\Fields\StringFieldInspector.resx">
       <DependentUpon>StringFieldInspector.cs</DependentUpon>
@@ -291,6 +360,10 @@
     <EmbeddedResource Include="Forms\Resources\MiscIcons.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>MiscIcons.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Resources\InspectorStrings.ru-RU.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>InspectorStrings.ru-RU.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -420,6 +493,15 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="main-icon.ico" />
+    <None Include="Resources\map.png" />
+    <None Include="Resources\section-cloud.png" />
+    <None Include="Resources\section-sound.png" />
+    <None Include="Resources\section-sky.png" />
+    <None Include="Resources\section-light.png" />
+    <None Include="Resources\section-main.png" />
+    <None Include="Resources\sprite.png" />
+    <None Include="Resources\events.png" />
+    <None Include="Resources\environment.png" />
     <None Include="Resources\light.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

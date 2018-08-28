@@ -16,7 +16,67 @@ namespace Cubed.Editing {
 	/// </summary>
 	[InspectorIcon("Light")]
 	[InspectorName("Light")]
+	[InspectorDescription("LightDesc")]
+	[TargetPrefab(typeof(Prefabs.MapLight))]
 	public class MapLight : EditableObject {
+
+		/// <summary>
+		/// Light color
+		/// </summary>
+		public Color Color {
+			get {
+				return (Prefab as Prefabs.MapLight).Color;
+			}
+			set {
+				(Prefab as Prefabs.MapLight).Color = value;
+				System.Drawing.Color clr = (Prefab as Prefabs.MapLight).Color;
+				if (Gizmo != null) {
+					
+				}
+				if (SelectedGizmo != null) {
+					
+				}
+			}
+		}
+
+		/// <summary>
+		/// Light range
+		/// </summary>
+		[InspectorRange(0.1f, 32f)]
+		public float Range {
+			get {
+				return (Prefab as Prefabs.MapLight).Range;
+			}
+			set {
+				(Prefab as Prefabs.MapLight).Range = value;
+				RebuildRing((Prefab as Prefabs.MapLight).Range);
+			}
+		}
+
+		/// <summary>
+		/// Texture
+		/// </summary>
+		public Texture Texture {
+			get {
+				return (Prefab as Prefabs.MapLight).Texture;
+			}
+			set {
+				(Prefab as Prefabs.MapLight).Texture = value;
+			}
+		}
+
+		/// <summary>
+		/// Texture angle
+		/// </summary>
+		[InspectorRange(0, 360)]
+		public float TextureAngle {
+			get {
+				return (Prefab as Prefabs.MapLight).TextureAngle;
+			}
+			set {
+				(Prefab as Prefabs.MapLight).TextureAngle = value;
+			}
+		}
 
 		/// <summary>
 		/// Current texture
@@ -33,9 +93,6 @@ namespace Cubed.Editing {
 		/// </summary>
 		/// <param name="scene">Scene</param>
 		public override void Create(Scene scene) {
-			if (Prefab == null) {
-				Prefab = new Prefabs.MapLight();
-			}
 			if (Gizmo == null) {
 				if (gizmoIcon != null && gizmoIcon.IsReleased) {
 					gizmoIcon = null;
@@ -49,15 +106,7 @@ namespace Cubed.Editing {
 				Gizmo.Parent = Prefab;
 				Gizmo.AddComponent(new WireCubeComponent() {
 					Size = Vector3.One * 0.3f,
-					WireColor = Color.Yellow,
-					WireWidth = 1f
-				});
-				Gizmo.AddComponent(new LineComponent() {
-					Vertices = new Vector3[] {
-						Vector3.Zero,
-						Vector3.One * 1
-					},
-					WireColor = Color.Yellow,
+					WireColor = Color.FromArgb(150, Color.Yellow),
 					WireWidth = 1f
 				});
 				Gizmo.AddComponent(new SpriteComponent() {
@@ -67,11 +116,29 @@ namespace Cubed.Editing {
 					Scale = Vector2.One * 0.3f,
 					Texture = gizmoIcon
 				});
+				Gizmo.LocalPosition = Vector3.Zero;
 				scene.Entities.Add(Gizmo);
 			}
-
+			if (SelectedGizmo == null) {
+				SelectedGizmo = new Entity();
+				SelectedGizmo.Visible = false;
+				SelectedGizmo.Parent = Prefab;
+				SelectedGizmo.AddComponent(new WireCubeComponent() {
+					Size = Vector3.One * 0.3f,
+					WireColor = Color.Yellow,
+					WireWidth = 1.5f
+				});
+				SelectedGizmo.AddComponent(new LineComponent() {
+					Mode = LineComponent.LineType.Loop,
+					WireColor = Color.Yellow,
+					WireWidth = 1f
+				});
+				SelectedGizmo.LocalPosition = Vector3.Zero;
+				scene.Entities.Add(SelectedGizmo);
+			}
 			BoundPosition = Vector3.Zero;
 			BoundSize = Vector3.One * 0.3f;
+			RebuildRing(((Cubed.Prefabs.MapLight)Prefab).Range);
 			Prefab.Assign(scene);
 		}
 
@@ -82,7 +149,6 @@ namespace Cubed.Editing {
 		public override void Destroy(Scene scene) {
 			if (Prefab != null) {
 				Prefab.Unassign(scene);
-				Prefab = null;
 			}
 			if (Gizmo != null) {
 				scene.Entities.Remove(Gizmo);
@@ -97,7 +163,8 @@ namespace Cubed.Editing {
 		/// </summary>
 		/// <param name="scene"></param>
 		public override void Select(Scene scene) {
-			//throw new NotImplementedException();
+			selected = true;
+			SelectedGizmo.Visible = true;
 		}
 
 		/// <summary>
@@ -105,7 +172,38 @@ namespace Cubed.Editing {
 		/// </summary>
 		/// <param name="scene">Scene</param>
 		public override void Deselect(Scene scene) {
-			//throw new NotImplementedException();
+			selected = false;
+			SelectedGizmo.Visible = false;
+		}
+
+		/// <summary>
+		/// Entering play mode
+		/// </summary>
+		public override void StartPlayMode(Scene scene) {
+			Gizmo.Visible = SelectedGizmo.Visible = false;
+		}
+
+		/// <summary>
+		/// Exiting play mode
+		/// </summary>
+		public override void StopPlayMode(Scene scene) {
+			Gizmo.Visible = true;
+			SelectedGizmo.Visible = selected;
+		}
+
+		/// <summary>
+		/// Rebuilding range ring
+		/// </summary>
+		/// <param name="range">Light range</param>
+		void RebuildRing(float range) {
+			int count = (int)Math.Ceiling(range * 8);
+			float dif = MathHelper.TwoPi / (float)count;
+			Vector3[] verts = new Vector3[count];
+			for (int i = 0; i < count; i++) {
+				float r = (float)i * dif;
+				verts[i] = new Vector3((float)Math.Sin(r) * range, 0, (float)Math.Cos(r) * range);
+			}
+			SelectedGizmo.GetComponent<LineComponent>().Vertices = verts;
 		}
 	}
 }

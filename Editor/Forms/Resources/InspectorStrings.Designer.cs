@@ -61,11 +61,200 @@ namespace Cubed.Forms.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Ambient color.
+        /// </summary>
+        internal static string AmbientLight {
+            get {
+                return ResourceManager.GetString("AmbientLight", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Main.
+        /// </summary>
+        internal static string DefaultGroup {
+            get {
+                return ResourceManager.GetString("DefaultGroup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Enabled.
+        /// </summary>
+        internal static string Enabled {
+            get {
+                return ResourceManager.GetString("Enabled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Map environment.
+        /// </summary>
+        internal static string EnvironmentInfo {
+            get {
+                return ResourceManager.GetString("EnvironmentInfo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sky, ambient color, fog, sounds.
+        /// </summary>
+        internal static string EnvironmentInfoDesc {
+            get {
+                return ResourceManager.GetString("EnvironmentInfoDesc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Environment light.
+        /// </summary>
+        internal static string EnvLightGroup {
+            get {
+                return ResourceManager.GetString("EnvLightGroup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fog color.
+        /// </summary>
+        internal static string FogColor {
+            get {
+                return ResourceManager.GetString("FogColor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to End distance.
+        /// </summary>
+        internal static string FogFar {
+            get {
+                return ResourceManager.GetString("FogFar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fog.
+        /// </summary>
+        internal static string FogGroup {
+            get {
+                return ResourceManager.GetString("FogGroup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Start distance.
+        /// </summary>
+        internal static string FogNear {
+            get {
+                return ResourceManager.GetString("FogNear", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Light.
         /// </summary>
         internal static string Light {
             get {
                 return ResourceManager.GetString("Light", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Makes bright points on your map.
+        /// </summary>
+        internal static string LightDesc {
+            get {
+                return ResourceManager.GetString("LightDesc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Back (-Z).
+        /// </summary>
+        internal static string SkyBack {
+            get {
+                return ResourceManager.GetString("SkyBack", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Bottom (-Y).
+        /// </summary>
+        internal static string SkyBottom {
+            get {
+                return ResourceManager.GetString("SkyBottom", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Front (+Z).
+        /// </summary>
+        internal static string SkyFront {
+            get {
+                return ResourceManager.GetString("SkyFront", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sky.
+        /// </summary>
+        internal static string SkyGroup {
+            get {
+                return ResourceManager.GetString("SkyGroup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Left (-X).
+        /// </summary>
+        internal static string SkyLeft {
+            get {
+                return ResourceManager.GetString("SkyLeft", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Right (+X).
+        /// </summary>
+        internal static string SkyRight {
+            get {
+                return ResourceManager.GetString("SkyRight", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Top (+Y).
+        /// </summary>
+        internal static string SkyTop {
+            get {
+                return ResourceManager.GetString("SkyTop", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ambient sounds.
+        /// </summary>
+        internal static string SoundGroup {
+            get {
+                return ResourceManager.GetString("SoundGroup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sprite.
+        /// </summary>
+        internal static string Sprite {
+            get {
+                return ResourceManager.GetString("Sprite", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Thing to decorate maps.
+        /// </summary>
+        internal static string SpriteDesc {
+            get {
+                return ResourceManager.GetString("SpriteDesc", resourceCulture);
             }
         }
     }

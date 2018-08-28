@@ -40,6 +40,14 @@ namespace Cubed.Data.Editor {
 					typeof(AnimationPreviewGenerator),
 					null
 				),
+				new FileType(
+					"Map",
+					".map",
+					new UIIcon(DirectoryInspectorIcons.Map),
+					typeof(Forms.Editors.Map.MapEditor),
+					null,
+					null
+				),
 			};
 			emptyIcon = new UIIcon(DirectoryInspectorIcons.File);
 			emptyName = "???";
@@ -100,6 +108,19 @@ namespace Cubed.Data.Editor {
 				return emptyIcon;
 			}
 			return ft.Icon;
+		}
+
+		/// <summary>
+		/// Getting editor
+		/// </summary>
+		/// <param name="entry">Entry</param>
+		/// <returns></returns>
+		public static Type GetEditor(Project.Entry entry) {
+			FileType ft = FindByEntry(entry);
+			if (ft == null) {
+				return null;
+			}
+			return ft.Editor;
 		}
 
 		/// <summary>

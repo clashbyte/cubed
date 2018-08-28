@@ -51,8 +51,6 @@ namespace Cubed.Forms.Common
 		/// </summary>
 		private void MainForm_Activated(object sender, EventArgs e) {
 
-			// Rescanning project
-			Project.Rescan();
 
 		}
 
@@ -69,17 +67,8 @@ namespace Cubed.Forms.Common
 			Project.EntriesChangedEvent += Project_EntriesChangedEvent;
 			PopulateProjectView();
 
-			// Open test editor
-			TabPage tp = new TabPage();
-			MapEditor me = new MapEditor();
-			me.TopLevel = false;
-			me.Location = Point.Empty;
-			me.Visible = true;
-			me.BringToFront();
-			tp.Controls.Add(me);
-			tp.Tag = me;
-			me.Dock = DockStyle.Fill;
-			editorsControl.AddTab(tp, true);
+			// Opening all previously opened files
+			editorsControl.TabPages.Clear();
 
 		}
 
@@ -113,6 +102,9 @@ namespace Cubed.Forms.Common
 		/// Update all logic
 		/// </summary>
 		private void logicTimer_Tick(object sender, EventArgs e) {
+
+			// Rescanning project
+			Project.Update();
 
 			// Handle previews
 			Preview.UpdatePending();

@@ -22,6 +22,13 @@ namespace Cubed.Data.Files {
 		}
 
 		/// <summary>
+		/// Constructor
+		/// </summary>
+		public ContainerChunk() {
+			Children = new List<Chunk>();
+		}
+
+		/// <summary>
 		/// Decomposing data
 		/// </summary>
 		/// <param name="data">Raw data</param>
@@ -39,7 +46,7 @@ namespace Cubed.Data.Files {
 				f.BaseStream.Position -= 12;
 
 				// Reading data
-				byte[] chData = f.ReadBytes(size);
+				byte[] chData = f.ReadBytes(size + 12);
 				Chunk child = ReadRaw(chData);
 				if (child != null) {
 					Children.Add(child);

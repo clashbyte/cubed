@@ -12,7 +12,9 @@ using OpenTK.Graphics.OpenGL;
 
 namespace Cubed.World {
 
-
+	/// <summary>
+	/// Scene
+	/// </summary>
 	public class Scene {
 
 		/// <summary>
@@ -42,6 +44,11 @@ namespace Cubed.World {
 		/// Scene current camera
 		/// </summary>
 		public Camera Camera { get; set; }
+
+		/// <summary>
+		/// Scene fog
+		/// </summary>
+		public Fog Fog { get; set; }
 
 		/// <summary>
 		/// Current static level
@@ -129,6 +136,17 @@ namespace Cubed.World {
 			}
 
 			LastUpdateTime += FRAME_TICKS * times;
+
+			// Updating map geometry
+			if (Map != null) {
+				List<Light> lightList = new List<Light>();
+				foreach (Entity en in Entities) {
+					if (en is Light) {
+						lightList.Add(en as Light);
+					}
+				}
+				Map.Update(lightList);
+			}
 
 			// Обновление всех предметов
 			for (int i = 0; i < times; i++) {
@@ -263,14 +281,6 @@ namespace Cubed.World {
 
 			// Rendering map geometry
 			if (Map != null) {
-				List<Light> lightList = new List<Light>();
-				foreach (Entity en in Entities) {
-					if (en is Light) {
-						lightList.Add(en as Light);
-					}
-				}
-				Map.Update(lightList, Controls.KeyHit(OpenTK.Input.Key.F10));
-
 				//GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
 				//GL.LineWidth(2f);
 				Map.Render();
@@ -447,7 +457,6 @@ namespace Cubed.World {
 						lightList.Add(en as Light);
 					}
 				}
-				Map.Update(lightList);
 				return map.GetLightLevel(x, y, z);
 			}
 			return Color.White;

@@ -23,14 +23,17 @@ namespace Cubed.Data.Editor.Attributes {
 		/// <summary>
 		/// Associated strings
 		/// </summary>
-		static Dictionary<string, Image> imgs;
+		static Dictionary<string, UIIcon> imgs;
 
 		/// <summary>
 		/// Current item name
 		/// </summary>
 		public Image Image {
 			get {
-				return img;
+				if (icon != null) {
+					return icon.Scan;
+				}
+				return null;
 			}
 		}
 
@@ -44,31 +47,33 @@ namespace Cubed.Data.Editor.Attributes {
 		}
 
 		/// <summary>
-		/// Current entry name
-		/// </summary>
-		Image img;
-
-		/// <summary>
 		/// Current entry icon
 		/// </summary>
 		UIIcon icon;
+
+		/// <summary>
+		/// Retrieving icon from resources
+		/// </summary>
+		/// <returns></returns>
+		internal static UIIcon GetIcon(string key) {
+			if (imgs == null) {
+				imgs = new Dictionary<string, UIIcon>();
+			}
+			if (!imgs.ContainsKey(key)) {
+				if (manager == null) {
+					manager = new ResourceManager("Cubed.Forms.Resources.InspectorIcons", Assembly.GetExecutingAssembly());
+				}
+				imgs.Add(key, new UIIcon((Image)manager.GetObject(key)));
+			}
+			return imgs[key];
+		}
 
 		/// <summary>
 		/// Constructor
 		/// </summary>
 		/// <param name="key">Key data</param>
 		public InspectorIconAttribute(string key) {
-			if (imgs == null) {
-				imgs = new Dictionary<string, Image>();
-			}
-			if (!imgs.ContainsKey(key)) {
-				if (manager == null) {
-					manager = new ResourceManager("Cubed.Forms.Resources.InspectorIcons", Assembly.GetExecutingAssembly());
-				}
-				imgs.Add(key, (Image)manager.GetObject(key));
-			}
-			img = imgs[key];
-			icon = new UIIcon(img);
+			icon = GetIcon(key);
 		}  
 
 	}

@@ -769,7 +769,34 @@
         uPP8eRO/ztE/m1nbXbx4cTdJ+zFT5dn6K+uMO+74L7vpi3fOS6opAAAAAElFTkSuQmCC
 </value>
   </data>
-  <data name="nsIconicButton1.IconImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+  <data name="soundsEnabledFlag.IconImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        xAAADsQBlSsOGwAAAJRJREFUKFNjoBr49++fHhDvhHJxA6AiKSCeC8TP/wMBVBgkzgZmAMXqoNgBKBgE
+        xK+BuBOIBWAagGwmIF4LxDYgDSCwH4jrgAIgTXJgk4AAJAGigWKbgRhk2G6YBrAtYFVIACQBooEKq4A4
+        A4ifkq2BGCeFADHYSQQ9DQJA/nogtoJyEQAoiD9YcQGgAuIiDj9gYAAAwqTs/ZSffQEAAAAASUVORK5C
+        YII=
+</value>
+  </data>
+  <data name="lightsEnabledFlag.IconImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        xAAADsQBlSsOGwAAAK9JREFUKFOdkTEKwkAURJcgOYSHsAoWYi2W1haSI1ilSOENPEuqnEE8g4gHEbJ5
+        A2OWGNM48ODP+z+wkPBJ13ULj5oPcHQd7YYgK9hBDlujeQ+Vz1KQGazhBXejWS7z2TgsblC6qpdyrinI
+        BlbwhtxaXk+S066xTkE+oHBVL+Rcp2F5htZVvZVznYalnvCEjdE8PPFnOKjhamrr+XC0jDFehGbr+fzz
+        gX7gyXz9sBB69+zQ41TT47IAAAAASUVORK5CYII=
+</value>
+  </data>
+  <data name="skyboxEnabledFlag.IconImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        xAAADsQBlSsOGwAAAKlJREFUKFOlkCEOwkAABE8QBKrpQxoEz+ABFSjegEDhKgiCdyD6HIJGoQgac8ds
+        s5RAD0HYZJK73WnSNvydGGMFK1O5zgehgTPsjc6N5/cwzOEEhSt1BRy1uXqF8gBLX/vQLbT52hUltHCF
+        mes+dFO42SlV6LCFkZ1B2MZ2Wl3uMPH2NXLk6qA/MXiVz8iRq0MNF9illDY5tNmpn0/rw9Y5WWiT08m/
+        JYQHdLzddwXSCQoAAAAASUVORK5CYII=
+</value>
+  </data>
+  <data name="scriptOptionsButton.IconImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
         xAAADsQBlSsOGwAAAKhJREFUKFOdkDEKwkAUREMIIVjkGB7EIlVInXN4CY+XwsITWFlZWITg4ryfCQqJ
@@ -778,7 +805,7 @@
         y17JTs8XpWgcfAAAAABJRU5ErkJggg==
 </value>
   </data>
-  <data name="nsIconicButton1.Text" xml:space="preserve">
+  <data name="scriptOptionsButton.Text" xml:space="preserve">
     <value>События</value>
   </data>
   <data name="envOptionsButton.IconImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">

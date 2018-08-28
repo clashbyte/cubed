@@ -20,6 +20,11 @@ namespace Cubed.Forms.Common {
 			//webBrowser.Dock = DockStyle.Fill;
 			loadingLabel.Dock = DockStyle.Fill;
 			//webBrowser.Navigate("https://google.com");
+
+
+			//Hide();
+			ShowMainForm(Path.Combine(Directory.GetCurrentDirectory(), "./../../../Project"));
+			//
 		}
 
 		/// <summary>
@@ -29,8 +34,6 @@ namespace Cubed.Forms.Common {
 			base.OnShown(e);
 			Text = "Cubed v" + Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
-			Hide();
-			ShowMainForm(Path.Combine(Directory.GetCurrentDirectory(), "./../../../Project"));
 			Close();
 		}
 

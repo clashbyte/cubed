@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Cubed.Data.Editor.Attributes;
 using Cubed.Prefabs;
 using Cubed.UI.Graphics;
 using Cubed.World;
@@ -17,30 +18,20 @@ namespace Cubed.Editing {
 		/// <summary>
 		/// Some game prefab
 		/// </summary>
+		[InspectorHidden]
 		public GamePrefab Prefab {
-			get;
-			protected set;
-		}
-
-		/// <summary>
-		/// Object name
-		/// </summary>
-		public string Name {
-			get;
-			protected set;
-		}
-
-		/// <summary>
-		/// Icon
-		/// </summary>
-		public UIIcon Icon {
-			get;
-			protected set;
+			get {
+				if (prefab == null) {
+					prefab = CreatePrefab();
+				}
+				return prefab;
+			}
 		}
 
 		/// <summary>
 		/// Main gizmo
 		/// </summary>
+		[InspectorHidden]
 		public Entity Gizmo {
 			get;
 			protected set;
@@ -49,6 +40,7 @@ namespace Cubed.Editing {
 		/// <summary>
 		/// Selected gizmo
 		/// </summary>
+		[InspectorHidden]
 		public Entity SelectedGizmo {
 			get;
 			protected set;
@@ -57,6 +49,7 @@ namespace Cubed.Editing {
 		/// <summary>
 		/// Bounding box position
 		/// </summary>
+		[InspectorHidden]
 		public Vector3 BoundPosition {
 			get;
 			protected set;
@@ -65,10 +58,16 @@ namespace Cubed.Editing {
 		/// <summary>
 		/// Bounding box size
 		/// </summary>
+		[InspectorHidden]
 		public Vector3 BoundSize {
 			get;
 			protected set;
 		}
+
+		/// <summary>
+		/// Current prefab
+		/// </summary>
+		GamePrefab prefab;
 
 		/// <summary>
 		/// Creating item
@@ -120,6 +119,30 @@ namespace Cubed.Editing {
 				}
 			}
 			Update(scene);
+		}
+
+		/// <summary>
+		/// Setting prefab
+		/// </summary>
+		/// <param name="p">Prefab</param>
+		public void SetPrefab(GamePrefab p) {
+			if (prefab != null) {
+				prefab.Destroy();
+			}
+			prefab = p;
+		}
+
+		/// <summary>
+		/// Spawning prefab for this object
+		/// </summary>
+		/// <returns></returns>
+		GamePrefab CreatePrefab() {
+			Type t = GetType();
+			TargetPrefabAttribute target = Attribute.GetCustomAttribute(t, typeof(TargetPrefabAttribute)) as TargetPrefabAttribute;
+			if (target == null) {
+				throw new Exception("Unable to create editable prefab");
+			}
+			return Activator.CreateInstance(target.Prefab) as GamePrefab;
 		}
 	}
 }

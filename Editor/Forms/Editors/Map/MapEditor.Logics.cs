@@ -14,7 +14,8 @@ namespace Cubed.Forms.Editors.Map {
 		/// Things you can spawn
 		/// </summary>
 		static readonly Type[] logicTypes = new Type[] {
-			typeof(MapLight)
+			typeof(MapLight),
+			typeof(MapSprite)
 		};
 
 		/// <summary>

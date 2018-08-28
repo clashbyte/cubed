@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using Cubed.Data.Game.Attributes;
+using Cubed.Graphics;
 using Cubed.World;
 
 namespace Cubed.Prefabs {
@@ -10,7 +12,56 @@ namespace Cubed.Prefabs {
 	/// <summary>
 	/// Map light entity
 	/// </summary>
+	[Prefab(2)]
 	public class MapLight : GamePrefab {
+
+		/// <summary>
+		/// Light color
+		/// </summary>
+		public Color Color {
+			get {
+				return light.Color;
+			}
+			set {
+				light.Color = Color.FromArgb(value.R, value.G, value.B);
+			}
+		}
+		
+		/// <summary>
+		/// Light range
+		/// </summary>
+		public float Range {
+			get {
+				return light.Range;
+			}
+			set {
+				light.Range = Math.Max(value, 0.1f);
+			}
+		}
+
+		/// <summary>
+		/// Light texture
+		/// </summary>
+		public Texture Texture {
+			get {
+				return light.Texture;
+			}
+			set {
+				light.Texture = value;
+			}
+		}
+
+		/// <summary>
+		/// Texture angle
+		/// </summary>
+		public float TextureAngle {
+			get {
+				return light.TextureAngle;
+			}
+			set {
+				light.TextureAngle = value;
+			}
+		}
 
 		/// <summary>
 		/// Light entity
@@ -26,7 +77,6 @@ namespace Cubed.Prefabs {
 				Range = 5
 			};
 			light.Parent = this;
-			
 		}
 
 		/// <summary>
@@ -46,5 +96,7 @@ namespace Cubed.Prefabs {
 			scene.Entities.Remove(this);
 			scene.Entities.Remove(light);
 		}
+
+		
 	}
 }
