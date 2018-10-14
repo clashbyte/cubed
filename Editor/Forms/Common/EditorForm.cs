@@ -10,6 +10,7 @@ using Cubed.Data.Editor;
 using Cubed.Data.Files;
 using Cubed.Data.Projects;
 using Cubed.Forms.Dialogs;
+using Cubed.UI.Graphics;
 
 namespace Cubed.Forms.Common {
 
@@ -17,6 +18,15 @@ namespace Cubed.Forms.Common {
 	/// Main prototype for editors
 	/// </summary>
 	public partial class EditorForm : Form {
+
+		/// <summary>
+		/// Custom icon for editor
+		/// </summary>
+		public virtual UIIcon CustomIcon {
+			get {
+				return null;
+			}
+		}
 
 		/// <summary>
 		/// Updating text
@@ -61,6 +71,10 @@ namespace Cubed.Forms.Common {
 		/// </summary>
 		bool saved = true;
 
+		/// <summary>
+		/// Supressing events on saving
+		/// </summary>
+		bool supressEvents = false;
 
 		/// <summary>
 		/// Constructor
@@ -70,9 +84,21 @@ namespace Cubed.Forms.Common {
 			Saved = true;
 		}
 
+		/// <summary>
+		/// Showing editor
+		/// </summary>
 		protected override void OnShown(EventArgs e) {
 			base.OnShown(e);
+			Project.EntriesChangedEvent += Project_EntriesChangedEvent;
+		}
 
+		/// <summary>
+		/// Closing editor
+		/// </summary>
+		protected override void OnClosing(CancelEventArgs e) {
+			base.OnClosing(e);
+
+			Project.EntriesChangedEvent -= Project_EntriesChangedEvent;
 		}
 
 		/// <summary>
@@ -107,6 +133,40 @@ namespace Cubed.Forms.Common {
 					MessageDialog.Open("Error", error, MessageBoxButtons.OK, MessageBoxIcon.Error);
 				}
 			}
+		}
+
+		/// <summary>
+		/// Entries events
+		/// </summary>
+		void Project_EntriesChangedEvent(object sender, Project.MultipleEntryEventArgs e) {
+			foreach (Project.EntryEventArgs ea in e.Events) {
+				if (ea.Entry == File) {
+					if (!supressEvents) {
+						if (ea.Type == Project.EntryEvent.Modified) {
+							if (MessageDialog.Open("File changed", "Opened file is changed in another program. Do you want to reload it?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.Yes) {
+								Load();
+								Saved = true;
+							} else {
+								Saved = false;
+							}
+						} else if (ea.Type == Project.EntryEvent.Deleted) {
+							Saved = false;
+							if (MessageDialog.Open("File deleted", "Opened file is removed from disk. Do you want to keep it in editor?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.No) {
+								
+							}
+						}
+					}
+					supressEvents = false;
+					break;
+				}
+			}
+		}
+
+		/// <summary>
+		/// Starting to save cell
+		/// </summary>
+		public void StartSaving() {
+			supressEvents = true;
 		}
 
 		/// <summary>

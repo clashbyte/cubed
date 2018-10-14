@@ -23,9 +23,11 @@ namespace Cubed.Forms.Inspections.Fields {
 					data = (string)obj;
 				}
 			}
-			customChange = true;
-			textBox.Text = data;
-			customChange = false;
+			if (!ContainsFocus) {
+				customChange = true;
+				textBox.Text = data;
+				customChange = false;
+			}
 		}
 
 

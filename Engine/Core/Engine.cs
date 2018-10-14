@@ -60,6 +60,14 @@ namespace Cubed.Core {
 		}
 
 		/// <summary>
+		/// Engine pause flag
+		/// </summary>
+		public bool Paused {
+			get;
+			private set;
+		}
+
+		/// <summary>
 		/// Logic update callback
 		/// </summary>
 		public event EventHandler<UpdateEventArgs> UpdateLogic;
@@ -108,6 +116,26 @@ namespace Cubed.Core {
 		}
 
 		/// <summary>
+		/// Engine pause
+		/// </summary>
+		public void Pause() {
+			Paused = true;
+			// TODO: Pause logic
+		}
+
+		/// <summary>
+		/// Engine resuming
+		/// </summary>
+		public void Resume() {
+			Paused = false;
+			if (World != null) {
+				World.ResetUpdateCounter();
+			}
+
+			// TODO: Unpause logic
+		}
+
+		/// <summary>
 		/// Update engine
 		/// </summary>
 		/// <param name="display">Display device</param>
@@ -120,26 +148,29 @@ namespace Cubed.Core {
 			// Updating controls
 			Controls.Update(state);
 
-			// Updating world
-			if (World != null) {
-				World.Update();
-			}
+			if (!Paused) {
 
-			// Updating world and scene
-			EventHandler<UpdateEventArgs> updateHandle = UpdateLogic;
-			if (updateHandle != null) {
-				UpdateEventArgs uea = new UpdateEventArgs() {
-					CurrentEngine = this,
-					Tween = tween
-				};
-				updateHandle(this, uea);
-			}
+				// Updating world
+				if (World != null) {
+					World.Update();
+				}
 
-			// Updating interface
-			if (Interface != null) {
-				Interface.Update(tween, state);
-			}
+				// Updating world and scene
+				EventHandler<UpdateEventArgs> updateHandle = UpdateLogic;
+				if (updateHandle != null) {
+					UpdateEventArgs uea = new UpdateEventArgs() {
+						CurrentEngine = this,
+						Tween = tween
+					};
+					updateHandle(this, uea);
+				}
 
+				// Updating interface
+				if (Interface != null) {
+					Interface.Update(tween, state);
+				}
+			}
+			
 			Current = null;
 		}
 
@@ -156,33 +187,37 @@ namespace Cubed.Core {
 			TextureCache.Update();
 			drawCalls = 0;
 
-			// Viewport and cleaning
-			Vector2 res = display.Resolution;
-			GL.Viewport(new Size((int)res.X, (int)res.Y));
-			GL.ClearColor(Color.Black);
-			GL.ClearAccum(0, 0, 0, 0);
-			GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit | ClearBufferMask.AccumBufferBit);
+			if (!Paused) {
 
-			// Rendering
-			if (World != null) {
-				if (World.Camera != null) {
-					if (World.Camera.Size != res) {
-						World.Camera.Size = res;
+				// Viewport and cleaning
+				Vector2 res = display.Resolution;
+				GL.Viewport(new Size((int)res.X, (int)res.Y));
+				GL.ClearColor(Color.Black);
+				GL.ClearAccum(0, 0, 0, 0);
+				GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit | ClearBufferMask.AccumBufferBit);
+
+				// Rendering
+				if (World != null) {
+					if (World.Camera != null) {
+						if (World.Camera.Size != res) {
+							World.Camera.Size = res;
+						}
 					}
+					World.Render();
 				}
-				World.Render();
-			}
-			if (Interface != null) {
-				GL.Enable(EnableCap.Blend);
-				GL.Disable(EnableCap.DepthTest);
-				GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+				if (Interface != null) {
+					GL.Enable(EnableCap.Blend);
+					GL.Disable(EnableCap.DepthTest);
+					GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
 
-				Interface.Setup(Vector2.Zero, res);
-				Interface.Render();
+					Interface.Setup(Vector2.Zero, res);
+					Interface.Render();
 
-				GL.Disable(EnableCap.Blend);
+					GL.Disable(EnableCap.Blend);
+				}
+				Console.Render();
 			}
-			Console.Render();
+			
 			Current = null;
 		}
 

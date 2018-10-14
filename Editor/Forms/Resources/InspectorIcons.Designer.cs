@@ -103,6 +103,16 @@ namespace Cubed.Forms.Resources {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap LevelEnd {
+            get {
+                object obj = ResourceManager.GetObject("LevelEnd", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap Light {
             get {
                 object obj = ResourceManager.GetObject("Light", resourceCulture);
@@ -116,6 +126,16 @@ namespace Cubed.Forms.Resources {
         internal static System.Drawing.Bitmap LightGroup {
             get {
                 object obj = ResourceManager.GetObject("LightGroup", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Player {
+            get {
+                object obj = ResourceManager.GetObject("Player", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

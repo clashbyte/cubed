@@ -35,6 +35,7 @@
 			this.toolWalls = new Cubed.UI.Controls.NSRadioIconicButton();
 			this.toolSelect = new Cubed.UI.Controls.NSRadioIconicButton();
 			this.panel2 = new System.Windows.Forms.Panel();
+			this.snapToGrid = new Cubed.UI.Controls.NSCheckboxIconicButton();
 			this.soundsEnabledFlag = new Cubed.UI.Controls.NSCheckboxIconicButton();
 			this.lightsEnabledFlag = new Cubed.UI.Controls.NSCheckboxIconicButton();
 			this.skyboxEnabledFlag = new Cubed.UI.Controls.NSCheckboxIconicButton();
@@ -183,6 +184,7 @@
 			// 
 			// panel2
 			// 
+			this.panel2.Controls.Add(this.snapToGrid);
 			this.panel2.Controls.Add(this.soundsEnabledFlag);
 			this.panel2.Controls.Add(this.lightsEnabledFlag);
 			this.panel2.Controls.Add(this.skyboxEnabledFlag);
@@ -194,6 +196,19 @@
 			this.panel2.Controls.Add(this.floorIndex);
 			resources.ApplyResources(this.panel2, "panel2");
 			this.panel2.Name = "panel2";
+			// 
+			// snapToGrid
+			// 
+			resources.ApplyResources(this.snapToGrid, "snapToGrid");
+			this.snapToGrid.Checked = true;
+			this.snapToGrid.Corners.BottomLeft = true;
+			this.snapToGrid.Corners.BottomRight = true;
+			this.snapToGrid.Corners.TopLeft = true;
+			this.snapToGrid.Corners.TopRight = true;
+			this.snapToGrid.IconImage = ((System.Drawing.Image)(resources.GetObject("snapToGrid.IconImage")));
+			this.snapToGrid.IconSize = new System.Drawing.Size(12, 12);
+			this.snapToGrid.Large = false;
+			this.snapToGrid.Name = "snapToGrid";
 			// 
 			// soundsEnabledFlag
 			// 
@@ -243,10 +258,10 @@
 			this.scriptOptionsButton.Corners.BottomRight = true;
 			this.scriptOptionsButton.Corners.TopLeft = false;
 			this.scriptOptionsButton.Corners.TopRight = true;
+			resources.ApplyResources(this.scriptOptionsButton, "scriptOptionsButton");
 			this.scriptOptionsButton.IconImage = ((System.Drawing.Image)(resources.GetObject("scriptOptionsButton.IconImage")));
 			this.scriptOptionsButton.IconSize = new System.Drawing.Size(12, 12);
 			this.scriptOptionsButton.Large = false;
-			resources.ApplyResources(this.scriptOptionsButton, "scriptOptionsButton");
 			this.scriptOptionsButton.Name = "scriptOptionsButton";
 			this.scriptOptionsButton.Vertical = false;
 			// 
@@ -355,5 +370,6 @@
 		private UI.Controls.NSCheckboxIconicButton soundsEnabledFlag;
 		private UI.Controls.NSCheckboxIconicButton lightsEnabledFlag;
 		private UI.Controls.NSCheckboxIconicButton skyboxEnabledFlag;
+		private UI.Controls.NSCheckboxIconicButton snapToGrid;
 	}
 }

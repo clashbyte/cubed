@@ -277,6 +277,7 @@ namespace Cubed.Forms.Editors.Map {
 				if (currentGizmo != -1) {
 					// Selecting dragging gizmo
 					if (heightCells.Count > 0) {
+						TriggerChanges();
 						currentHeightGizmo = currentGizmo;
 						heightChanging = true;
 						HeightCacheCells(heightCells[0].Ceiling);

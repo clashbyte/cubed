@@ -6,9 +6,11 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using Cubed.Data.Editor;
 using Cubed.Data.Editor.Previews;
 using Cubed.Data.Projects;
 using Cubed.Forms.Editors.Map;
+using Cubed.Forms.Editors.Misc;
 
 namespace Cubed.Forms.Common
 {
@@ -26,6 +28,11 @@ namespace Cubed.Forms.Common
 		static MainForm Current;
 
 		/// <summary>
+		/// Closing by code flag
+		/// </summary>
+		bool codeClosing;
+
+		/// <summary>
 		/// Constructor
 		/// </summary>
 		public MainForm()
@@ -38,11 +45,7 @@ namespace Cubed.Forms.Common
 		/// </summary>
 		/// <returns>Dialog result</returns>
 		public DialogResult Open() {
-
-
 			HandleStartingAction();
-
-
 			return ShowDialog();
 		}
 
@@ -67,8 +70,32 @@ namespace Cubed.Forms.Common
 			Project.EntriesChangedEvent += Project_EntriesChangedEvent;
 			PopulateProjectView();
 
+			// Creating project types
+			FileTypeManager.FileType[] types = FileTypeManager.EditableTypes();
+			foreach (FileTypeManager.FileType ft in types) {
+				ToolStripMenuItem mt = new ToolStripMenuItem(ft.Name, ft.Icon.Combined(16), contextMenuCreateItem_Click) {
+					Tag = ft
+				};
+				projectCreateMenu.Items.Add(mt);
+			}
+			(projectPopupMenu.Items[0] as ToolStripMenuItem).DropDown = projectCreateMenu;
+
 			// Opening all previously opened files
 			editorsControl.TabPages.Clear();
+			
+			// Creating start page
+			HomePage hpage = new HomePage();
+			TabPage tp = new TabPage();
+			hpage.TopLevel = false;
+			hpage.Location = System.Drawing.Point.Empty;
+			hpage.Visible = true;
+			hpage.BringToFront();
+			tp.Controls.Add(hpage);
+			tp.Tag = hpage;
+			hpage.Dock = DockStyle.Fill;
+			editorsControl.AddTab(tp, true);
+
+
 
 		}
 
@@ -76,25 +103,31 @@ namespace Cubed.Forms.Common
 		/// Closing form
 		/// </summary>
 		private void MainForm_FormClosing(object sender, FormClosingEventArgs e) {
-			if (e.CloseReason == CloseReason.UserClosing) {
+			if (e.CloseReason == CloseReason.UserClosing && !codeClosing) {
 
-
-
-
+				// Trying to close all editors
+				if (!CloseAllEditors()) {
+					e.Cancel = true;
+					return;
+				}
 
 				// User closes the form - close parent
 				ClosingAction = CloseAction.FullClose;
 			}
+			codeClosing = false;
 		}
 
 		/// <summary>
 		/// Form closed totally
 		/// </summary>
 		private void MainForm_FormClosed(object sender, FormClosedEventArgs e) {
-			
 
+			// Removing hooks
+			Preview.PreviewReady -= Preview_PreviewReady;
+			Project.EntriesChangedEvent -= Project_EntriesChangedEvent;
 
-
+			// Stopping timers
+			logicTimer.Stop();
 
 		}
 
@@ -114,5 +147,7 @@ namespace Cubed.Forms.Common
 				LogicUpdate(this, EventArgs.Empty);
 			}
 		}
+
+		
 	}
 }

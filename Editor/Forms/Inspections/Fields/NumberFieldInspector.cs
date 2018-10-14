@@ -75,7 +75,7 @@ namespace Cubed.Forms.Inspections.Fields {
 				typeSet = true;
 			}
 			object obj = ReadValue();
-			if (obj != null) {
+			if (obj != null && !ContainsFocus) {
 				numberEditor.Value = Convert.ToSingle(obj);
 			}
 		}

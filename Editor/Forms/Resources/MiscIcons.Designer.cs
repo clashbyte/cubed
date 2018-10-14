@@ -63,6 +63,16 @@ namespace Cubed.Forms.Resources {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap Dots {
+            get {
+                object obj = ResourceManager.GetObject("Dots", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap LeftSmall {
             get {
                 object obj = ResourceManager.GetObject("LeftSmall", resourceCulture);

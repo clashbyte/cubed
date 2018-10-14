@@ -266,6 +266,11 @@ namespace Cubed.World {
 		}
 
 		/// <summary>
+		/// Internal updating
+		/// </summary>
+		public virtual void Update() {}
+
+		/// <summary>
 		/// Add component to object
 		/// </summary>
 		/// <param name="c">New component</param>
@@ -387,7 +392,16 @@ namespace Cubed.World {
 			return cl;
 		}
 
-
+		/// <summary>
+		/// Raycasting through object colliders
+		/// </summary>
+		/// <param name="pos"></param>
+		/// <param name="dir"></param>
+		/// <param name="rayLength"></param>
+		/// <param name="hitPos"></param>
+		/// <param name="hitNormal"></param>
+		/// <param name="hitVolume"></param>
+		/// <returns></returns>
 		internal bool RayCast(Vector3 pos, Vector3 dir, float rayLength, out Vector3 hitPos, out Vector3 hitNormal, out VolumeComponent hitVolume) {
 
 			// Перестроение основной сферы

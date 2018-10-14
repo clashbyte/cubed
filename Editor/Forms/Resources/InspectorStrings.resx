@@ -183,4 +183,16 @@
   <data name="SpriteDesc" xml:space="preserve">
     <value>Thing to decorate maps</value>
   </data>
+  <data name="LevelEnd" xml:space="preserve">
+    <value>Level End</value>
+  </data>
+  <data name="LevelEndDesc" xml:space="preserve">
+    <value>Zone that ends current level</value>
+  </data>
+  <data name="Player" xml:space="preserve">
+    <value>Player</value>
+  </data>
+  <data name="PlayerDesc" xml:space="preserve">
+    <value>Starting point for player</value>
+  </data>
 </root>

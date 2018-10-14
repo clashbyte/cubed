@@ -53,6 +53,7 @@
     <Compile Include="Components\IUpdatable.cs" />
     <Compile Include="Components\Rendering\LineComponent.cs" />
     <Compile Include="Data\Defines\ProjectBasicInfo.cs" />
+    <Compile Include="Data\Defines\ProjectInfo.cs" />
     <Compile Include="Data\Files\Attributes\ChunkTagAttribute.cs" />
     <Compile Include="Data\Files\BinaryChunk.cs" />
     <Compile Include="Data\Files\ChunkedFile.cs" />
@@ -63,6 +64,10 @@
     <Compile Include="Drivers\Textures\BasicImageLoader.cs" />
     <Compile Include="Drivers\Textures\TextureLoader.cs" />
     <Compile Include="Graphics\TextureAnimator.cs" />
+    <Compile Include="Maths\Intersections.cs" />
+    <Compile Include="Maths\Lerps.cs" />
+    <Compile Include="Maths\Lines.cs" />
+    <Compile Include="Maths\MapIntersections.cs" />
     <Compile Include="World\Collider.cs" />
     <Compile Include="Components\Rendering\AnimatedMeshComponent.cs" />
     <Compile Include="Components\Rendering\MeshComponent.cs" />

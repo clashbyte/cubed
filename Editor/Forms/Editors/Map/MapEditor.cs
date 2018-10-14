@@ -149,6 +149,14 @@ namespace Cubed.Forms.Editors.Map {
 		}
 
 		/// <summary>
+		/// Closing editor
+		/// </summary>
+		protected override void OnClosed(EventArgs e) {
+			Project.EntriesChangedEvent -= Project_EntriesChangedEvent;
+			base.OnClosed(e);
+		}
+
+		/// <summary>
 		/// Engine updating
 		/// </summary>
 		void engine_UpdateLogic(object sender, Engine.UpdateEventArgs e) {
@@ -243,6 +251,22 @@ namespace Cubed.Forms.Editors.Map {
 						break;
 				}
 			}
+		}
+
+		/// <summary>
+		/// Pausing updates
+		/// </summary>
+		public override void Pause() {
+			base.Pause();
+			engine.Pause();
+		}
+
+		/// <summary>
+		/// Resuming engine updates
+		/// </summary>
+		public override void Resume() {
+			base.Resume();
+			engine.Resume();
 		}
 
 		/// <summary>
@@ -392,6 +416,10 @@ namespace Cubed.Forms.Editors.Map {
 		/// Showing environment parameters
 		/// </summary>
 		private void envOptionsButton_Click(object sender, EventArgs e) {
+			foreach (EditableObject eo in sceneSelectedObjects) {
+				eo.Deselect(scene);
+			}
+			sceneSelectedObjects.Clear();
 			MainForm.SelectedTarget = environment;
 		}
 
@@ -399,7 +427,7 @@ namespace Cubed.Forms.Editors.Map {
 		/// Showing scripting parameters
 		/// </summary>
 		private void scriptOptionsButton_Click(object sender, EventArgs e) {
-			MainForm.SelectedTarget = environment;
+			//MainForm.SelectedTarget = environment;
 		}
 
 		/// <summary>

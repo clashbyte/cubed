@@ -105,6 +105,16 @@ namespace Cubed.Forms.Inspections {
 		NSVScrollBar scrollBar;
 
 		/// <summary>
+		/// Field groups
+		/// </summary>
+		FieldGroup[] fieldGroups;
+
+		/// <summary>
+		/// Logic update timer
+		/// </summary>
+		Timer updateTimer;
+
+		/// <summary>
 		/// Inspector constructor
 		/// </summary>
 		public Inspector() {
@@ -279,13 +289,29 @@ namespace Cubed.Forms.Inspections {
 				totalHeight = py;
 				subPanel.ResumeLayout();
 				hostPanel.ResumeLayout();
+				fieldGroups = fgroups;
 			} else {
 				totalHeight = 1;
+				fieldGroups = null;
 			}
 			hostPanel.Visible = infoPanel.Visible = target != null;
 			emptyLabel.Visible = target == null;
 			ResumeLayout();
 			AdjustScrollbar();
+
+			if (fieldGroups != null) {
+				if (updateTimer == null) {
+					updateTimer = new Timer();
+					updateTimer.Tick += LogicTimerTick;
+					updateTimer.Interval = 100;
+					updateTimer.Start();
+				}
+			} else {
+				if (updateTimer != null) {
+					updateTimer.Stop();
+					updateTimer = null;
+				}
+			}
 		}
 
 		/// <summary>
@@ -336,6 +362,17 @@ namespace Cubed.Forms.Inspections {
 				scrollBar.Value = 0;
 			}
 			subPanel.Size = new System.Drawing.Size(hostPanel.Width, totalHeight);
+		}
+
+		/// <summary>
+		/// Timer for logic update
+		/// </summary>
+		void LogicTimerTick(object sender, EventArgs e) {
+			foreach (FieldGroup fg in fieldGroups) {
+				foreach (var item in fg.Entries) {
+					item.Value.FieldInsp.UpdateValue();
+				}
+			}
 		}
 
 		/// <summary>

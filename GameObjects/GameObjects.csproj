@@ -50,6 +50,7 @@
     <Compile Include="Prefabs\GamePrefab.cs" />
     <Compile Include="Prefabs\MapLight.cs" />
     <Compile Include="Prefabs\MapSprite.cs" />
+    <Compile Include="Prefabs\PlayerStart.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

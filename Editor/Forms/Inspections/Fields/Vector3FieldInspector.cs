@@ -69,7 +69,7 @@ namespace Cubed.Forms.Inspections.Fields {
 				rangesDetected = true;
 			}
 			object obj = ReadValue();
-			if (obj != null) {
+			if (obj != null && !ContainsFocus) {
 				Vector3 vec = (Vector3)obj;
 				value = vec;
 				fieldX.Value = vec.X;

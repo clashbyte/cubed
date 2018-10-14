@@ -1,5 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\CefSharp.WinForms.67.0.0\build\CefSharp.WinForms.props" Condition="Exists('..\packages\CefSharp.WinForms.67.0.0\build\CefSharp.WinForms.props')" />
+  <Import Project="..\packages\CefSharp.Common.67.0.0\build\CefSharp.Common.props" Condition="Exists('..\packages\CefSharp.Common.67.0.0\build\CefSharp.Common.props')" />
+  <Import Project="..\packages\cef.redist.x64.3.3396.1786\build\cef.redist.x64.props" Condition="Exists('..\packages\cef.redist.x64.3.3396.1786\build\cef.redist.x64.props')" />
+  <Import Project="..\packages\cef.redist.x86.3.3396.1786\build\cef.redist.x86.props" Condition="Exists('..\packages\cef.redist.x86.3.3396.1786\build\cef.redist.x86.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -9,7 +13,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Cubed</RootNamespace>
     <AssemblyName>Editor</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
     <PublishUrl>publish\</PublishUrl>
@@ -27,6 +31,8 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <NuGetPackageImportStamp>940e4f4c</NuGetPackageImportStamp>
+    <CefSharpAnyCpuSupport>true</CefSharpAnyCpuSupport>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -37,6 +43,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -46,6 +53,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>main-icon.ico</ApplicationIcon>
@@ -85,7 +93,10 @@
     <Compile Include="Data\Editor\Previews\PreviewGenerator.cs" />
     <Compile Include="Data\Projects\Project.cs" />
     <Compile Include="Editing\EditableObject.cs" />
+    <Compile Include="Editing\Gizmos\PositionGizmo.cs" />
+    <Compile Include="Editing\Gizmos\AngleGizmo.cs" />
     <Compile Include="Editing\Gizmos\Gizmo.cs" />
+    <Compile Include="Editing\PlayerSpawn.cs" />
     <Compile Include="Editing\MapSprite.cs" />
     <Compile Include="Editing\MapLight.cs" />
     <Compile Include="Forms\Common\EditorForm.cs">
@@ -102,6 +113,12 @@
     </Compile>
     <Compile Include="Forms\Common\MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Common\MainForm.Editing.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Common\MainForm.Menu.cs">
+      <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\Common\MainForm.Project.cs">
       <SubType>Form</SubType>
@@ -123,6 +140,12 @@
     </Compile>
     <Compile Include="Forms\Dialogs\OpenFolderDialog.Designer.cs">
       <DependentUpon>OpenFolderDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Dialogs\ProjectPickerDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Dialogs\ProjectPickerDialog.Designer.cs">
+      <DependentUpon>ProjectPickerDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\Dialogs\TextInputDialog.cs">
       <SubType>Form</SubType>
@@ -162,6 +185,24 @@
     </Compile>
     <Compile Include="Forms\Editors\Map\MapEditor.Walls.cs">
       <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Editors\Misc\GamePrefsEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Editors\Misc\GamePrefsEditor.Designer.cs">
+      <DependentUpon>GamePrefsEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Editors\Misc\HomePage.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Editors\Misc\HomePage.Designer.cs">
+      <DependentUpon>HomePage.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Inspections\BigInspector.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\Inspections\BigInspector.Designer.cs">
+      <DependentUpon>BigInspector.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\Inspections\Fields\ColorFieldInspector.cs">
       <SubType>UserControl</SubType>
@@ -227,6 +268,11 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>EditorTextures.resx</DependentUpon>
     </Compile>
+    <Compile Include="Forms\Resources\FileTypes.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>FileTypes.resx</DependentUpon>
+    </Compile>
     <Compile Include="Forms\Resources\InspectorIcons.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -247,14 +293,11 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>MiscIcons.resx</DependentUpon>
     </Compile>
-    <Compile Include="Forms\Resources\InspectorStrings.ru-RU.Designer.cs">
+    <Compile Include="Forms\Resources\InspectorStrings.ru.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>InspectorStrings.ru-RU.resx</DependentUpon>
+      <DependentUpon>InspectorStrings.ru.resx</DependentUpon>
     </Compile>
-    <Compile Include="Maths\Lerps.cs" />
-    <Compile Include="Maths\Lines.cs" />
-    <Compile Include="Maths\MapIntersections.cs" />
     <Compile Include="UI\Controls\NSTheme.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -263,24 +306,19 @@
     </Compile>
     <Compile Include="Drivers\Rendering\ProxyDisplay.cs" />
     <Compile Include="Drivers\Windows\WinKeyMap.cs" />
-    <Compile Include="Map\MapEditor.cs" />
-    <Compile Include="Maths\Intersections.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UI\Controls\ThemeBase154.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="UI\Graphics\UIIcon.cs" />
-    <Compile Include="Windows\MapEditorForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Windows\MapEditorForm.Designer.cs">
-      <DependentUpon>MapEditorForm.cs</DependentUpon>
-    </Compile>
     <EmbeddedResource Include="Drivers\EngineControl.resx">
       <DependentUpon>EngineControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Common\MainForm.resx">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Common\MainForm.ru.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Common\StartupForm.resx">
@@ -295,6 +333,12 @@
     <EmbeddedResource Include="Forms\Dialogs\OpenFolderDialog.ru.resx">
       <DependentUpon>OpenFolderDialog.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Dialogs\ProjectPickerDialog.resx">
+      <DependentUpon>ProjectPickerDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Dialogs\ProjectPickerDialog.ru-RU.resx">
+      <DependentUpon>ProjectPickerDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\Dialogs\TextInputDialog.resx">
       <DependentUpon>TextInputDialog.cs</DependentUpon>
     </EmbeddedResource>
@@ -303,6 +347,15 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Editors\Map\MapEditor.ru.resx">
       <DependentUpon>MapEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Editors\Misc\GamePrefsEditor.resx">
+      <DependentUpon>GamePrefsEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Editors\Misc\HomePage.resx">
+      <DependentUpon>HomePage.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Inspections\BigInspector.resx">
+      <DependentUpon>BigInspector.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Inspections\Fields\ColorFieldInspector.resx">
       <DependentUpon>ColorFieldInspector.cs</DependentUpon>
@@ -345,6 +398,11 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>EditorTextures.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Resources\FileTypes.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>FileTypes.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Resources\FileTypes.ru.resx" />
     <EmbeddedResource Include="Forms\Resources\InspectorIcons.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>InspectorIcons.Designer.cs</LastGenOutput>
@@ -361,9 +419,9 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>MiscIcons.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\Resources\InspectorStrings.ru-RU.resx">
+    <EmbeddedResource Include="Forms\Resources\InspectorStrings.ru.resx">
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>InspectorStrings.ru-RU.Designer.cs</LastGenOutput>
+      <LastGenOutput>InspectorStrings.ru.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -375,9 +433,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <EmbeddedResource Include="Windows\MapEditorForm.resx">
-      <DependentUpon>MapEditorForm.cs</DependentUpon>
-    </EmbeddedResource>
     <None Include="OpenTK.dll.config" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
@@ -493,6 +548,10 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="main-icon.ico" />
+    <None Include="Resources\home.png" />
+    <None Include="Resources\player.png" />
+    <None Include="Resources\ending.png" />
+    <None Include="Resources\pickdots.png" />
     <None Include="Resources\map.png" />
     <None Include="Resources\section-cloud.png" />
     <None Include="Resources\section-sound.png" />
@@ -505,6 +564,19 @@
     <None Include="Resources\light.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\cef.redist.x86.3.3396.1786\build\cef.redist.x86.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\cef.redist.x86.3.3396.1786\build\cef.redist.x86.props'))" />
+    <Error Condition="!Exists('..\packages\cef.redist.x64.3.3396.1786\build\cef.redist.x64.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\cef.redist.x64.3.3396.1786\build\cef.redist.x64.props'))" />
+    <Error Condition="!Exists('..\packages\CefSharp.Common.67.0.0\build\CefSharp.Common.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\CefSharp.Common.67.0.0\build\CefSharp.Common.props'))" />
+    <Error Condition="!Exists('..\packages\CefSharp.Common.67.0.0\build\CefSharp.Common.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\CefSharp.Common.67.0.0\build\CefSharp.Common.targets'))" />
+    <Error Condition="!Exists('..\packages\CefSharp.WinForms.67.0.0\build\CefSharp.WinForms.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\CefSharp.WinForms.67.0.0\build\CefSharp.WinForms.props'))" />
+    <Error Condition="!Exists('..\packages\CefSharp.WinForms.67.0.0\build\CefSharp.WinForms.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\CefSharp.WinForms.67.0.0\build\CefSharp.WinForms.targets'))" />
+  </Target>
+  <Import Project="..\packages\CefSharp.Common.67.0.0\build\CefSharp.Common.targets" Condition="Exists('..\packages\CefSharp.Common.67.0.0\build\CefSharp.Common.targets')" />
+  <Import Project="..\packages\CefSharp.WinForms.67.0.0\build\CefSharp.WinForms.targets" Condition="Exists('..\packages\CefSharp.WinForms.67.0.0\build\CefSharp.WinForms.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

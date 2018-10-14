@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Cubed.Data.Editor.Attributes;
+using Cubed.Editing.Gizmos;
 using Cubed.Prefabs;
 using Cubed.UI.Graphics;
 using Cubed.World;
@@ -62,6 +63,16 @@ namespace Cubed.Editing {
 		public Vector3 BoundSize {
 			get;
 			protected set;
+		}
+
+		/// <summary>
+		/// Handling gizmos
+		/// </summary>
+		[InspectorHidden]
+		public virtual Gizmo[] ControlGizmos {
+			get {
+				return new Gizmo[0];
+			}
 		}
 
 		/// <summary>

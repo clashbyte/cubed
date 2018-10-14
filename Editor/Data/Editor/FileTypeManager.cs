@@ -25,7 +25,7 @@ namespace Cubed.Data.Editor {
 		static FileTypeManager() {
 			types = new FileType[] {
 				new FileType(
-					"Image",
+					FileTypes.Image,
 					".bmp;.png;.jpg;.jpeg",
 					new UIIcon(DirectoryInspectorIcons.Image),
 					null,
@@ -33,7 +33,7 @@ namespace Cubed.Data.Editor {
 					null
 				),
 				new FileType(
-					"Animated image",
+					FileTypes.AnimImage,
 					".gif;.anim",
 					new UIIcon(DirectoryInspectorIcons.Image),
 					null,
@@ -41,7 +41,7 @@ namespace Cubed.Data.Editor {
 					null
 				),
 				new FileType(
-					"Map",
+					FileTypes.Map,
 					".map",
 					new UIIcon(DirectoryInspectorIcons.Map),
 					typeof(Forms.Editors.Map.MapEditor),
@@ -82,6 +82,20 @@ namespace Cubed.Data.Editor {
 				PreviewGenerator = previewGen;
 				LargePreviewer = largePrev;
 			}
+		}
+
+		/// <summary>
+		/// Get list of all creatable and editable types
+		/// </summary>
+		/// <returns>Array of file types</returns>
+		public static FileType[] EditableTypes() {
+			List<FileType> ft = new List<FileType>();
+			foreach (FileType f in types) {
+				if (f.Editor != null) {
+					ft.Add(f);
+				}
+			}
+			return ft.ToArray();
 		}
 
 		/// <summary>

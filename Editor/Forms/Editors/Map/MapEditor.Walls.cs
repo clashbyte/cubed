@@ -302,6 +302,11 @@ namespace Cubed.Forms.Editors.Map {
 				}
 			}
 
+			// Triggering changes
+			if (points.Count > 0) {
+				TriggerChanges();
+			}
+
 			// Processing walls
 			foreach (Vector3 point in points) {
 

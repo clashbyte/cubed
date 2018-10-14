@@ -42,6 +42,15 @@ namespace Cubed.Forms.Inspections {
 		}
 
 		/// <summary>
+		/// Getting field inspector
+		/// </summary>
+		public FieldInspector FieldInsp {
+			get {
+				return field;
+			}
+		}
+
+		/// <summary>
 		/// Current field
 		/// </summary>
 		FieldInspector field;

@@ -187,6 +187,9 @@ namespace Cubed.Forms.Editors.Map {
 		/// </summary>
 		/// <param name="items">Array of items to fill</param>
 		void PaintToolHandle(PaintItem[] items, Texture texture) {
+			if (items.Length > 0) {
+				TriggerChanges();
+			}
 			foreach (PaintItem item in items) {
 				if (item.Block is World.Map.WallBlock) {
 					World.Map.WallBlock wblock = item.Block as World.Map.WallBlock;

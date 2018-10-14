@@ -114,7 +114,7 @@ namespace Cubed.World {
 		/// <summary>
 		/// Обновление логики
 		/// </summary>
-		public void Update() {
+		internal void Update() {
 
 			// Making this scene current
 			Current = this;
@@ -148,9 +148,12 @@ namespace Cubed.World {
 				Map.Update(lightList);
 			}
 
-			// Обновление всех предметов
+			// Updating objects
 			for (int i = 0; i < times; i++) {
 				if (!Paused) {
+					foreach (Entity e in Entities) {
+						e.Update();
+					}
 					foreach (EntityComponent e in updateable) {
 						(e as IUpdatable).Update();
 					}
@@ -196,7 +199,7 @@ namespace Cubed.World {
 		/// <summary>
 		/// Отрисовка всех объектов для каждой камеры
 		/// </summary>
-		public void Render() {
+		internal void Render() {
 
 			// Making this scene current
 			Current = this;
@@ -352,6 +355,13 @@ namespace Cubed.World {
 
 			// Releasing current
 			Current = null;
+		}
+
+		/// <summary>
+		/// Resetting update logics
+		/// </summary>
+		internal void ResetUpdateCounter() {
+			LastUpdateTime = 0;
 		}
 
 		/// <summary>

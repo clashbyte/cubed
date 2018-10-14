@@ -78,7 +78,7 @@ namespace Cubed.Data.Defines {
 		/// </summary>
 		/// <param name="cont">Chunk</param>
 		/// <returns></returns>
-		static ProjectBasicInfo FromChunk(ContainerChunk cont, bool fallbackOnError = true) {
+		internal static ProjectBasicInfo FromChunk(ContainerChunk cont, bool fallbackOnError = true) {
 			ProjectBasicInfo info = null;
 			Image splash = null, icon = null;
 

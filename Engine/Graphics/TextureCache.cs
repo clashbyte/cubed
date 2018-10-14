@@ -308,6 +308,7 @@ namespace Cubed.Graphics {
 				frames = new Frame[] {
 					new Frame(img)
 				};
+				State = EntryState.NotSent;
 				SendToGL();
 			}
 
@@ -376,6 +377,9 @@ namespace Cubed.Graphics {
 			/// Sending scans to Gl
 			/// </summary>
 			public void SendToGL() {
+				if (State != EntryState.NotSent) {
+					return;
+				}
 				State = EntryState.Sending;
 				GL.Enable(EnableCap.Texture2D);
 				foreach (Frame f in frames) {

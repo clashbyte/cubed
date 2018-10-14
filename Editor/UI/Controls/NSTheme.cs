@@ -19,6 +19,7 @@ using Cubed.Data.Editor;
 using Cubed.Forms.Resources;
 using Cubed.Data.Editor.Previews;
 using Cubed.Data.Projects;
+using Cubed.Forms.Dialogs;
 
 //IMPORTANT:
 //Please leave these comments in place as they help protect intellectual rights and allow
@@ -2151,7 +2152,11 @@ namespace Cubed.UI.Controls
 				if (frm != null)
 				{
 					label = frm.Text;
-					FileTypeManager.GetIcon(frm.File).Draw(G, iconSize);
+					UIIcon icn = frm.CustomIcon;
+					if (icn == null) {
+						icn = FileTypeManager.GetIcon(frm.File);
+					}
+					icn.Draw(G, iconSize);
 					R1.X += iconSize.Width + 8;
 					R1.Width -= iconSize.Width + 8;
 					if (!frm.Saved)
@@ -2428,11 +2433,10 @@ namespace Cubed.UI.Controls
 			NSContextMenu cm = new NSContextMenu();
 			foreach (TabPage t in TabPages)
 			{
-				
 				EditorForm frm = (EditorForm)t.Tag;
 				if (frm != null)
 				{
-					cm.Items.Add(frm.Text, null, (sn, ev) => {
+					cm.Items.Add(frm.Text, FileTypeManager.GetIcon(frm.File).Combined(14, 2), (sn, ev) => {
 						SelectedTab = t;
 					});
 				}
@@ -2718,7 +2722,7 @@ namespace Cubed.UI.Controls
 		/// <summary>
 		/// Окно-пикер
 		/// </summary>
-		//ProjectPickerDialog picker;
+		ProjectPickerDialog picker;
 
 		/// <summary>
 		/// Выбраный файл
@@ -2764,7 +2768,7 @@ namespace Cubed.UI.Controls
 
 			pickerButton = new NSIconicButton();
 			pickerButton.Size = new Size(30, 18);
-			//pickerButton.IconImage = global::System.Windows.Forms.ControlImages.pickdots;
+			pickerButton.IconImage = MiscIcons.Dots;
 			pickerButton.IconSize = new System.Drawing.Size(17, 5);
 			pickerButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
 			pickerButton.Location = new Point(-31, -18);
@@ -2799,31 +2803,43 @@ namespace Cubed.UI.Controls
 			return false;
 		}
 
-		void pickerButton_Click(object sender, EventArgs e)
-		{
-			/*
+		void pickerButton_Click(object sender, EventArgs e) {
 			picker = new ProjectPickerDialog();
 			picker.Dropper = this;
 
-			// Вычисление расположения
-			Point loc = pickerButton.PointToScreen(Point.Empty);
-			Screen scr = Screen.FromPoint(loc);
-			picker.Location = new Point(
-				loc.X, loc.Y + pickerButton.Height
-			);
-
-			if (picker.Location.Y + picker.Height > scr.Bounds.Bottom)
-			{
-				picker.Location = new Point(picker.Location.X, loc.Y - picker.Height);
-			}
-			if (picker.Location.X + picker.Width > scr.Bounds.Right)
-			{
-				picker.Location = new Point(loc.X - picker.Width + pickerButton.Width, picker.Location.Y);
+			// Searching parent
+			System.Windows.Forms.Control parent = this;
+			while (true) {
+				if (parent == null || parent is Form) {
+					break;
+				}
+				parent = parent.Parent;
 			}
 
+			
+			ProjectPickerDialog ppd = new ProjectPickerDialog();
+			Point loc = PointToScreen(new Point(Width, 0));
+			loc = parent.PointToClient(loc);
+			if (loc.Y + Height > parent.Height) {
+				loc.Y = loc.Y - ppd.Height;
+			} else {
+				loc.Y = loc.Y + Height;
+			}
+			loc.X -= ppd.Width;
 
-			picker.Show();
-			 * */
+			ppd.TopMost = true;
+			ppd.TopLevel = false;
+			ppd.Parent = parent;
+			ppd.Dropper = this;
+			ppd.Location = loc;
+			ppd.Show();
+			parent.Controls.Add(ppd);
+			ppd.BringToFront();
+			ppd.FormClosed += (esender, ee) => {
+				parent.Controls.Remove(ppd);
+				picker = null;
+			};
+			picker = ppd;
 		}
 
 
@@ -3582,7 +3598,6 @@ namespace Cubed.UI.Controls
 
 			}
 
-
 			G.FillRectangle(B1, 0, 0, 2, AreaHeight);
 			G.DrawRectangle(P2, 3, 0, AreaWidth - 4, AreaHeight - 1);
 		}
@@ -3715,11 +3730,10 @@ namespace Cubed.UI.Controls
 			AreaWidth = Width - scroller.Width;
 
 			ItemsStride = 1;
-			for (int i = 64; i > 0; i--)
-			{
+			for (int i = 255; i > 0; i--) {
+				ItemsStride = i + 1;
 				if (ItemSize * i < AreaWidth - 6)
 				{
-					ItemsStride = i + 1;
 					break;
 				}
 			}
@@ -4748,6 +4762,11 @@ namespace Cubed.UI.Controls
 			e.Graphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
 			e.Graphics.DrawLine(new Pen(Color.FromArgb(40, 40, 40), 1f), 0, Height - 1, Width, Height - 1);
 			base.OnPaint(e);
+		}
+
+		protected override void OnItemAdded(ToolStripItemEventArgs e) {
+			
+			base.OnItemAdded(e);
 		}
 
 	}
@@ -7366,6 +7385,24 @@ namespace Cubed.UI.Controls
 			}
 		}
 
+		public override Color MenuItemPressedGradientBegin {
+			get {
+				return NSTheme.UI_ACCENT;
+			}
+		}
+
+		public override Color MenuItemPressedGradientMiddle {
+			get {
+				return NSTheme.UI_ACCENT;
+			}
+		}
+
+		public override Color MenuItemPressedGradientEnd {
+			get {
+				return NSTheme.UI_ACCENT;
+			}
+		} 
+
 		public override Color SeparatorDark
 		{
 			get { return Color.FromArgb(35, 35, 35); }
@@ -7379,6 +7416,7 @@ namespace Cubed.UI.Controls
 		public override Color MenuStripGradientBegin { get { return Color.Salmon; } }
 
 		public override Color MenuStripGradientEnd { get { return Color.OrangeRed; } }
+
 	}
 
 	[DefaultEvent("SelectedItemChanged")]

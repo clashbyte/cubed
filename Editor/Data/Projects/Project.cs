@@ -30,7 +30,7 @@ namespace Cubed.Data.Projects {
 		/// <summary>
 		/// Current project information
 		/// </summary>
-		public static ProjectBasicInfo Info {
+		public static ProjectInfo Info {
 			get;
 			private set;
 		}
@@ -115,7 +115,7 @@ namespace Cubed.Data.Projects {
 		/// <returns>True if project opened</returns>
 		public static bool Open(string folder) {
 			if (File.Exists(Path.Combine(folder, ".cubed"))) {
-				Info = ProjectBasicInfo.Read(folder);
+				Info = ProjectInfo.Read(folder);
 				rootPath = Path.GetFullPath(folder);
 				driver = new Cubed.Drivers.Files.FolderFileSystem() {
 					RootFolder = rootPath
@@ -176,7 +176,7 @@ namespace Cubed.Data.Projects {
 								parent.SetChildren(parent.Folders, ffiles.ToArray());
 							} else {
 								List<Folder> ffolders = new List<Folder>(parent.Folders);
-								ffolders.Add(db as Folder);
+								ffolders.Remove(db as Folder);
 								parent.SetChildren(ffolders.ToArray(), parent.Entries);
 							}
 						} else {
@@ -527,6 +527,22 @@ namespace Cubed.Data.Projects {
 				if (watchingThread != null) {
 					watchingThread.Abort();
 					watchingThread = null;
+				}
+			}
+
+			/// <summary>
+			/// Skipping file in events
+			/// </summary>
+			/// <param name="path">Path to file</param>
+			public void Skip(string path) {
+				List<DebouncedFile> files = new List<DebouncedFile>();
+				foreach (var g in entries) {
+					if (g.Key.Path == path) {
+						files.Add(g.Key);
+					}
+				}
+				foreach (var fl in files) {
+					entries.Remove(fl);
 				}
 			}
 

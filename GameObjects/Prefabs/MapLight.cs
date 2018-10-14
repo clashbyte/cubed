@@ -64,6 +64,18 @@ namespace Cubed.Prefabs {
 		}
 
 		/// <summary>
+		/// Shadows
+		/// </summary>
+		public bool Shadows {
+			get {
+				return light.Shadows;
+			}
+			set {
+				light.Shadows = value;
+			}
+		}
+
+		/// <summary>
 		/// Light entity
 		/// </summary>
 		Light light;
@@ -97,6 +109,76 @@ namespace Cubed.Prefabs {
 			scene.Entities.Remove(light);
 		}
 
+		/// <summary>
+		/// Updating entity
+		/// </summary>
+		public override void Update() {
+			//light.TextureAngle += 5f;
+		}
+
+		/// <summary>
+		/// Saving to file
+		/// </summary>
+		/// <param name="f">Binary writer</param>
+		public override void Save(System.IO.BinaryWriter f) {
+			base.Save(f);
+
+			// Writing version
+			f.Write((byte)1);
+
+			// Color
+			f.Write(Color.R);
+			f.Write(Color.G);
+			f.Write(Color.B);
+
+			// Range
+			f.Write(Range);
+
+			// Shadows
+			f.Write(Shadows);
+
+			// Textures
+			f.Write(Texture != null);
+			if (Texture != null) {
+				f.Write(Texture.Link);
+			}
+			f.Write(TextureAngle);
+
+
+		}
+
+		/// <summary>
+		/// Reading from file
+		/// </summary>
+		/// <param name="f"></param>
+		public override void Load(System.IO.BinaryReader f) {
+			base.Load(f);
+
+			// Reading version
+			int ver = 0;
+			try {
+				ver = f.ReadByte();
+			} catch (Exception ex) { }
+
+			// Reading ver-1 specific data
+			if (ver >= 1) {
+
+				// Basic params
+				byte[] colors = f.ReadBytes(3);
+				Color = System.Drawing.Color.FromArgb(colors[0], colors[1], colors[2]);
+				Range = f.ReadSingle();
+				Shadows = f.ReadBoolean();
+
+				// Reading texture
+				if (f.ReadBoolean()) {
+					Texture = new Texture(f.ReadString());
+				}
+				TextureAngle = f.ReadSingle();
+
+			}
+
+
+		}
 		
 	}
 }

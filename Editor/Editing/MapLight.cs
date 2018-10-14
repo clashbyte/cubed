@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using Cubed.Components.Rendering;
 using Cubed.Data.Editor.Attributes;
+using Cubed.Editing.Gizmos;
 using Cubed.Graphics;
 using Cubed.World;
 using OpenTK;
@@ -79,6 +80,27 @@ namespace Cubed.Editing {
 		}
 
 		/// <summary>
+		/// Enable shadows
+		/// </summary>
+		public bool Shadows {
+			get {
+				return (Prefab as Prefabs.MapLight).Shadows;
+			}
+			set {
+				(Prefab as Prefabs.MapLight).Shadows = value;
+			}
+		}
+
+		/// <summary>
+		/// Range gizmos
+		/// </summary>
+		public override Gizmo[] ControlGizmos {
+			get {
+				return rangeGizmos;
+			}
+		} 
+
+		/// <summary>
 		/// Current texture
 		/// </summary>
 		static Texture gizmoIcon;
@@ -87,6 +109,11 @@ namespace Cubed.Editing {
 		/// Is light selected
 		/// </summary>
 		bool selected;
+
+		/// <summary>
+		/// Range gizmos
+		/// </summary>
+		PositionGizmo[] rangeGizmos;
 
 		/// <summary>
 		/// Creating light
@@ -138,6 +165,14 @@ namespace Cubed.Editing {
 			}
 			BoundPosition = Vector3.Zero;
 			BoundSize = Vector3.One * 0.3f;
+
+			// Adding scene gizmos
+			rangeGizmos = new PositionGizmo[4] {
+				new PositionGizmo(System.Drawing.Color.Yellow, 0.15f) { Parent = Gizmo, Filter = FilterGizmoPosition },
+				new PositionGizmo(System.Drawing.Color.Yellow, 0.15f) { Parent = Gizmo, Filter = FilterGizmoPosition },
+				new PositionGizmo(System.Drawing.Color.Yellow, 0.15f) { Parent = Gizmo, Filter = FilterGizmoPosition },
+				new PositionGizmo(System.Drawing.Color.Yellow, 0.15f) { Parent = Gizmo, Filter = FilterGizmoPosition },
+			};
 			RebuildRing(((Cubed.Prefabs.MapLight)Prefab).Range);
 			Prefab.Assign(scene);
 		}
@@ -204,6 +239,48 @@ namespace Cubed.Editing {
 				verts[i] = new Vector3((float)Math.Sin(r) * range, 0, (float)Math.Cos(r) * range);
 			}
 			SelectedGizmo.GetComponent<LineComponent>().Vertices = verts;
+			rangeGizmos[0].Position = Vector3.UnitZ * range + Gizmo.Position;
+			rangeGizmos[1].Position = Vector3.UnitX * range + Gizmo.Position;
+			rangeGizmos[2].Position = Vector3.UnitZ * -range + Gizmo.Position;
+			rangeGizmos[3].Position = Vector3.UnitX * -range + Gizmo.Position;
+		}
+
+		/// <summary>
+		/// Filter for gizmo values
+		/// </summary>
+		/// <param name="gizmo">Gizmo</param>
+		/// <param name="target">Target position</param>
+		/// <returns>Calculated position</returns>
+		Vector3 FilterGizmoPosition(PositionGizmo gizmo, Vector3 target) {
+			int idx = Array.IndexOf(rangeGizmos, gizmo);
+			Vector3 cp = Prefab.Position;
+			float val = 0;
+			target.Y = cp.Y;
+			if (idx == 0 || idx == 2) {
+				target.X = cp.X;
+				val = target.Z - cp.Z;
+				if (idx == 0) {
+					val = Math.Max(0.1f, Math.Min(val, 32f));
+				} else {
+					val = Math.Max(-32f, Math.Min(val, -0.1f));
+				}
+				target.Z = val + cp.Z;
+			} else {
+				target.Z = cp.Z;
+				val = target.X - cp.X;
+				if (idx == 1) {
+					val = Math.Max(0.1f, Math.Min(val, 32f));
+				} else {
+					val = Math.Max(-32f, Math.Min(val, -0.1f));
+				}
+				target.X = val + cp.X;
+			}
+			val = (float)Math.Abs(val);
+			if (Range != val) {
+				Range = val;
+				RebuildRing(val);
+			}
+			return target;
 		}
 	}
 }

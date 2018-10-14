@@ -13,74 +13,53 @@ namespace Cubed.Editing.Gizmos {
 	public abstract class Gizmo : Entity {
 
 		/// <summary>
-		/// Gizmo maximal position
+		/// Assigning to scene
 		/// </summary>
-		public Vector3 MaxPosition {
-			get {
-				return maxPosition;			
-			}
-			set {
-				maxPosition = value;
-			}
-		}
+		public abstract void Assign(Scene scene, Entity parent);
 
 		/// <summary>
-		/// Gizmo minimal position
+		/// Removing from scene
 		/// </summary>
-		public Vector3 MinPosition {
-			get {
-				return minPosition;
-			}
-			set {
-				minPosition = value;
-			}
-		}
+		public abstract void Unassign(Scene scene);
 
 		/// <summary>
-		/// Minimal value
+		/// Checking for intersection with picking
 		/// </summary>
-		public Vector3 MinValue {
-			get {
-				return maxValue;
-			}
-			set {
-				minValue = value;
-			}
-		}
+		/// <param name="rayPos">Position</param>
+		/// <param name="rayDir">Direction</param>
+		/// <returns>True if ray hit gizmo</returns>
+		public abstract bool Hit(Vector3 rayPos, Vector3 rayDir, out float hitDist);
 
 		/// <summary>
-		/// Maximal value
+		/// Starting iteraction with this gizmo
 		/// </summary>
-		public Vector3 MaxValue {
-			get {
-				return maxValue;
-			}
-			set {
-				maxValue = value;
-			}
-		}
+		/// <param name="rayPos">Ray position</param>
+		/// <param name="rayDir">Ray direction</param>
+		public abstract void StartIteraction(Vector3 rayPos, Vector3 rayDir, bool ctrl);
 
 		/// <summary>
-		/// Minimal and maximal value
+		/// Updating iteraction
 		/// </summary>
-		protected Vector3 minValue = Vector3.One * float.MinValue, maxValue = Vector3.One * float.MaxValue;
-		
-		/// <summary>
-		/// Minimal and maximal position
-		/// </summary>
-		protected Vector3 minPosition = Vector3.One * float.MinValue, maxPosition = Vector3.One * float.MaxValue;
+		/// <param name="rayPos">Ray position</param>
+		/// <param name="rayDir">Ray direction</param>
+		public abstract void UpdateIteraction(Vector3 rayPos, Vector3 rayDir);
 
 		/// <summary>
-		/// Axis constraints
+		/// Stopping iteraction
 		/// </summary>
-		public enum AxisConstraints {
-			All,
-			X,
-			Y,
-			Z,
-			XZ,
-			XY,
-			ZY
+		/// <param name="rayPos"></param>
+		/// <param name="rayDir"></param>
+		public abstract void EndIteraction(Vector3 rayPos, Vector3 rayDir);
+
+		/// <summary>
+		/// Updating gizmo
+		/// </summary>
+		/// <param name="rayPos">Ray position</param>
+		/// <param name="rayDir">Ray direction</param>
+		/// <param name="tween">Tween value</param>
+		/// <param name="cursor">Cursor</param>
+		public virtual void Update(Vector3 rayPos, Vector3 rayDir, float tween, bool current, out System.Windows.Forms.Cursor cursor) {
+			cursor = System.Windows.Forms.Cursors.Default;
 		}
 	}
 }

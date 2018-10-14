@@ -189,10 +189,10 @@ namespace Cubed.Formats {
 				envf.Write((float)data.Fog.Far);
 			} else {
 				envf.Write(new byte[] {
-					0, 0, 0
+					128, 128, 128
 				});
 				envf.Write((float)0f);
-				envf.Write((float)0f);
+				envf.Write((float)5f);
 			}
 			if (data.Sky != null) {
 				for (int i = 0; i < 6; i++) {

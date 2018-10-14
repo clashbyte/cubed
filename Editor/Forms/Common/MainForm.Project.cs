@@ -95,7 +95,6 @@ namespace Cubed.Forms.Common {
 			}
 
 			// And entries
-			UIIcon fileIcon = new UIIcon(DirectoryInspectorIcons.RemovableDrive);
 			foreach (Project.Entry entry in currentFolder.Entries) {
 				NSDirectoryInspector.Entry en = new NSDirectoryInspector.Entry();
 				en.Tag = (object)entry;
@@ -188,6 +187,21 @@ namespace Cubed.Forms.Common {
 			//inspector.Target = projectControl.SelectedEntry;
 			projectFileInfo.File = projectControl.SelectedEntry;
 		}
+
+		/// <summary>
+		/// Clicking mouse
+		/// </summary>
+		private void projectControl_MouseClick(object sender, MouseEventArgs e) {
+			if (e.Button == System.Windows.Forms.MouseButtons.Right) {
+				for (int i = 2; i < projectPopupMenu.Items.Count; i++) {
+					projectPopupMenu.Items[i].Visible = projectControl.SelectedEntry != null;
+				}
+				
+				// Showing popup
+				System.Drawing.Point mouse = projectControl.PointToScreen(e.Location);
+				projectPopupMenu.Show(mouse);
+			}
+		}
 		
 		/// <summary>
 		/// Go up
@@ -231,54 +245,74 @@ namespace Cubed.Forms.Common {
 		}
 
 		/// <summary>
-		/// Trying to open editor
+		/// Focusing editor
 		/// </summary>
-		/// <param name="entry">Entry to edit</param>
-		void Project_OpenEditor(Project.Entry entry) {
-			Type t = FileTypeManager.GetEditor(entry);
-			if (t != null) {
-
-				// Opening editor
-				EditorForm editor = Activator.CreateInstance(t) as EditorForm;
-				if (editor != null) {
-
-					// Creating editor
-					TabPage tp = new TabPage();
-					editor.TopLevel = false;
-					editor.Location = System.Drawing.Point.Empty;
-					editor.Visible = true;
-					editor.BringToFront();
-					editor.SetFile(entry);
-					tp.Controls.Add(editor);
-					tp.Tag = editor;
-					editor.Dock = DockStyle.Fill;
-					editorsControl.AddTab(tp, true);
-
-					// Selecting
-					
-
+		/// <param name="editor">Editor to focus</param>
+		public static void FocusEditor(EditorForm editor) {
+			foreach (TabPage tp in Current.editorsControl.TabPages) {
+				if (tp.Tag == editor) {
+					Current.editorsControl.SelectTab(Current.editorsControl.TabPages.IndexOf(tp));
+					break;
 				}
-
 			}
 		}
 
 		/// <summary>
-		/// Handling key
+		/// Closing editor
 		/// </summary>
-		/// <param name="msg">Message</param>
-		/// <param name="keyData">Key data</param>
-		/// <returns>Bool</returns>
-		protected override bool ProcessCmdKey(ref Message msg, Keys keyData) {
-			if (msg.Msg == 256) {
-				if (keyData == (Keys.Control | Keys.S)) {
-					foreach (TabPage tp in editorsControl.TabPages) {
-						if (tp.Tag is EditorForm) {
-							(tp.Tag as EditorForm).Save();
-						}
-					}
+		/// <param name="editor">Editor to close</param>
+		public static bool CloseEditor(EditorForm editor, bool force = false) {
+			
+			// Checking for close
+			TabPage tp = null;
+			foreach (TabPage t in Current.editorsControl.TabPages) {
+				if (t.Tag == editor) {
+					tp = t;
+					break;
 				}
 			}
-			return base.ProcessCmdKey(ref msg, keyData);
+			if (tp == null) {
+				return true;
+			}
+
+			// Prompting for close
+			if (!force && !editor.Saved) {
+				DialogResult dr = MessageDialog.Open("Unsaved changes", "File has unsaved changes. Do you want to save them?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+				if (dr == DialogResult.Yes) {
+					editor.StartSaving();
+					editor.Save();
+				} else if (dr == DialogResult.Cancel) {
+					return false;
+				}
+			}
+
+			// Closing editor
+			Current.editorsControl.RemoveTab(tp);
+			editor.Close();
+			return true;
+		}
+
+		/// <summary>
+		/// Close all opened editors
+		/// </summary>
+		/// <returns>True if closing succeded</returns>
+		public static bool CloseAllEditors() {
+
+			// Filling list of editors
+			List<EditorForm> editors = new List<EditorForm>();
+			foreach (TabPage page in Current.editorsControl.TabPages) {
+				if (page.Tag is EditorForm) {
+					editors.Add(page.Tag as EditorForm);
+				}
+			}
+
+			// Checking for close
+			foreach (EditorForm ef in editors) {
+				if (!CloseEditor(ef)) {
+					return false;
+				}
+			}
+			return true;
 		}
 		
 	}

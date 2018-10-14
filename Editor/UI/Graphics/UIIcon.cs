@@ -85,6 +85,20 @@ namespace Cubed.UI.Graphics {
 		}
 
 		/// <summary>
+		/// Convert to single image
+		/// </summary>
+		/// <param name="size">Image size</param>
+		/// <param name="offset">Included offset</param>
+		/// <returns></returns>
+		public Image Combined(int size, int offset = 2) {
+			Bitmap bmp = new Bitmap(size + offset, size + offset);
+			using (System.Drawing.Graphics g = System.Drawing.Graphics.FromImage(bmp)) {
+				Draw(g, new Rectangle(0, 0, size + offset, size + offset), offset);
+			}
+			return bmp;
+		}
+
+		/// <summary>
 		/// Shadow generation
 		/// </summary>
 		void GenerateShadow() {
@@ -101,7 +115,7 @@ namespace Cubed.UI.Graphics {
 						new float[] {0,  0,  0,  0, 0},        // red scaling factor of 0
 						new float[] {0,  0,  0,  0, 0},        // green scaling factor of 0
 						new float[] {0,  0,  0,  0, 0},        // blue scaling factor of 0
-						new float[] {0,  0,  0,  0.5f, 0},        // alpha scaling factor of 1
+						new float[] {0,  0,  0,  0.5f, 0},     // alpha scaling factor of 1
 						new float[] {0,  0,  0,  0, 1}
 					}
 				), ColorMatrixFlag.Default, ColorAdjustType.Bitmap);

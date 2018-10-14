@@ -17,14 +17,20 @@ namespace Cubed.Forms.Common {
 		/// </summary>
 		public StartupForm() {
 			InitializeComponent();
-			//webBrowser.Dock = DockStyle.Fill;
 			loadingLabel.Dock = DockStyle.Fill;
-			//webBrowser.Navigate("https://google.com");
 
 
-			//Hide();
-			ShowMainForm(Path.Combine(Directory.GetCurrentDirectory(), "./../../../Project"));
-			//
+
+
+			#if DEBUG
+			// Showing default project in debug mode
+			Hide();
+			if (Directory.Exists("./TestProject")) {
+				ShowMainForm(Path.Combine(Directory.GetCurrentDirectory(), "./TestProject"));
+			} else {
+				ShowMainForm(Path.Combine(Directory.GetCurrentDirectory(), "./../../../Project"));
+			}
+			#endif
 		}
 
 		/// <summary>
@@ -33,8 +39,6 @@ namespace Cubed.Forms.Common {
 		protected override void OnShown(EventArgs e) {
 			base.OnShown(e);
 			Text = "Cubed v" + Assembly.GetExecutingAssembly().GetName().Version.ToString();
-
-			Close();
 		}
 
 		/// <summary>
@@ -57,6 +61,7 @@ namespace Cubed.Forms.Common {
 					return;
 				}
 				Show();
+				Activate();
 			}
 
 		}
@@ -89,32 +94,34 @@ namespace Cubed.Forms.Common {
 					return;
 				}
 				Show();
+				Activate();
 			}
 			
 		}
 
 		/// <summary>
-		/// Opening 
+		/// Opening form
 		/// </summary>
-		/// <param name="path"></param>
-		/// <param name="isNew"></param>
+		/// <param name="path">Path to open</param>
+		/// <param name="isNew">Is new project</param>
 		MainForm.CloseAction ShowMainForm(string path, bool isNew = false) {
-			MainForm mf = new MainForm();
-			mf.StartingAction = isNew ? MainForm.StartAction.OpenNew : MainForm.StartAction.Open;
-			mf.CurrentProjectPath = path;
-			mf.Open();
-			return mf.ClosingAction;
-		}
+			while (true) {
+				MainForm mf = new MainForm();
+				mf.StartingAction = isNew ? MainForm.StartAction.OpenNew : MainForm.StartAction.Open;
+				mf.CurrentProjectPath = path;
+				mf.Open();
+				switch (mf.ClosingAction) {
+						
+					case MainForm.CloseAction.ProjectSwitch:
+						path = mf.CurrentProjectPath;
+						isNew = false;
+						break;
 
-		/// <summary>
-		/// Showing web browser when page loads
-		/// </summary>
-		void webBrowser_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e) {
-			//webBrowser.Visible = true;
-		}
-
-		void webBrowser_Navigated(object sender, WebBrowserNavigatedEventArgs e) {
-			//webBrowser.Visible = true;
+					case MainForm.CloseAction.ProjectClose:
+					case MainForm.CloseAction.FullClose:
+						return mf.ClosingAction;
+				}
+			}
 		}
 	}
 }

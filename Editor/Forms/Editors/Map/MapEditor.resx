@@ -145,7 +145,7 @@
     <value>screen</value>
   </data>
   <data name="&gt;&gt;screen.Type" xml:space="preserve">
-    <value>Cubed.Drivers.EngineControl, Editor, Version=1.0.6811.41787, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.Drivers.EngineControl, Editor, Version=1.0.6853.40424, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;screen.Parent" xml:space="preserve">
     <value>listContainer.Panel1</value>
@@ -190,7 +190,7 @@
     <value>entityList</value>
   </data>
   <data name="&gt;&gt;entityList.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSDirectoryInspector, Editor, Version=1.0.6811.41787, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSDirectoryInspector, Editor, Version=1.0.6853.40424, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;entityList.Parent" xml:space="preserve">
     <value>listContainer.Panel2</value>
@@ -233,6 +233,102 @@
   </data>
   <data name="&gt;&gt;listContainer.ZOrder" xml:space="preserve">
     <value>0</value>
+  </data>
+  <data name="&gt;&gt;toolLogics.Name" xml:space="preserve">
+    <value>toolLogics</value>
+  </data>
+  <data name="&gt;&gt;toolLogics.Type" xml:space="preserve">
+    <value>Cubed.UI.Controls.NSRadioIconicButton, Editor, Version=1.0.6853.40424, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;toolLogics.Parent" xml:space="preserve">
+    <value>panel1</value>
+  </data>
+  <data name="&gt;&gt;toolLogics.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="&gt;&gt;toolPaint.Name" xml:space="preserve">
+    <value>toolPaint</value>
+  </data>
+  <data name="&gt;&gt;toolPaint.Type" xml:space="preserve">
+    <value>Cubed.UI.Controls.NSRadioIconicButton, Editor, Version=1.0.6853.40424, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;toolPaint.Parent" xml:space="preserve">
+    <value>panel1</value>
+  </data>
+  <data name="&gt;&gt;toolPaint.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="&gt;&gt;toolHeightmap.Name" xml:space="preserve">
+    <value>toolHeightmap</value>
+  </data>
+  <data name="&gt;&gt;toolHeightmap.Type" xml:space="preserve">
+    <value>Cubed.UI.Controls.NSRadioIconicButton, Editor, Version=1.0.6853.40424, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;toolHeightmap.Parent" xml:space="preserve">
+    <value>panel1</value>
+  </data>
+  <data name="&gt;&gt;toolHeightmap.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="&gt;&gt;toolFloors.Name" xml:space="preserve">
+    <value>toolFloors</value>
+  </data>
+  <data name="&gt;&gt;toolFloors.Type" xml:space="preserve">
+    <value>Cubed.UI.Controls.NSRadioIconicButton, Editor, Version=1.0.6853.40424, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;toolFloors.Parent" xml:space="preserve">
+    <value>panel1</value>
+  </data>
+  <data name="&gt;&gt;toolFloors.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="&gt;&gt;toolWalls.Name" xml:space="preserve">
+    <value>toolWalls</value>
+  </data>
+  <data name="&gt;&gt;toolWalls.Type" xml:space="preserve">
+    <value>Cubed.UI.Controls.NSRadioIconicButton, Editor, Version=1.0.6853.40424, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;toolWalls.Parent" xml:space="preserve">
+    <value>panel1</value>
+  </data>
+  <data name="&gt;&gt;toolWalls.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="&gt;&gt;toolSelect.Name" xml:space="preserve">
+    <value>toolSelect</value>
+  </data>
+  <data name="&gt;&gt;toolSelect.Type" xml:space="preserve">
+    <value>Cubed.UI.Controls.NSRadioIconicButton, Editor, Version=1.0.6853.40424, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;toolSelect.Parent" xml:space="preserve">
+    <value>panel1</value>
+  </data>
+  <data name="&gt;&gt;toolSelect.ZOrder" xml:space="preserve">
+    <value>5</value>
+  </data>
+  <data name="panel1.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Left</value>
+  </data>
+  <data name="panel1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 28</value>
+  </data>
+  <data name="panel1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>54, 500</value>
+  </data>
+  <data name="panel1.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="&gt;&gt;panel1.Name" xml:space="preserve">
+    <value>panel1</value>
+  </data>
+  <data name="&gt;&gt;panel1.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Panel, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;panel1.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;panel1.ZOrder" xml:space="preserve">
+    <value>1</value>
   </data>
   <data name="toolLogics.IconImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
@@ -361,7 +457,7 @@
     <value>toolLogics</value>
   </data>
   <data name="&gt;&gt;toolLogics.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSRadioIconicButton, Editor, Version=1.0.6811.41787, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSRadioIconicButton, Editor, Version=1.0.6853.40424, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;toolLogics.Parent" xml:space="preserve">
     <value>panel1</value>
@@ -565,7 +661,7 @@
     <value>toolPaint</value>
   </data>
   <data name="&gt;&gt;toolPaint.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSRadioIconicButton, Editor, Version=1.0.6811.41787, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSRadioIconicButton, Editor, Version=1.0.6853.40424, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;toolPaint.Parent" xml:space="preserve">
     <value>panel1</value>
@@ -626,7 +722,7 @@
     <value>toolHeightmap</value>
   </data>
   <data name="&gt;&gt;toolHeightmap.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSRadioIconicButton, Editor, Version=1.0.6811.41787, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSRadioIconicButton, Editor, Version=1.0.6853.40424, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;toolHeightmap.Parent" xml:space="preserve">
     <value>panel1</value>
@@ -741,7 +837,7 @@
     <value>toolFloors</value>
   </data>
   <data name="&gt;&gt;toolFloors.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSRadioIconicButton, Editor, Version=1.0.6811.41787, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSRadioIconicButton, Editor, Version=1.0.6853.40424, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;toolFloors.Parent" xml:space="preserve">
     <value>panel1</value>
@@ -871,7 +967,7 @@
     <value>toolWalls</value>
   </data>
   <data name="&gt;&gt;toolWalls.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSRadioIconicButton, Editor, Version=1.0.6811.41787, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSRadioIconicButton, Editor, Version=1.0.6853.40424, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;toolWalls.Parent" xml:space="preserve">
     <value>panel1</value>
@@ -1003,7 +1099,7 @@
     <value>toolSelect</value>
   </data>
   <data name="&gt;&gt;toolSelect.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSRadioIconicButton, Editor, Version=1.0.6811.41787, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSRadioIconicButton, Editor, Version=1.0.6853.40424, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;toolSelect.Parent" xml:space="preserve">
     <value>panel1</value>
@@ -1011,29 +1107,40 @@
   <data name="&gt;&gt;toolSelect.ZOrder" xml:space="preserve">
     <value>5</value>
   </data>
-  <data name="panel1.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
-    <value>Left</value>
+  <data name="snapToGrid.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Right</value>
   </data>
-  <data name="panel1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 28</value>
+  <data name="snapToGrid.IconImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        xAAADsQBlSsOGwAAATJJREFUOE+Nk7FKA0EYhI8UIU8gIinzAGIdrMRHsEgdUoiFle8gclgEsbAMYp0i
+        pLCSlD5CsJZUIVilyOk3P3PGmD3jwEd2/5k5uN1LVqWiKBowgI5H/xelJrxCDm9waGu3CLdhBo/e38Ak
+        zF0i2IPlJ+J3BUN4gT1H0iJQgz6oG9Ia7qHuWLUI3bkXYr+Enu2/RfAUXI2y3r9te0t4+zCBo3Iwdlfl
+        ObTCSAivDipfg26no+HCfT0gdzYp/AcYen0LAy1W7usBV5FMCO/cGd3OE+g7aciYRhuxfnZ+Q8yPIa5X
+        Yv0OzdLMPZchLsKw2Ldg5oh83dD6kNkcwM9zEGO4BB3W3FbpdV1di+EZfJ9Flcj0XdmWH/Lh7IaYRxlq
+        jqdFQK+jf+AUdNoLGMGJI7+UZV+NdetEKcONMgAAAABJRU5ErkJggg==
+</value>
   </data>
-  <data name="panel1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>54, 500</value>
+  <data name="snapToGrid.Location" type="System.Drawing.Point, System.Drawing">
+    <value>530, 2</value>
   </data>
-  <data name="panel1.TabIndex" type="System.Int32, mscorlib">
+  <data name="snapToGrid.Size" type="System.Drawing.Size, System.Drawing">
+    <value>24, 24</value>
+  </data>
+  <data name="snapToGrid.TabIndex" type="System.Int32, mscorlib">
+    <value>9</value>
+  </data>
+  <data name="&gt;&gt;snapToGrid.Name" xml:space="preserve">
+    <value>snapToGrid</value>
+  </data>
+  <data name="&gt;&gt;snapToGrid.Type" xml:space="preserve">
+    <value>Cubed.UI.Controls.NSCheckboxIconicButton, Editor, Version=1.0.6853.40424, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;snapToGrid.Parent" xml:space="preserve">
+    <value>panel2</value>
+  </data>
+  <data name="&gt;&gt;snapToGrid.ZOrder" xml:space="preserve">
     <value>0</value>
-  </data>
-  <data name="&gt;&gt;panel1.Name" xml:space="preserve">
-    <value>panel1</value>
-  </data>
-  <data name="&gt;&gt;panel1.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Panel, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;panel1.Parent" xml:space="preserve">
-    <value>$this</value>
-  </data>
-  <data name="&gt;&gt;panel1.ZOrder" xml:space="preserve">
-    <value>1</value>
   </data>
   <data name="soundsEnabledFlag.IconImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
@@ -1057,13 +1164,13 @@
     <value>soundsEnabledFlag</value>
   </data>
   <data name="&gt;&gt;soundsEnabledFlag.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSCheckboxIconicButton, Editor, Version=1.0.6811.41787, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSCheckboxIconicButton, Editor, Version=1.0.6853.40424, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;soundsEnabledFlag.Parent" xml:space="preserve">
     <value>panel2</value>
   </data>
   <data name="&gt;&gt;soundsEnabledFlag.ZOrder" xml:space="preserve">
-    <value>0</value>
+    <value>1</value>
   </data>
   <data name="lightsEnabledFlag.IconImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
@@ -1087,13 +1194,13 @@
     <value>lightsEnabledFlag</value>
   </data>
   <data name="&gt;&gt;lightsEnabledFlag.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSCheckboxIconicButton, Editor, Version=1.0.6811.41787, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSCheckboxIconicButton, Editor, Version=1.0.6853.40424, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;lightsEnabledFlag.Parent" xml:space="preserve">
     <value>panel2</value>
   </data>
   <data name="&gt;&gt;lightsEnabledFlag.ZOrder" xml:space="preserve">
-    <value>1</value>
+    <value>2</value>
   </data>
   <data name="skyboxEnabledFlag.IconImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
@@ -1117,13 +1224,16 @@
     <value>skyboxEnabledFlag</value>
   </data>
   <data name="&gt;&gt;skyboxEnabledFlag.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSCheckboxIconicButton, Editor, Version=1.0.6811.41787, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSCheckboxIconicButton, Editor, Version=1.0.6853.40424, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;skyboxEnabledFlag.Parent" xml:space="preserve">
     <value>panel2</value>
   </data>
   <data name="&gt;&gt;skyboxEnabledFlag.ZOrder" xml:space="preserve">
-    <value>2</value>
+    <value>3</value>
+  </data>
+  <data name="scriptOptionsButton.Enabled" type="System.Boolean, mscorlib">
+    <value>False</value>
   </data>
   <data name="scriptOptionsButton.IconImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
@@ -1150,13 +1260,13 @@
     <value>scriptOptionsButton</value>
   </data>
   <data name="&gt;&gt;scriptOptionsButton.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSIconicButton, Editor, Version=1.0.6811.41787, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSIconicButton, Editor, Version=1.0.6853.40424, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;scriptOptionsButton.Parent" xml:space="preserve">
     <value>panel2</value>
   </data>
   <data name="&gt;&gt;scriptOptionsButton.ZOrder" xml:space="preserve">
-    <value>3</value>
+    <value>4</value>
   </data>
   <data name="envOptionsButton.IconImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
@@ -1184,13 +1294,13 @@
     <value>envOptionsButton</value>
   </data>
   <data name="&gt;&gt;envOptionsButton.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSIconicButton, Editor, Version=1.0.6811.41787, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSIconicButton, Editor, Version=1.0.6853.40424, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;envOptionsButton.Parent" xml:space="preserve">
     <value>panel2</value>
   </data>
   <data name="&gt;&gt;envOptionsButton.ZOrder" xml:space="preserve">
-    <value>4</value>
+    <value>5</value>
   </data>
   <data name="floorDown.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Right</value>
@@ -1216,13 +1326,13 @@
     <value>floorDown</value>
   </data>
   <data name="&gt;&gt;floorDown.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSIconicButton, Editor, Version=1.0.6811.41787, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSIconicButton, Editor, Version=1.0.6853.40424, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;floorDown.Parent" xml:space="preserve">
     <value>panel2</value>
   </data>
   <data name="&gt;&gt;floorDown.ZOrder" xml:space="preserve">
-    <value>5</value>
+    <value>6</value>
   </data>
   <data name="floorUp.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Right</value>
@@ -1248,13 +1358,13 @@
     <value>floorUp</value>
   </data>
   <data name="&gt;&gt;floorUp.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSIconicButton, Editor, Version=1.0.6811.41787, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSIconicButton, Editor, Version=1.0.6853.40424, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;floorUp.Parent" xml:space="preserve">
     <value>panel2</value>
   </data>
   <data name="&gt;&gt;floorUp.ZOrder" xml:space="preserve">
-    <value>6</value>
+    <value>7</value>
   </data>
   <data name="walkModeEnable.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Right</value>
@@ -1284,13 +1394,13 @@
     <value>walkModeEnable</value>
   </data>
   <data name="&gt;&gt;walkModeEnable.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSCheckboxIconicButton, Editor, Version=1.0.6811.41787, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSCheckboxIconicButton, Editor, Version=1.0.6853.40424, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;walkModeEnable.Parent" xml:space="preserve">
     <value>panel2</value>
   </data>
   <data name="&gt;&gt;walkModeEnable.ZOrder" xml:space="preserve">
-    <value>7</value>
+    <value>8</value>
   </data>
   <data name="floorIndex.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Right</value>
@@ -1314,13 +1424,13 @@
     <value>floorIndex</value>
   </data>
   <data name="&gt;&gt;floorIndex.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSLabel, Editor, Version=1.0.6811.41787, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSLabel, Editor, Version=1.0.6853.40424, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;floorIndex.Parent" xml:space="preserve">
     <value>panel2</value>
   </data>
   <data name="&gt;&gt;floorIndex.ZOrder" xml:space="preserve">
-    <value>8</value>
+    <value>9</value>
   </data>
   <data name="panel2.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
     <value>Top</value>
@@ -1359,6 +1469,6 @@
     <value>MapEditor</value>
   </data>
   <data name="&gt;&gt;$this.Type" xml:space="preserve">
-    <value>Cubed.Forms.Common.EditorForm, Editor, Version=1.0.6811.41787, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.Forms.Common.EditorForm, Editor, Version=1.0.6853.40424, Culture=neutral, PublicKeyToken=null</value>
   </data>
 </root>

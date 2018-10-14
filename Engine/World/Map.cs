@@ -1559,6 +1559,7 @@ namespace Cubed.World {
 				GL.Enable(EnableCap.Blend);
 				GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.One);		
 				GL.Enable(EnableCap.Texture2D);
+
 				foreach (Light l in affectedLights) {
 					Vector2 pos = new Vector2(l.Position.X - Location.X * BLOCKS, l.Position.Z - Location.Z * BLOCKS);
 
@@ -1575,6 +1576,7 @@ namespace Cubed.World {
 					GL.TexCoord2(0.5f - tf * 0.5f, 0.5f - tf * 0.5f);
 					GL.Vertex2(pos.X - l.Range, (pos.Y + l.Range));
 					GL.End();
+
 				}
 				GL.Disable(EnableCap.Blend);
 

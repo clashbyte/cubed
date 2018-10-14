@@ -23,14 +23,14 @@ namespace Cubed.Forms.Inspections.Fields {
 		public override void UpdateValue() {
 			object obj = ReadValue();
 			if (obj != null) {
-				if (obj is Color) {
+				if (obj is Color && pickerForm == null) {
 					customSwitch = true;
 					color = (Color)obj;
 					customSwitch = false;
 				}
 			}
 			if (pickerForm != null) {
-				pickerForm.Value = color;
+				//pickerForm.Value = color;
 			}
 			colorPickerShowButton.SelectedColor = color;
 			colorPickerShowButton.Enabled = Info.CanWrite;

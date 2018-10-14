@@ -64,6 +64,8 @@ namespace Cubed.Forms.Common {
 		/// </summary>
 		public enum CloseAction {
 			ProjectClose,
+			ProjectSwitch,
+			ProjectSwitchToNew,
 			FullClose
 		}
 

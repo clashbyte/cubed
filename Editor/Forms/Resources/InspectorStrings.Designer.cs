@@ -151,6 +151,24 @@ namespace Cubed.Forms.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Level End.
+        /// </summary>
+        internal static string LevelEnd {
+            get {
+                return ResourceManager.GetString("LevelEnd", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Zone that ends current level.
+        /// </summary>
+        internal static string LevelEndDesc {
+            get {
+                return ResourceManager.GetString("LevelEndDesc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Light.
         /// </summary>
         internal static string Light {
@@ -165,6 +183,24 @@ namespace Cubed.Forms.Resources {
         internal static string LightDesc {
             get {
                 return ResourceManager.GetString("LightDesc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Player.
+        /// </summary>
+        internal static string Player {
+            get {
+                return ResourceManager.GetString("Player", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Starting point for player.
+        /// </summary>
+        internal static string PlayerDesc {
+            get {
+                return ResourceManager.GetString("PlayerDesc", resourceCulture);
             }
         }
         

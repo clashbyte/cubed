@@ -142,69 +142,80 @@ namespace Cubed.Forms.Editors.Map {
 			foreach (Project.EntryEventArgs ee in e.Events) {
 				
 				// Handling map changes
-				if (cachedTextures.ContainsKey(ee.Entry as Project.Entry)) {
-					if (ee.Type == Project.EntryEvent.Modified) {
-						cachedTextures[ee.Entry as Project.Entry].Reload();
-					} else if(ee.Type == Project.EntryEvent.Deleted) {
-						Graphics.Texture tx = cachedTextures[ee.Entry as Project.Entry];
-						foreach (World.Map.Chunk ch in map.GetAllChunks()) {
-							for (int y = 0; y < World.Map.Chunk.BLOCKS; y++) {
-								for (int x = 0; x < World.Map.Chunk.BLOCKS; x++) {
-									World.Map.Block b = ch[x, y];
-									bool needRewrite = true;
-									if (b is World.Map.WallBlock) {
-										World.Map.WallBlock wb = b as World.Map.WallBlock;
-										for (int i = 0; i < 6; i++) {
-											World.Map.Side side = (World.Map.Side)i;
-											if (wb[side] == tx) {
-												wb[side] = emptyWallTex;
+				if (ee.Entry is Project.Entry) {
+					bool changes = false;
+
+					if (cachedTextures.ContainsKey(ee.Entry as Project.Entry)) {
+						if (ee.Type == Project.EntryEvent.Modified) {
+							cachedTextures[ee.Entry as Project.Entry].Reload();
+						} else if (ee.Type == Project.EntryEvent.Deleted) {
+							Graphics.Texture tx = cachedTextures[ee.Entry as Project.Entry];
+							foreach (World.Map.Chunk ch in map.GetAllChunks()) {
+								for (int y = 0; y < World.Map.Chunk.BLOCKS; y++) {
+									for (int x = 0; x < World.Map.Chunk.BLOCKS; x++) {
+										World.Map.Block b = ch[x, y];
+										bool needRewrite = true;
+										if (b is World.Map.WallBlock) {
+											World.Map.WallBlock wb = b as World.Map.WallBlock;
+											for (int i = 0; i < 6; i++) {
+												World.Map.Side side = (World.Map.Side)i;
+												if (wb[side] == tx) {
+													wb[side] = emptyWallTex;
+													needRewrite = true;
+												}
+											}
+										} else if (b is World.Map.FloorBlock) {
+											World.Map.FloorBlock fb = b as World.Map.FloorBlock;
+											if (fb.Floor == tx) {
+												fb.Floor = emptyFloorTex;
 												needRewrite = true;
 											}
-										}
-									} else if (b is World.Map.FloorBlock) {
-										World.Map.FloorBlock fb = b as World.Map.FloorBlock;
-										if (fb.Floor == tx) {
-											fb.Floor = emptyFloorTex;
-											needRewrite = true;
-										}
-										if (fb.Ceiling == tx) {
-											fb.Ceiling = emptyCeilTex;
-											needRewrite = true;
-										}
-										for (int i = 0; i < 4; i++) {
-											World.Map.Side side = (World.Map.Side)i;
-											if (fb.FloorTrim[side] == tx) {
-												fb.FloorTrim[side] = emptyFloorTex;
+											if (fb.Ceiling == tx) {
+												fb.Ceiling = emptyCeilTex;
 												needRewrite = true;
 											}
-											if (fb.CeilingTrim[side] == tx) {
-												fb.CeilingTrim[side] = emptyCeilTex;
-												needRewrite = true;
+											for (int i = 0; i < 4; i++) {
+												World.Map.Side side = (World.Map.Side)i;
+												if (fb.FloorTrim[side] == tx) {
+													fb.FloorTrim[side] = emptyFloorTex;
+													needRewrite = true;
+												}
+												if (fb.CeilingTrim[side] == tx) {
+													fb.CeilingTrim[side] = emptyCeilTex;
+													needRewrite = true;
+												}
 											}
 										}
-									}
-									if (needRewrite) {
-										map.SetBlockAtCoords((int)ch.Location.X * World.Map.Chunk.BLOCKS + x, (int)ch.Location.Y, (int)ch.Location.Z * World.Map.Chunk.BLOCKS + y, b);
+										if (needRewrite) {
+											map.SetBlockAtCoords((int)ch.Location.X * World.Map.Chunk.BLOCKS + x, (int)ch.Location.Y, (int)ch.Location.Z * World.Map.Chunk.BLOCKS + y, b);
+											changes = true;
+										}
 									}
 								}
 							}
 						}
 					}
-				}
 
-				if (environment.Sky != null) {
-					for (int i = 0; i < 6; i++) {
-						World.Skybox.Side side = (World.Skybox.Side)i;
-						if (environment.Sky[side] != null && environment.Sky[side].Link == ee.Entry.Path) {
-							if (ee.Type == Project.EntryEvent.Modified) {
-								environment.Sky[side].Reload();
-								break;
-							} else if(ee.Type == Project.EntryEvent.Deleted) {
-								environment.Sky[side] = null;
+					if (environment.Sky != null) {
+						for (int i = 0; i < 6; i++) {
+							World.Skybox.Side side = (World.Skybox.Side)i;
+							if (environment.Sky[side] != null && environment.Sky[side].Link == ee.Entry.Path) {
+								if (ee.Type == Project.EntryEvent.Modified) {
+									environment.Sky[side].Reload();
+									break;
+								} else if (ee.Type == Project.EntryEvent.Deleted) {
+									environment.Sky[side] = null;
+								}
+								changes = true;
 							}
 						}
 					}
+
+					if (changes) {
+						Saved = false;
+					}
 				}
+				
 			}
 		}
 
@@ -229,6 +240,14 @@ namespace Cubed.Forms.Editors.Map {
 			}
 			return tex;
 		}
-		
+
+		/// <summary>
+		/// Triggering changes
+		/// </summary>
+		void TriggerChanges() {
+
+			Saved = false;
+		}
+
 	}
 }

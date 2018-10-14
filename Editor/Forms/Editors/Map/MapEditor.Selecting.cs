@@ -38,6 +38,11 @@ namespace Cubed.Forms.Editors.Map {
 		EditableObject draggingNewObject;
 
 		/// <summary>
+		/// Current editing gizmo
+		/// </summary>
+		Gizmo currentGizmo;
+
+		/// <summary>
 		/// Screen dragging location
 		/// </summary>
 		Vector2 draggingScreenLocation;
@@ -92,6 +97,12 @@ namespace Cubed.Forms.Editors.Map {
 					VerticalAlign = UserInterface.Align.Start
 				});
 			}
+			foreach (EditableObject reo in sceneSelectedObjects) {
+				reo.Select(scene);
+				foreach (Gizmo g in reo.ControlGizmos) {
+					g.Assign(scene, reo.Gizmo);
+				}
+			}
 			engine.Interface = selectInterface;
 		}
 
@@ -104,6 +115,12 @@ namespace Cubed.Forms.Editors.Map {
 				draggingNewObject.Destroy(scene);
 				draggingNewObject = null;
 			}
+			foreach (EditableObject reo in sceneSelectedObjects) {
+				reo.Deselect(scene);
+				foreach (Gizmo g in reo.ControlGizmos) {
+					g.Unassign(scene);
+				}
+			}
 		}
 
 		/// <summary>
@@ -112,6 +129,7 @@ namespace Cubed.Forms.Editors.Map {
 		void SelectToolUpdate() {
 
 			// Picking current grid position
+			System.Windows.Forms.Cursor cursor = Cursors.Default;
 			Vector2 mousePos = Input.Controls.Mouse;
 			if (draggingNewObject != null) {
 				mousePos = draggingScreenLocation;
@@ -158,8 +176,8 @@ namespace Cubed.Forms.Editors.Map {
 			// Picking entity
 			EditableObject pickedObject = null;
 			Vector3 objectPickPos = Vector3.Zero;
+			float dist = float.MaxValue;
 			if (draggingNewObject == null) {
-				float dist = float.MaxValue;
 				foreach (EditableObject eo in sceneObjects) {
 					Vector3 pos = eo.Prefab.Position + eo.BoundPosition;
 					Vector3 size = eo.BoundSize / 2f;
@@ -178,16 +196,39 @@ namespace Cubed.Forms.Editors.Map {
 
 			// Picking gizmo
 			Gizmo pickedGizmo = null;
-
-
-
-
+			if (draggingNewObject == null) {
+				foreach (EditableObject eo in sceneSelectedObjects) {
+					foreach (Gizmo gz in eo.ControlGizmos) {
+						float hdist = 0;
+						if (gz.Hit(camPos, camDir, out hdist)) {
+							if (hdist < dist) {
+								pickedGizmo = gz;
+								pickedObject = eo;
+								dist = hdist;
+							}
+						}
+					}
+				}
+				foreach (EditableObject eo in sceneSelectedObjects) {
+					foreach (Gizmo gz in eo.ControlGizmos) {
+						System.Windows.Forms.Cursor cur = Cursors.Default;
+						gz.Update(camPos, camDir, 1f, pickedGizmo == gz || currentGizmo == gz, out cur);
+						if (pickedGizmo == gz || currentGizmo == gz) {
+							cursor = cur;
+						}
+					}
+				}
+			}
+			
 			// Selection
 			if (Input.Controls.MouseHit(MouseButton.Left) && !display.MouseLock) {
 				if (pickedObject != null) {
 					if (pickedGizmo != null) {
-
+						TriggerChanges();
+						currentGizmo = pickedGizmo;
+						pickedGizmo.StartIteraction(camPos, camDir, Input.Controls.KeyDown(Key.ControlLeft));
 					} else {
+						TriggerChanges();
 						SelectEntity(pickedObject);
 						draggingObjects = true;
 						draggingOrigin = objectPickPos;
@@ -219,8 +260,12 @@ namespace Cubed.Forms.Editors.Map {
 					foreach (Entity ent in draggingPathEntities) {
 						scene.Entities.Remove(ent);
 					}
+					draggingPathEntities = null;
 				}
-				draggingPathEntities = null;
+				if (currentGizmo != null) {
+					currentGizmo.EndIteraction(camPos, camDir);
+					currentGizmo = null;
+				}
 				draggingObjects = false;
 				allowMouseLook = true;
 			}
@@ -246,21 +291,34 @@ namespace Cubed.Forms.Editors.Map {
 				}
 				if (picked) {
 					int idx = 0;
+
 					foreach (EditableObject eo in sceneSelectedObjects) {
-						eo.Prefab.Position = draggingEntityOrigins[idx] + (dragPickPos - draggingOrigin);
+						Vector3 pos = draggingEntityOrigins[idx] + (dragPickPos - draggingOrigin);
+						if (snapToGrid.Checked) {
+							pos.X = (float)Math.Round(pos.X / 0.25f) * 0.25f;
+							pos.Y = (float)Math.Round(pos.Y / 0.25f) * 0.25f;
+							pos.Z = (float)Math.Round(pos.Z / 0.25f) * 0.25f;
+						}
+						eo.Prefab.Position = pos;
 						draggingPathEntities[idx].GetComponent<LineComponent>().Vertices = new Vector3[]{
 							eo.BoundPosition,
-							eo.BoundPosition - (dragPickPos - draggingOrigin)
+							eo.BoundPosition - (eo.Prefab.Position - draggingEntityOrigins[idx])
 						};
 						idx++;
 					}
 				}
+			} else if (currentGizmo != null) {
+				currentGizmo.UpdateIteraction(camPos, camDir);
 			}
 
 			// Removing
 			if (Input.Controls.KeyHit(Key.Delete) && !Input.Controls.MouseDown(MouseButton.Left)) {
+				TriggerChanges();
 				foreach (EditableObject reo in sceneSelectedObjects) {
 					reo.Deselect(scene);
+					foreach (Gizmo g in reo.ControlGizmos) {
+						g.Unassign(scene);
+					}
 					reo.Destroy(scene);
 					sceneObjects.Remove(reo);
 				}
@@ -292,8 +350,19 @@ namespace Cubed.Forms.Editors.Map {
 						newPos.Y -= bound.Y;
 						break;
 				}
-				draggingNewObject.Prefab.Position = newPos;
+				Vector3 pos = newPos;
+				if (snapToGrid.Checked) {
+					pos.X = (float)Math.Round(pos.X / 0.25f) * 0.25f;
+					pos.Y = (float)Math.Round(pos.Y / 0.25f) * 0.25f;
+					pos.Z = (float)Math.Round(pos.Z / 0.25f) * 0.25f;
+				}
+				draggingNewObject.Prefab.Position = pos;
 				draggingNewObject.EditorUpdate(scene);
+			}
+
+			// Cursors
+			if (cursor != screen.Cursor) {
+				screen.Cursor = cursor;
 			}
 		}
 
@@ -307,17 +376,18 @@ namespace Cubed.Forms.Editors.Map {
 				if (!Input.Controls.KeyDown(Key.ShiftLeft)) {
 					foreach (EditableObject e in sceneSelectedObjects) {
 						e.Deselect(scene);
-
-						// Removing gizmos here
+						foreach (Gizmo g in e.ControlGizmos) {
+							g.Unassign(scene);
+						}
 					}
 					sceneSelectedObjects.Clear();
 				}
 				if (eo != null) {
 					eo.Select(scene);
 					sceneSelectedObjects.Add(eo);
-
-					// Adding gizmos here
-
+					foreach (Gizmo g in eo.ControlGizmos) {
+						g.Assign(scene, eo.Gizmo);
+					}
 					if (sceneSelectedObjects.Count == 1) {
 						inspectorObject = eo;
 					}
@@ -416,6 +486,7 @@ namespace Cubed.Forms.Editors.Map {
 				draggingScreenLocation = new Vector2(mouse.X, mouse.Y);
 
 				// Dropping item
+				TriggerChanges();
 				sceneObjects.Add(draggingNewObject);
 				SelectEntity(draggingNewObject);
 				draggingNewObject = null;
