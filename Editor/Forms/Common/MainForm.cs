@@ -41,6 +41,15 @@ namespace Cubed.Forms.Common
 		}
 
 		/// <summary>
+		/// Updating title
+		/// </summary>
+		public static void UpdateTitle() {
+			if (Project.Info != null && Current != null) {
+				Current.Text = Project.Info.Basic.Name + " - Cubed Editor";
+			}
+		}
+
+		/// <summary>
 		/// Starting this form
 		/// </summary>
 		/// <returns>Dialog result</returns>
@@ -64,6 +73,7 @@ namespace Cubed.Forms.Common
 			
 			// Registering form
 			Current = this;
+			UpdateTitle();
 
 			// Populating project hierarchy
 			Preview.PreviewReady += Preview_PreviewReady;

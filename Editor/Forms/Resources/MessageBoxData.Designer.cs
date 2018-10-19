@@ -70,6 +70,24 @@ namespace Cubed.Forms.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Project you are trying to open is broken! Do you want to proceed?.
+        /// </summary>
+        internal static string brokenProjectBody {
+            get {
+                return ResourceManager.GetString("brokenProjectBody", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Broken project.
+        /// </summary>
+        internal static string brokenProjectTitle {
+            get {
+                return ResourceManager.GetString("brokenProjectTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap buttonIgnore {
@@ -129,6 +147,42 @@ namespace Cubed.Forms.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to File has been changed outside editor. Do you want to reload it from disk?.
+        /// </summary>
+        internal static string fileChangedBody {
+            get {
+                return ResourceManager.GetString("fileChangedBody", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to File changed.
+        /// </summary>
+        internal static string fileChangedTitle {
+            get {
+                return ResourceManager.GetString("fileChangedTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to File removed from disk. Do you want to keep in editor?.
+        /// </summary>
+        internal static string fileRemovedBody {
+            get {
+                return ResourceManager.GetString("fileRemovedBody", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to File removed.
+        /// </summary>
+        internal static string fileRemovedTitle {
+            get {
+                return ResourceManager.GetString("fileRemovedTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Ignore.
         /// </summary>
         internal static string ignoreLabel {
@@ -144,6 +198,60 @@ namespace Cubed.Forms.Resources {
             get {
                 object obj = ResourceManager.GetObject("infoIcon", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Specify folder name:.
+        /// </summary>
+        internal static string newFolderBody {
+            get {
+                return ResourceManager.GetString("newFolderBody", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to New folder.
+        /// </summary>
+        internal static string newFolderTitle {
+            get {
+                return ResourceManager.GetString("newFolderTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Specify item name:.
+        /// </summary>
+        internal static string newItemBody {
+            get {
+                return ResourceManager.GetString("newItemBody", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to New Entry.
+        /// </summary>
+        internal static string newItemTitle {
+            get {
+                return ResourceManager.GetString("newItemTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Specify preset file name:.
+        /// </summary>
+        internal static string newPrefabBody {
+            get {
+                return ResourceManager.GetString("newPrefabBody", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Create preset.
+        /// </summary>
+        internal static string newPrefabTitle {
+            get {
+                return ResourceManager.GetString("newPrefabTitle", resourceCulture);
             }
         }
         
@@ -176,11 +284,65 @@ namespace Cubed.Forms.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Are you sure want to delete %FILE%?.
+        /// </summary>
+        internal static string removeBody {
+            get {
+                return ResourceManager.GetString("removeBody", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Removing.
+        /// </summary>
+        internal static string removeTitle {
+            get {
+                return ResourceManager.GetString("removeTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Specify new name for entry:.
+        /// </summary>
+        internal static string renameBody {
+            get {
+                return ResourceManager.GetString("renameBody", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Change name.
+        /// </summary>
+        internal static string renameTitle {
+            get {
+                return ResourceManager.GetString("renameTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Retry.
         /// </summary>
         internal static string retryLabel {
             get {
                 return ResourceManager.GetString("retryLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to File contains unsaved changes. Do you want to save them?.
+        /// </summary>
+        internal static string saveChangesBody {
+            get {
+                return ResourceManager.GetString("saveChangesBody", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unsaved changes.
+        /// </summary>
+        internal static string saveChangesTitle {
+            get {
+                return ResourceManager.GetString("saveChangesTitle", resourceCulture);
             }
         }
         

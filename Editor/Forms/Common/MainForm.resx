@@ -134,6 +134,22 @@
   <data name="propsContainer.Location" type="System.Drawing.Point, System.Drawing">
     <value>0, 0</value>
   </data>
+  <data name="tabPage1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>4, 30</value>
+  </data>
+  <data name="tabPage1.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>0, 0, 0, 0</value>
+  </data>
+  <data name="tabPage1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>692, 299</value>
+  </data>
+  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="tabPage1.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="tabPage1.Text" xml:space="preserve">
+    <value>tabPage1</value>
+  </data>
   <data name="&gt;&gt;tabPage1.Name" xml:space="preserve">
     <value>tabPage1</value>
   </data>
@@ -145,6 +161,24 @@
   </data>
   <data name="&gt;&gt;tabPage1.ZOrder" xml:space="preserve">
     <value>0</value>
+  </data>
+  <data name="tabPage2.Location" type="System.Drawing.Point, System.Drawing">
+    <value>4, 30</value>
+  </data>
+  <data name="tabPage2.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>0, 0, 0, 0</value>
+  </data>
+  <data name="tabPage2.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>3, 3, 3, 3</value>
+  </data>
+  <data name="tabPage2.Size" type="System.Drawing.Size, System.Drawing">
+    <value>692, 299</value>
+  </data>
+  <data name="tabPage2.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="tabPage2.Text" xml:space="preserve">
+    <value>tabPage2</value>
   </data>
   <data name="&gt;&gt;tabPage2.Name" xml:space="preserve">
     <value>tabPage2</value>
@@ -170,7 +204,6 @@
   <data name="editorsControl.Size" type="System.Drawing.Size, System.Drawing">
     <value>700, 333</value>
   </data>
-  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="editorsControl.TabIndex" type="System.Int32, mscorlib">
     <value>1</value>
   </data>
@@ -178,7 +211,7 @@
     <value>editorsControl</value>
   </data>
   <data name="&gt;&gt;editorsControl.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSProjectControl, Editor, Version=1.0.6861.40624, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSProjectControl, Editor, Version=1.0.6864.2548, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;editorsControl.Parent" xml:space="preserve">
     <value>propsContainer.Panel1</value>
@@ -214,7 +247,7 @@
     <value>inspector</value>
   </data>
   <data name="&gt;&gt;inspector.Type" xml:space="preserve">
-    <value>Cubed.Forms.Inspections.Inspector, Editor, Version=1.0.6861.40624, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.Forms.Inspections.Inspector, Editor, Version=1.0.6864.2548, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;inspector.Parent" xml:space="preserve">
     <value>propsContainer.Panel2</value>
@@ -270,17 +303,107 @@
   <data name="&gt;&gt;filesContainer.Panel1.ZOrder" xml:space="preserve">
     <value>0</value>
   </data>
+  <data name="projectControl.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Fill</value>
+  </data>
+  <data name="projectControl.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Tahoma, 8pt</value>
+  </data>
+  <data name="projectControl.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="projectControl.Size" type="System.Drawing.Size, System.Drawing">
+    <value>888, 163</value>
+  </data>
+  <data name="projectControl.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="projectControl.Text" xml:space="preserve">
+    <value>nsDirectoryInspector1</value>
+  </data>
   <data name="&gt;&gt;projectControl.Name" xml:space="preserve">
     <value>projectControl</value>
   </data>
   <data name="&gt;&gt;projectControl.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSDirectoryInspector, Editor, Version=1.0.6861.40624, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSDirectoryInspector, Editor, Version=1.0.6864.2548, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;projectControl.Parent" xml:space="preserve">
     <value>panel1</value>
   </data>
   <data name="&gt;&gt;projectControl.ZOrder" xml:space="preserve">
     <value>0</value>
+  </data>
+  <data name="projectUpButton.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Right</value>
+  </data>
+  <data name="projectUpButton.IconImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        xAAADsQBlSsOGwAAAMNJREFUOE/ljLERglAQRBkDSiAipAQCKqACIqpwDGzCwCIMLcCxGCMjYyMD+b7F
+        VQdExNidefPv7+5dNKamaRbC39/EYg1XU9ueJhZKuMDKaC4dj4tiDmfYwMxolpe7NiwKGZxgD7Ft+bE9
+        ZZntrggSOECAXQhh7ijSLM+ZOomjlzCXFLfmqNeRDjw9oa6jYT2K/r79v+pfD1CoIPWshb7aA7wpVJo7
+        aisOeAvNPQpnmoPmjmSiNfQX+6jz8cBk3bei6AYYQJMuBkPUsgAAAABJRU5ErkJggg==
+</value>
+  </data>
+  <data name="projectUpButton.Location" type="System.Drawing.Point, System.Drawing">
+    <value>797, 6</value>
+  </data>
+  <data name="projectUpButton.Size" type="System.Drawing.Size, System.Drawing">
+    <value>91, 25</value>
+  </data>
+  <data name="projectUpButton.TabIndex" type="System.Int32, mscorlib">
+    <value>8</value>
+  </data>
+  <data name="projectUpButton.Text" xml:space="preserve">
+    <value>Наверх</value>
+  </data>
+  <data name="&gt;&gt;projectUpButton.Name" xml:space="preserve">
+    <value>projectUpButton</value>
+  </data>
+  <data name="&gt;&gt;projectUpButton.Type" xml:space="preserve">
+    <value>Cubed.UI.Controls.NSIconicButton, Editor, Version=1.0.6864.2548, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;projectUpButton.Parent" xml:space="preserve">
+    <value>panel2</value>
+  </data>
+  <data name="&gt;&gt;projectUpButton.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="projectPath.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Right</value>
+  </data>
+  <data name="projectPath.Location" type="System.Drawing.Point, System.Drawing">
+    <value>372, 6</value>
+  </data>
+  <data name="projectPath.Size" type="System.Drawing.Size, System.Drawing">
+    <value>429, 25</value>
+  </data>
+  <data name="projectPath.TabIndex" type="System.Int32, mscorlib">
+    <value>7</value>
+  </data>
+  <data name="&gt;&gt;projectPath.Name" xml:space="preserve">
+    <value>projectPath</value>
+  </data>
+  <data name="&gt;&gt;projectPath.Type" xml:space="preserve">
+    <value>Cubed.UI.Controls.NSTextBox, Editor, Version=1.0.6864.2548, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;projectPath.Parent" xml:space="preserve">
+    <value>panel2</value>
+  </data>
+  <data name="&gt;&gt;projectPath.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="panel2.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Bottom</value>
+  </data>
+  <data name="panel2.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 163</value>
+  </data>
+  <data name="panel2.Size" type="System.Drawing.Size, System.Drawing">
+    <value>888, 37</value>
+  </data>
+  <data name="panel2.TabIndex" type="System.Int32, mscorlib">
+    <value>2</value>
   </data>
   <data name="&gt;&gt;panel2.Name" xml:space="preserve">
     <value>panel2</value>
@@ -337,7 +460,7 @@
     <value>projectFileInfo</value>
   </data>
   <data name="&gt;&gt;projectFileInfo.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSFileInfo, Editor, Version=1.0.6861.40624, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSFileInfo, Editor, Version=1.0.6864.2548, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;projectFileInfo.Parent" xml:space="preserve">
     <value>filesContainer.Panel2</value>
@@ -381,279 +504,9 @@
   <data name="&gt;&gt;filesContainer.ZOrder" xml:space="preserve">
     <value>2</value>
   </data>
-  <data name="tabPage1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>4, 30</value>
-  </data>
-  <data name="tabPage1.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>0, 0, 0, 0</value>
-  </data>
-  <data name="tabPage1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>692, 299</value>
-  </data>
-  <data name="tabPage1.TabIndex" type="System.Int32, mscorlib">
-    <value>0</value>
-  </data>
-  <data name="tabPage1.Text" xml:space="preserve">
-    <value>tabPage1</value>
-  </data>
-  <data name="&gt;&gt;tabPage1.Name" xml:space="preserve">
-    <value>tabPage1</value>
-  </data>
-  <data name="&gt;&gt;tabPage1.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TabPage, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;tabPage1.Parent" xml:space="preserve">
-    <value>editorsControl</value>
-  </data>
-  <data name="&gt;&gt;tabPage1.ZOrder" xml:space="preserve">
-    <value>0</value>
-  </data>
-  <data name="tabPage2.Location" type="System.Drawing.Point, System.Drawing">
-    <value>4, 30</value>
-  </data>
-  <data name="tabPage2.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>0, 0, 0, 0</value>
-  </data>
-  <data name="tabPage2.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>3, 3, 3, 3</value>
-  </data>
-  <data name="tabPage2.Size" type="System.Drawing.Size, System.Drawing">
-    <value>692, 299</value>
-  </data>
-  <data name="tabPage2.TabIndex" type="System.Int32, mscorlib">
-    <value>1</value>
-  </data>
-  <data name="tabPage2.Text" xml:space="preserve">
-    <value>tabPage2</value>
-  </data>
-  <data name="&gt;&gt;tabPage2.Name" xml:space="preserve">
-    <value>tabPage2</value>
-  </data>
-  <data name="&gt;&gt;tabPage2.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TabPage, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;tabPage2.Parent" xml:space="preserve">
-    <value>editorsControl</value>
-  </data>
-  <data name="&gt;&gt;tabPage2.ZOrder" xml:space="preserve">
-    <value>1</value>
-  </data>
-  <data name="projectControl.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
-    <value>Fill</value>
-  </data>
-  <data name="projectControl.Font" type="System.Drawing.Font, System.Drawing">
-    <value>Tahoma, 8pt</value>
-  </data>
-  <data name="projectControl.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 0</value>
-  </data>
-  <data name="projectControl.Size" type="System.Drawing.Size, System.Drawing">
-    <value>888, 163</value>
-  </data>
-  <data name="projectControl.TabIndex" type="System.Int32, mscorlib">
-    <value>1</value>
-  </data>
-  <data name="projectControl.Text" xml:space="preserve">
-    <value>nsDirectoryInspector1</value>
-  </data>
-  <data name="&gt;&gt;projectControl.Name" xml:space="preserve">
-    <value>projectControl</value>
-  </data>
-  <data name="&gt;&gt;projectControl.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSDirectoryInspector, Editor, Version=1.0.6861.40624, Culture=neutral, PublicKeyToken=null</value>
-  </data>
-  <data name="&gt;&gt;projectControl.Parent" xml:space="preserve">
-    <value>panel1</value>
-  </data>
-  <data name="&gt;&gt;projectControl.ZOrder" xml:space="preserve">
-    <value>0</value>
-  </data>
-  <data name="&gt;&gt;projectUpButton.Name" xml:space="preserve">
-    <value>projectUpButton</value>
-  </data>
-  <data name="&gt;&gt;projectUpButton.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSIconicButton, Editor, Version=1.0.6861.40624, Culture=neutral, PublicKeyToken=null</value>
-  </data>
-  <data name="&gt;&gt;projectUpButton.Parent" xml:space="preserve">
-    <value>panel2</value>
-  </data>
-  <data name="&gt;&gt;projectUpButton.ZOrder" xml:space="preserve">
-    <value>0</value>
-  </data>
-  <data name="&gt;&gt;projectPath.Name" xml:space="preserve">
-    <value>projectPath</value>
-  </data>
-  <data name="&gt;&gt;projectPath.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSTextBox, Editor, Version=1.0.6861.40624, Culture=neutral, PublicKeyToken=null</value>
-  </data>
-  <data name="&gt;&gt;projectPath.Parent" xml:space="preserve">
-    <value>panel2</value>
-  </data>
-  <data name="&gt;&gt;projectPath.ZOrder" xml:space="preserve">
-    <value>1</value>
-  </data>
-  <data name="panel2.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
-    <value>Bottom</value>
-  </data>
-  <data name="panel2.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 163</value>
-  </data>
-  <data name="panel2.Size" type="System.Drawing.Size, System.Drawing">
-    <value>888, 37</value>
-  </data>
-  <data name="panel2.TabIndex" type="System.Int32, mscorlib">
-    <value>2</value>
-  </data>
-  <data name="&gt;&gt;panel2.Name" xml:space="preserve">
-    <value>panel2</value>
-  </data>
-  <data name="&gt;&gt;panel2.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Panel, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;panel2.Parent" xml:space="preserve">
-    <value>panel1</value>
-  </data>
-  <data name="&gt;&gt;panel2.ZOrder" xml:space="preserve">
-    <value>1</value>
-  </data>
-  <data name="projectUpButton.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Top, Right</value>
-  </data>
-  <data name="projectUpButton.IconImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        xAAADsQBlSsOGwAAAMNJREFUOE/ljLERglAQRBkDSiAipAQCKqACIqpwDGzCwCIMLcCxGCMjYyMD+b7F
-        VQdExNidefPv7+5dNKamaRbC39/EYg1XU9ueJhZKuMDKaC4dj4tiDmfYwMxolpe7NiwKGZxgD7Ft+bE9
-        ZZntrggSOECAXQhh7ijSLM+ZOomjlzCXFLfmqNeRDjw9oa6jYT2K/r79v+pfD1CoIPWshb7aA7wpVJo7
-        aisOeAvNPQpnmoPmjmSiNfQX+6jz8cBk3bei6AYYQJMuBkPUsgAAAABJRU5ErkJggg==
-</value>
-  </data>
-  <data name="projectUpButton.Location" type="System.Drawing.Point, System.Drawing">
-    <value>797, 6</value>
-  </data>
-  <data name="projectUpButton.Size" type="System.Drawing.Size, System.Drawing">
-    <value>91, 25</value>
-  </data>
-  <data name="projectUpButton.TabIndex" type="System.Int32, mscorlib">
-    <value>8</value>
-  </data>
-  <data name="projectUpButton.Text" xml:space="preserve">
-    <value>Наверх</value>
-  </data>
-  <data name="&gt;&gt;projectUpButton.Name" xml:space="preserve">
-    <value>projectUpButton</value>
-  </data>
-  <data name="&gt;&gt;projectUpButton.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSIconicButton, Editor, Version=1.0.6861.40624, Culture=neutral, PublicKeyToken=null</value>
-  </data>
-  <data name="&gt;&gt;projectUpButton.Parent" xml:space="preserve">
-    <value>panel2</value>
-  </data>
-  <data name="&gt;&gt;projectUpButton.ZOrder" xml:space="preserve">
-    <value>0</value>
-  </data>
-  <data name="projectPath.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Top, Right</value>
-  </data>
-  <data name="projectPath.Location" type="System.Drawing.Point, System.Drawing">
-    <value>372, 6</value>
-  </data>
-  <data name="projectPath.Size" type="System.Drawing.Size, System.Drawing">
-    <value>429, 25</value>
-  </data>
-  <data name="projectPath.TabIndex" type="System.Int32, mscorlib">
-    <value>7</value>
-  </data>
-  <data name="&gt;&gt;projectPath.Name" xml:space="preserve">
-    <value>projectPath</value>
-  </data>
-  <data name="&gt;&gt;projectPath.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSTextBox, Editor, Version=1.0.6861.40624, Culture=neutral, PublicKeyToken=null</value>
-  </data>
-  <data name="&gt;&gt;projectPath.Parent" xml:space="preserve">
-    <value>panel2</value>
-  </data>
-  <data name="&gt;&gt;projectPath.ZOrder" xml:space="preserve">
-    <value>1</value>
-  </data>
   <metadata name="menuStrip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
-  <data name="fileToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>56, 20</value>
-  </data>
-  <data name="fileToolStripMenuItem.Text" xml:space="preserve">
-    <value>Project</value>
-  </data>
-  <data name="editToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>56, 20</value>
-  </data>
-  <data name="editToolStripMenuItem.Text" xml:space="preserve">
-    <value>Editing</value>
-  </data>
-  <data name="createToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>53, 20</value>
-  </data>
-  <data name="createToolStripMenuItem.Text" xml:space="preserve">
-    <value>Create</value>
-  </data>
-  <data name="buildToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>152, 22</value>
-  </data>
-  <data name="buildToolStripMenuItem.Text" xml:space="preserve">
-    <value>Test</value>
-  </data>
-  <data name="buildEXEToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>152, 22</value>
-  </data>
-  <data name="buildEXEToolStripMenuItem.Text" xml:space="preserve">
-    <value>Build</value>
-  </data>
-  <data name="toolStripSeparator6.Size" type="System.Drawing.Size, System.Drawing">
-    <value>149, 6</value>
-  </data>
-  <data name="propertiesToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>152, 22</value>
-  </data>
-  <data name="propertiesToolStripMenuItem.Text" xml:space="preserve">
-    <value>Properties</value>
-  </data>
-  <data name="gameToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>50, 20</value>
-  </data>
-  <data name="gameToolStripMenuItem.Text" xml:space="preserve">
-    <value>Game</value>
-  </data>
-  <data name="infoToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>40, 20</value>
-  </data>
-  <data name="infoToolStripMenuItem.Text" xml:space="preserve">
-    <value>Info</value>
-  </data>
-  <data name="menuStrip.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 0</value>
-  </data>
-  <data name="menuStrip.Size" type="System.Drawing.Size, System.Drawing">
-    <value>1008, 24</value>
-  </data>
-  <data name="menuStrip.TabIndex" type="System.Int32, mscorlib">
-    <value>0</value>
-  </data>
-  <data name="menuStrip.Text" xml:space="preserve">
-    <value>menuStrip</value>
-  </data>
-  <data name="&gt;&gt;menuStrip.Name" xml:space="preserve">
-    <value>menuStrip</value>
-  </data>
-  <data name="&gt;&gt;menuStrip.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSMenuStrip, Editor, Version=1.0.6861.40624, Culture=neutral, PublicKeyToken=null</value>
-  </data>
-  <data name="&gt;&gt;menuStrip.Parent" xml:space="preserve">
-    <value>$this</value>
-  </data>
-  <data name="&gt;&gt;menuStrip.ZOrder" xml:space="preserve">
-    <value>3</value>
-  </data>
   <data name="openToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
     <value>169, 22</value>
   </data>
@@ -695,6 +548,12 @@
   </data>
   <data name="exitToolStripMenuItem.Text" xml:space="preserve">
     <value>Exit</value>
+  </data>
+  <data name="fileToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>56, 20</value>
+  </data>
+  <data name="fileToolStripMenuItem.Text" xml:space="preserve">
+    <value>Project</value>
   </data>
   <data name="undoToolStripMenuItem.ShortcutKeys" type="System.Windows.Forms.Keys, System.Windows.Forms">
     <value>Ctrl+Z</value>
@@ -762,17 +621,86 @@
   <data name="preferencesToolStripMenuItem.Text" xml:space="preserve">
     <value>Preferences</value>
   </data>
+  <data name="editToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>56, 20</value>
+  </data>
+  <data name="editToolStripMenuItem.Text" xml:space="preserve">
+    <value>Editing</value>
+  </data>
+  <data name="createToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>53, 20</value>
+  </data>
+  <data name="createToolStripMenuItem.Text" xml:space="preserve">
+    <value>Create</value>
+  </data>
+  <data name="buildToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>127, 22</value>
+  </data>
+  <data name="buildToolStripMenuItem.Text" xml:space="preserve">
+    <value>Test</value>
+  </data>
+  <data name="buildEXEToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>127, 22</value>
+  </data>
+  <data name="buildEXEToolStripMenuItem.Text" xml:space="preserve">
+    <value>Build</value>
+  </data>
+  <data name="toolStripSeparator6.Size" type="System.Drawing.Size, System.Drawing">
+    <value>124, 6</value>
+  </data>
+  <data name="propertiesToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>127, 22</value>
+  </data>
+  <data name="propertiesToolStripMenuItem.Text" xml:space="preserve">
+    <value>Properties</value>
+  </data>
+  <data name="gameToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>50, 20</value>
+  </data>
+  <data name="gameToolStripMenuItem.Text" xml:space="preserve">
+    <value>Game</value>
+  </data>
   <data name="startingPageToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>152, 22</value>
+    <value>144, 22</value>
   </data>
   <data name="startingPageToolStripMenuItem.Text" xml:space="preserve">
     <value>Starting page</value>
   </data>
   <data name="aboutToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>152, 22</value>
+    <value>144, 22</value>
   </data>
   <data name="aboutToolStripMenuItem.Text" xml:space="preserve">
     <value>About</value>
+  </data>
+  <data name="infoToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>40, 20</value>
+  </data>
+  <data name="infoToolStripMenuItem.Text" xml:space="preserve">
+    <value>Info</value>
+  </data>
+  <data name="menuStrip.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="menuStrip.Size" type="System.Drawing.Size, System.Drawing">
+    <value>1008, 24</value>
+  </data>
+  <data name="menuStrip.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="menuStrip.Text" xml:space="preserve">
+    <value>menuStrip</value>
+  </data>
+  <data name="&gt;&gt;menuStrip.Name" xml:space="preserve">
+    <value>menuStrip</value>
+  </data>
+  <data name="&gt;&gt;menuStrip.Type" xml:space="preserve">
+    <value>Cubed.UI.Controls.NSMenuStrip, Editor, Version=1.0.6864.2548, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;menuStrip.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;menuStrip.ZOrder" xml:space="preserve">
+    <value>3</value>
   </data>
   <metadata name="logicTimer.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>144, 17</value>
@@ -780,15 +708,6 @@
   <metadata name="projectCreateMenu.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>253, 17</value>
   </metadata>
-  <data name="projectCreateMenu.Size" type="System.Drawing.Size, System.Drawing">
-    <value>108, 32</value>
-  </data>
-  <data name="&gt;&gt;projectCreateMenu.Name" xml:space="preserve">
-    <value>projectCreateMenu</value>
-  </data>
-  <data name="&gt;&gt;projectCreateMenu.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSContextMenu, Editor, Version=1.0.6861.40624, Culture=neutral, PublicKeyToken=null</value>
-  </data>
   <data name="projectCreateFolderItem.Size" type="System.Drawing.Size, System.Drawing">
     <value>107, 22</value>
   </data>
@@ -798,18 +717,18 @@
   <data name="toolStripSeparator7.Size" type="System.Drawing.Size, System.Drawing">
     <value>104, 6</value>
   </data>
+  <data name="projectCreateMenu.Size" type="System.Drawing.Size, System.Drawing">
+    <value>108, 32</value>
+  </data>
+  <data name="&gt;&gt;projectCreateMenu.Name" xml:space="preserve">
+    <value>projectCreateMenu</value>
+  </data>
+  <data name="&gt;&gt;projectCreateMenu.Type" xml:space="preserve">
+    <value>Cubed.UI.Controls.NSContextMenu, Editor, Version=1.0.6864.2548, Culture=neutral, PublicKeyToken=null</value>
+  </data>
   <metadata name="projectPopupMenu.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>410, 17</value>
   </metadata>
-  <data name="projectPopupMenu.Size" type="System.Drawing.Size, System.Drawing">
-    <value>162, 98</value>
-  </data>
-  <data name="&gt;&gt;projectPopupMenu.Name" xml:space="preserve">
-    <value>projectPopupMenu</value>
-  </data>
-  <data name="&gt;&gt;projectPopupMenu.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSContextMenu, Editor, Version=1.0.6861.40624, Culture=neutral, PublicKeyToken=null</value>
-  </data>
   <data name="projectCreateMenuItem.Size" type="System.Drawing.Size, System.Drawing">
     <value>161, 22</value>
   </data>
@@ -836,6 +755,15 @@
   </data>
   <data name="projectDeleteMenuItem.Text" xml:space="preserve">
     <value>Delete</value>
+  </data>
+  <data name="projectPopupMenu.Size" type="System.Drawing.Size, System.Drawing">
+    <value>162, 98</value>
+  </data>
+  <data name="&gt;&gt;projectPopupMenu.Name" xml:space="preserve">
+    <value>projectPopupMenu</value>
+  </data>
+  <data name="&gt;&gt;projectPopupMenu.Type" xml:space="preserve">
+    <value>Cubed.UI.Controls.NSContextMenu, Editor, Version=1.0.6864.2548, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>True</value>

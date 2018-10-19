@@ -3,7 +3,9 @@ using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
 using Cubed.Data.Defines;
+using Cubed.Data.Files;
 using Cubed.Forms.Dialogs;
+using Cubed.Forms.Resources;
 
 namespace Cubed.Forms.Common {
 
@@ -13,24 +15,29 @@ namespace Cubed.Forms.Common {
 	public partial class StartupForm : Form {
 
 		/// <summary>
+		/// Close after constructor
+		/// </summary>
+		public bool ExitWithoutShow {
+			get;
+			private set;
+		}
+
+		/// <summary>
 		/// Constructor
 		/// </summary>
 		public StartupForm() {
 			InitializeComponent();
 			loadingLabel.Dock = DockStyle.Fill;
 
-
-
-
-			#if DEBUG
-			// Showing default project in debug mode
-			Hide();
-			if (Directory.Exists("./TestProject")) {
-				ShowMainForm(Path.Combine(Directory.GetCurrentDirectory(), "./TestProject"));
-			} else {
-				ShowMainForm(Path.Combine(Directory.GetCurrentDirectory(), "./../../../Project"));
+			// Opening previous project
+			string project = Properties.Settings.Default.LastProject;
+			if (project != "" && File.Exists(System.IO.Path.Combine(project, ".cubed"))) {
+				MainForm.CloseAction act = ShowMainForm(project, false);
+				if (act == MainForm.CloseAction.FullClose) {
+					ExitWithoutShow = true;
+					return;
+				}
 			}
-			#endif
 		}
 
 		/// <summary>
@@ -39,6 +46,7 @@ namespace Cubed.Forms.Common {
 		protected override void OnShown(EventArgs e) {
 			base.OnShown(e);
 			Text = "Cubed v" + Assembly.GetExecutingAssembly().GetName().Version.ToString();
+			Activate();
 		}
 
 		/// <summary>
@@ -46,12 +54,18 @@ namespace Cubed.Forms.Common {
 		/// </summary>
 		private void newProjectButton_Click(object sender, EventArgs e) {
 
+			// Showing dialog
 			OpenFolderDialog fd = new OpenFolderDialog();
 			fd.IsNewProject = true;
 			if (fd.ShowDialog() == DialogResult.OK) {
 				
 				// Creating new project
-				
+				Chunk projData = ProjectInfo.CreateDefault(fd.Folder).Save();
+				string error = "";
+				if (!ChunkedFile.Write(System.IO.Path.Combine(fd.Folder, ".cubed"), projData, out error)) {
+					MessageDialog.Open("Unable to create project", error, MessageBoxButtons.OK, MessageBoxIcon.Error);
+					return;
+				}
 				
 				// Showing main form
 				Hide();
@@ -71,7 +85,7 @@ namespace Cubed.Forms.Common {
 		/// </summary>
 		private void openProjectButton_Click(object sender, EventArgs e) {
 
-			
+			// Showing dialog
 			OpenFolderDialog fd = new OpenFolderDialog();
 			fd.IsNewProject = false;
 			if (fd.ShowDialog() == System.Windows.Forms.DialogResult.OK) {
@@ -80,7 +94,7 @@ namespace Cubed.Forms.Common {
 				bool newProj = false;
 				ProjectBasicInfo info = ProjectBasicInfo.Read(fd.Folder, false);
 				if (info == null) {
-					if (MessageDialog.Open("Warning!", "You are trying to open broken project! Are you sure want to proceed?", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == System.Windows.Forms.DialogResult.No) {
+					if (MessageDialog.Open(MessageBoxData.brokenProjectTitle, MessageBoxData.brokenProjectBody, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == System.Windows.Forms.DialogResult.No) {
 						return;
 					}
 					newProj = true;

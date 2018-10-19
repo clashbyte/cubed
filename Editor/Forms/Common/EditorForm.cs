@@ -10,6 +10,7 @@ using Cubed.Data.Editor;
 using Cubed.Data.Files;
 using Cubed.Data.Projects;
 using Cubed.Forms.Dialogs;
+using Cubed.Forms.Resources;
 using Cubed.UI.Graphics;
 
 namespace Cubed.Forms.Common {
@@ -18,6 +19,28 @@ namespace Cubed.Forms.Common {
 	/// Main prototype for editors
 	/// </summary>
 	public partial class EditorForm : Form {
+
+		/// <summary>
+		/// Inspecting object
+		/// </summary>
+		public object InspectingObject {
+			get {
+				return inspectTarget;
+			}
+			set {
+				inspectTarget = value;
+				MainForm.InspectObject(this, value);
+			}
+		}
+
+		/// <summary>
+		/// Internal undo stack depth
+		/// </summary>
+		protected virtual int UndoStackDepth {
+			get {
+				return 16;
+			}
+		}
 
 		/// <summary>
 		/// Custom icon for editor
@@ -59,6 +82,51 @@ namespace Cubed.Forms.Common {
 		}
 
 		/// <summary>
+		/// Can editor undo changes
+		/// </summary>
+		public virtual bool CanUndo {
+			get {
+				return undoStack.Count > 0;
+			}
+		}
+
+		/// <summary>
+		/// Can editor redo changes
+		/// </summary>
+		public virtual bool CanRedo {
+			get {
+				return redoStack.Count > 0;
+			}
+		}
+
+		/// <summary>
+		/// Can user copy or cut items
+		/// </summary>
+		public virtual bool CanCopyOrCut {
+			get {
+				return false;
+			}
+		}
+
+		/// <summary>
+		/// Can user paste items
+		/// </summary>
+		public virtual bool CanPaste {
+			get {
+				return false;
+			}
+		}
+
+		/// <summary>
+		/// Can user select all items
+		/// </summary>
+		public virtual bool CanSelectAll {
+			get {
+				return false;
+			}
+		}
+
+		/// <summary>
 		/// Current project entry
 		/// </summary>
 		public Project.Entry File {
@@ -77,11 +145,32 @@ namespace Cubed.Forms.Common {
 		bool supressEvents = false;
 
 		/// <summary>
+		/// Stack for undo items
+		/// </summary>
+		Stack<Chunk> undoStack = new Stack<Chunk>();
+
+		/// <summary>
+		/// Stack for redo items
+		/// </summary>
+		Stack<Chunk> redoStack = new Stack<Chunk>();
+
+		/// <summary>
+		/// Inspecting object
+		/// </summary>
+		object inspectTarget;
+
+		/// <summary>
+		/// Last changes event time
+		/// </summary>
+		DateTime lastChangesTime;
+
+		/// <summary>
 		/// Constructor
 		/// </summary>
 		public EditorForm() {
 			InitializeComponent();
 			Saved = true;
+			lastChangesTime = DateTime.Now;
 		}
 
 		/// <summary>
@@ -143,7 +232,7 @@ namespace Cubed.Forms.Common {
 				if (ea.Entry == File) {
 					if (!supressEvents) {
 						if (ea.Type == Project.EntryEvent.Modified) {
-							if (MessageDialog.Open("File changed", "Opened file is changed in another program. Do you want to reload it?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.Yes) {
+							if (MessageDialog.Open(MessageBoxData.fileChangedTitle, MessageBoxData.fileChangedBody, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.Yes) {
 								Load();
 								Saved = true;
 							} else {
@@ -151,8 +240,8 @@ namespace Cubed.Forms.Common {
 							}
 						} else if (ea.Type == Project.EntryEvent.Deleted) {
 							Saved = false;
-							if (MessageDialog.Open("File deleted", "Opened file is removed from disk. Do you want to keep it in editor?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.No) {
-								
+							if (MessageDialog.Open(MessageBoxData.fileRemovedTitle, MessageBoxData.fileRemovedBody, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.No) {
+								MainForm.CloseEditor(this, true);
 							}
 						}
 					}
@@ -188,5 +277,89 @@ namespace Cubed.Forms.Common {
 		/// Loading file
 		/// </summary>
 		public virtual void Load() { }
+
+		/// <summary>
+		/// Undo changes
+		/// </summary>
+		public void Undo() {
+			if (undoStack.Count > 0) {
+				Chunk item = undoStack.Pop();
+				redoStack.Push(GetHistoryItem());
+				if (redoStack.Count > UndoStackDepth) {
+					redoStack = new Stack<Chunk>(redoStack.ToArray().Take(UndoStackDepth).Reverse());
+				}
+				RestoreHistoryItem(item);
+				Saved = false;
+			}
+		}
+
+		/// <summary>
+		/// Redo changes
+		/// </summary>
+		public void Redo() {
+			if (redoStack.Count > 0) {
+				Chunk item = redoStack.Pop();
+				undoStack.Push(GetHistoryItem());
+				if (undoStack.Count > UndoStackDepth) {
+					undoStack = new Stack<Chunk>(undoStack.ToArray().Take(UndoStackDepth).Reverse());
+				}
+				RestoreHistoryItem(item);
+			}
+		}
+
+		/// <summary>
+		/// Saving selection to clipboard
+		/// </summary>
+		/// <param name="cut">Remove objects after copy</param>
+		public virtual void Copy(bool cut) {}
+
+		/// <summary>
+		/// Paste copied items
+		/// </summary>
+		public virtual void Paste() {}
+
+		/// <summary>
+		/// Select all items
+		/// </summary>
+		public virtual void SelectAll() {}
+
+		/// <summary>
+		/// Internal event for object changes
+		/// </summary>
+		public virtual void InspectedObjectModified() {
+			TriggerChanges();
+		}
+
+		/// <summary>
+		/// Convert current document to history item
+		/// </summary>
+		/// <returns>Chunk</returns>
+		protected virtual Chunk GetHistoryItem() { return null; }
+
+		/// <summary>
+		/// Restoring history item
+		/// </summary>
+		/// <param name="chunk">Chunk to read from</param>
+		protected virtual void RestoreHistoryItem(Chunk chunk) {}
+
+		/// <summary>
+		/// Removing saved flag and pushing to undo
+		/// </summary>
+		protected void TriggerChanges() {
+			DateTime now = DateTime.Now;
+			if ((now - lastChangesTime).TotalMilliseconds < 500) {
+				return;
+			}
+			undoStack.Push(GetHistoryItem());
+			if (undoStack.Count > UndoStackDepth) {
+				undoStack = new Stack<Chunk>(undoStack.ToArray().Take(UndoStackDepth).Reverse());
+			}
+			redoStack.Clear();
+			MainForm.UpdateEditingMenu();
+			Saved = false;
+			lastChangesTime = now;
+		}
+
+
 	}
 }

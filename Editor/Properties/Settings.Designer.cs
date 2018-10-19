@@ -22,5 +22,41 @@ namespace Cubed.Properties {
                 return defaultInstance;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string LastProject {
+            get {
+                return ((string)(this["LastProject"]));
+            }
+            set {
+                this["LastProject"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string ProjectHistory {
+            get {
+                return ((string)(this["ProjectHistory"]));
+            }
+            set {
+                this["ProjectHistory"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool UpgradeFromPrev {
+            get {
+                return ((bool)(this["UpgradeFromPrev"]));
+            }
+            set {
+                this["UpgradeFromPrev"] = value;
+            }
+        }
     }
 }

@@ -138,12 +138,14 @@ namespace Cubed.Forms.Editors.Map {
 				needRebuild = true;
 			}
 			if (Input.Controls.MouseHit(MouseButton.Left)) {
+				TriggerChanges();
 				paintDrawing = true;
 				needRebuild = true;
 				if (paintDrawing) {
 					PaintToolHandle(CalculatePaintItems(currentPaintItem, paintFillMode), GetCurrentTexture(null));
 				}
 			} else if (Input.Controls.MouseReleased(MouseButton.Left)) {
+				Cubed.Forms.Common.MainForm.UpdateEditingMenu();
 				paintDrawing = false;
 				needRebuild = true;
 				if (paintDrawing) {
@@ -187,9 +189,6 @@ namespace Cubed.Forms.Editors.Map {
 		/// </summary>
 		/// <param name="items">Array of items to fill</param>
 		void PaintToolHandle(PaintItem[] items, Texture texture) {
-			if (items.Length > 0) {
-				TriggerChanges();
-			}
 			foreach (PaintItem item in items) {
 				if (item.Block is World.Map.WallBlock) {
 					World.Map.WallBlock wblock = item.Block as World.Map.WallBlock;

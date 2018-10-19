@@ -18,23 +18,6 @@ namespace Cubed.Forms.Common {
 	partial class MainForm {
 
 		/// <summary>
-		/// Selected inspector object
-		/// </summary>
-		public static object SelectedTarget {
-			get {
-				if (Current != null) {
-					return Current.inspector.Target;
-				}
-				return null;
-			}
-			set {
-				if (Current != null) {
-					Current.inspector.Target = value;
-				}
-			}
-		}
-
-		/// <summary>
 		/// Currently selected entry
 		/// </summary>
 		public static Project.EntryBase SelectedEntry {
@@ -54,6 +37,18 @@ namespace Cubed.Forms.Common {
 		public static Engine CurrentEngine {
 			get;
 			set;
+		}
+
+		/// <summary>
+		/// Reading current folder
+		/// </summary>
+		public static Project.Folder CurrentFolder {
+			get {
+				if (Current != null) {
+					return Current.currentFolder;
+				}
+				return null;
+			}
 		}
 
 		/// <summary>
@@ -277,7 +272,7 @@ namespace Cubed.Forms.Common {
 
 			// Prompting for close
 			if (!force && !editor.Saved) {
-				DialogResult dr = MessageDialog.Open("Unsaved changes", "File has unsaved changes. Do you want to save them?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+				DialogResult dr = MessageDialog.Open(MessageBoxData.saveChangesTitle, MessageBoxData.saveChangesBody, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
 				if (dr == DialogResult.Yes) {
 					editor.StartSaving();
 					editor.Save();
@@ -314,6 +309,19 @@ namespace Cubed.Forms.Common {
 			}
 			return true;
 		}
-		
+
+		/// <summary>
+		/// Setting inspectable object
+		/// </summary>
+		/// <param name="editor">Editor</param>
+		/// <param name="target">Target object</param>
+		public static void InspectObject(EditorForm editor, object target) {
+			if (Current != null) {
+				if ((EditorForm)Current.editorsControl.SelectedTab.Tag == editor) {
+					Current.inspector.Target = target;
+				}
+			}
+		}
+
 	}
 }

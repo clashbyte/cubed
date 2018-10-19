@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.IO;
+using Cubed.Data.EditorGlue.Attributes;
 using Cubed.Data.Files;
 
 namespace Cubed.Data.Defines {
@@ -8,11 +9,13 @@ namespace Cubed.Data.Defines {
 	/// <summary>
 	/// Basical project info
 	/// </summary>
+	[Serializable]
 	public class ProjectBasicInfo {
 
 		/// <summary>
 		/// Name
 		/// </summary>
+		[HintedName("ProjectName")]
 		public string Name {
 			get;
 			set;
@@ -21,15 +24,8 @@ namespace Cubed.Data.Defines {
 		/// <summary>
 		/// Author
 		/// </summary>
+		[HintedName("ProjectAuthor")]
 		public string Author {
-			get;
-			set;
-		}
-
-		/// <summary>
-		/// Splash image
-		/// </summary>
-		public Image Splash {
 			get;
 			set;
 		}
@@ -37,6 +33,7 @@ namespace Cubed.Data.Defines {
 		/// <summary>
 		/// Icon for project
 		/// </summary>
+		[HintedName("ProjectIcon")]
 		public Image Icon {
 			get;
 			set;
@@ -49,9 +46,8 @@ namespace Cubed.Data.Defines {
 		/// <returns>Info data</returns>
 		public static ProjectBasicInfo GetDefaultInfo(string folder) {
 			ProjectBasicInfo info = new ProjectBasicInfo();
-			info.Name = folder;
+			info.Name = System.IO.Path.GetFileName(folder);
 			info.Author = Environment.UserName;
-			info.Splash = new Bitmap(1, 1);
 			info.Icon = Resources.ProjectIcon;
 			return info;
 		}
@@ -74,13 +70,42 @@ namespace Cubed.Data.Defines {
 		}
 
 		/// <summary>
+		/// Saving project
+		/// </summary>
+		/// <param name="parent">Parent chunk</param>
+		internal void Save(ContainerChunk parent) {
+
+			// Basic project info
+			KeyValueChunk kc = new KeyValueChunk();
+			kc.ID = "PROJ";
+			kc.Version = 1;
+			kc.Content.Add("Name", Name);
+			kc.Content.Add("Author", Author);
+			parent.Children.Add(kc);
+
+			// Writing icon
+			if (Icon != null) {
+				BinaryChunk bc = new BinaryChunk();
+				bc.ID = "ICON";
+				bc.Version = 1;
+
+				MemoryStream mstream = new MemoryStream();
+				Icon.Save(mstream, System.Drawing.Imaging.ImageFormat.Png);
+				bc.Content = mstream.ToArray();
+				parent.Children.Add(bc);
+
+			}
+
+		}
+
+		/// <summary>
 		/// Converting from chunk
 		/// </summary>
 		/// <param name="cont">Chunk</param>
 		/// <returns></returns>
 		internal static ProjectBasicInfo FromChunk(ContainerChunk cont, bool fallbackOnError = true) {
 			ProjectBasicInfo info = null;
-			Image splash = null, icon = null;
+			Image icon = null;
 
 			if (cont != null) {
 				foreach (var item in cont.Children) {
@@ -92,12 +117,6 @@ namespace Cubed.Data.Defines {
 						info.Name = k.Content["Name"];
 						info.Author = k.Content["Author"];
 
-					} else if (item.ID == "IMGS") {
-						BinaryChunk b = item as BinaryChunk;
-
-						// Reading splash
-						splash = Image.FromStream(new MemoryStream(b.Content));
-
 					} else if (item.ID == "ICON") {
 						BinaryChunk b = item as BinaryChunk;
 
@@ -108,18 +127,16 @@ namespace Cubed.Data.Defines {
 			}
 
 			// Validating data
-			if (icon == null || info == null || splash == null) {
+			if (icon == null || info == null) {
 				if (fallbackOnError) {
 					ProjectBasicInfo wrong = new ProjectBasicInfo();
 					wrong.Name = "Damaged project";
 					wrong.Author = "Unknown";
-					wrong.Splash = new Bitmap(1, 1);
 					wrong.Icon = Resources.ProjectErrorIcon;
 					return wrong;
 				}
 				return null;
 			}
-			info.Splash = splash;
 			info.Icon = icon;
 			return info;
 		}

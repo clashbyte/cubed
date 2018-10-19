@@ -79,6 +79,15 @@ namespace Cubed.Forms.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Select an object to edit properties.
+        /// </summary>
+        internal static string EmptyObject {
+            get {
+                return ResourceManager.GetString("EmptyObject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Enabled.
         /// </summary>
         internal static string Enabled {
@@ -201,6 +210,24 @@ namespace Cubed.Forms.Resources {
         internal static string PlayerDesc {
             get {
                 return ResourceManager.GetString("PlayerDesc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Author.
+        /// </summary>
+        internal static string ProjectAuthor {
+            get {
+                return ResourceManager.GetString("ProjectAuthor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Project name.
+        /// </summary>
+        internal static string ProjectName {
+            get {
+                return ResourceManager.GetString("ProjectName", resourceCulture);
             }
         }
         

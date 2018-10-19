@@ -18,6 +18,11 @@ namespace Cubed.Forms.Inspections {
 	public partial class BigInspector : UserControl {
 
 		/// <summary>
+		/// Field changed event
+		/// </summary>
+		public event EventHandler FieldChanged;
+
+		/// <summary>
 		/// Target object
 		/// </summary>
 		public object Target {
@@ -55,37 +60,43 @@ namespace Cubed.Forms.Inspections {
 				PropertyInfo[] fields = type.GetProperties();
 
 				// Creating tabs
-				for (int i = 0; i < 10; i++) {
+				foreach (PropertyInfo fi in fields) {
+					if (fi.CanRead && fi.PropertyType.IsClass) {
 
-					foreach (PropertyInfo fi in fields) {
-						if (fi.CanRead && fi.PropertyType.IsClass) {
-
-							// Filling name
-							string name = fi.Name;
-							InspectorNameAttribute nameAttrib = (InspectorNameAttribute)Attribute.GetCustomAttribute(fi, typeof(InspectorNameAttribute));
-							if (nameAttrib != null) {
-								name = nameAttrib.Name;
-							}
-
-							// Creating tab
-							TabPage tp = new TabPage();
-							tp.Text = name;
-
-							Inspector insp = new Inspector();
-							insp.Location = Point.Empty;
-							insp.Dock = DockStyle.Fill;
-							tp.Controls.Add(insp);
-							insp.Target = fi.GetValue(target);
-
-							itemList.TabPages.Add(tp);
+						// Filling name
+						string name = fi.Name;
+						InspectorNameAttribute nameAttrib = (InspectorNameAttribute)Attribute.GetCustomAttribute(fi, typeof(InspectorNameAttribute));
+						if (nameAttrib != null) {
+							name = nameAttrib.Name;
 						}
-					}
 
+						// Creating tab
+						TabPage tp = new TabPage();
+						tp.Text = name;
+
+						Inspector insp = new Inspector();
+						insp.InfoPanelVisible = false;
+						insp.Location = Point.Empty;
+						insp.Dock = DockStyle.Fill;
+						insp.FieldChanged += insp_FieldChanged;
+						tp.Controls.Add(insp);
+						insp.Target = fi.GetValue(target);
+
+						itemList.TabPages.Add(tp);
+					}
 				}
 				
-
 			}
 			ResumeLayout();
+		}
+
+		/// <summary>
+		/// Changed data
+		/// </summary>
+		void insp_FieldChanged(object sender, EventArgs e) {
+			if (FieldChanged != null) {
+				FieldChanged(sender, EventArgs.Empty);
+			}
 		}
 	}
 }

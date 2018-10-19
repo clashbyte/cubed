@@ -28,6 +28,7 @@
 			this.screen = new Cubed.Drivers.EngineControl();
 			this.entityList = new Cubed.UI.Controls.NSDirectoryInspector();
 			this.panel1 = new System.Windows.Forms.Panel();
+			this.makePrefabButton = new Cubed.UI.Controls.NSIconicButton();
 			this.toolLogics = new Cubed.UI.Controls.NSRadioIconicButton();
 			this.toolPaint = new Cubed.UI.Controls.NSRadioIconicButton();
 			this.toolHeightmap = new Cubed.UI.Controls.NSRadioIconicButton();
@@ -89,6 +90,7 @@
 			// panel1
 			// 
 			this.panel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(50)))), ((int)(((byte)(50)))));
+			this.panel1.Controls.Add(this.makePrefabButton);
 			this.panel1.Controls.Add(this.toolLogics);
 			this.panel1.Controls.Add(this.toolPaint);
 			this.panel1.Controls.Add(this.toolHeightmap);
@@ -97,6 +99,20 @@
 			this.panel1.Controls.Add(this.toolSelect);
 			resources.ApplyResources(this.panel1, "panel1");
 			this.panel1.Name = "panel1";
+			// 
+			// makePrefabButton
+			// 
+			resources.ApplyResources(this.makePrefabButton, "makePrefabButton");
+			this.makePrefabButton.Corners.BottomLeft = true;
+			this.makePrefabButton.Corners.BottomRight = true;
+			this.makePrefabButton.Corners.TopLeft = true;
+			this.makePrefabButton.Corners.TopRight = true;
+			this.makePrefabButton.IconImage = ((System.Drawing.Image)(resources.GetObject("makePrefabButton.IconImage")));
+			this.makePrefabButton.IconSize = new System.Drawing.Size(32, 32);
+			this.makePrefabButton.Large = true;
+			this.makePrefabButton.Name = "makePrefabButton";
+			this.makePrefabButton.Vertical = false;
+			this.makePrefabButton.Click += new System.EventHandler(this.makePrefabButton_Click);
 			// 
 			// toolLogics
 			// 
@@ -371,5 +387,6 @@
 		private UI.Controls.NSCheckboxIconicButton lightsEnabledFlag;
 		private UI.Controls.NSCheckboxIconicButton skyboxEnabledFlag;
 		private UI.Controls.NSCheckboxIconicButton snapToGrid;
+		private UI.Controls.NSIconicButton makePrefabButton;
 	}
 }

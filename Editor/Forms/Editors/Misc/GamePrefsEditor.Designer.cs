@@ -35,6 +35,7 @@
 			this.inspector.Size = new System.Drawing.Size(336, 278);
 			this.inspector.TabIndex = 0;
 			this.inspector.Target = null;
+			this.inspector.FieldChanged += new System.EventHandler(this.inspector_FieldChanged);
 			// 
 			// GamePrefsEditor
 			// 

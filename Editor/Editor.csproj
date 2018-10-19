@@ -47,16 +47,20 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
+    <DebugType>none</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>main-icon.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>Cubed.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="OpenTK, Version=3.0.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
@@ -86,6 +90,7 @@
     <Compile Include="Data\Editor\Attributes\InspectorDescriptionAttribute.cs" />
     <Compile Include="Data\Editor\Attributes\InspectorNameAttribute.cs" />
     <Compile Include="Data\Editor\Attributes\TargetPrefabAttribute.cs" />
+    <Compile Include="Data\Editor\ClipboardContent.cs" />
     <Compile Include="Data\Editor\FileTypeManager.cs" />
     <Compile Include="Data\Editor\Previews\AnimationPreviewGenerator.cs" />
     <Compile Include="Data\Editor\Previews\ImagePreviewGenerator.cs" />
@@ -258,6 +263,11 @@
     <Compile Include="Forms\Inspections\InspectorEntry.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Forms\Resources\CustomEditors.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>CustomEditors.resx</DependentUpon>
+    </Compile>
     <Compile Include="Forms\Resources\DirectoryInspectorIcons.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -324,6 +334,9 @@
     <EmbeddedResource Include="Forms\Common\StartupForm.resx">
       <DependentUpon>StartupForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Common\StartupForm.ru.resx">
+      <DependentUpon>StartupForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\Dialogs\MessageDialog.resx">
       <DependentUpon>MessageDialog.cs</DependentUpon>
     </EmbeddedResource>
@@ -336,7 +349,7 @@
     <EmbeddedResource Include="Forms\Dialogs\ProjectPickerDialog.resx">
       <DependentUpon>ProjectPickerDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\Dialogs\ProjectPickerDialog.ru-RU.resx">
+    <EmbeddedResource Include="Forms\Dialogs\ProjectPickerDialog.ru.resx">
       <DependentUpon>ProjectPickerDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Dialogs\TextInputDialog.resx">
@@ -390,6 +403,11 @@
     <EmbeddedResource Include="Forms\Inspections\Fields\StringFieldInspector.resx">
       <DependentUpon>StringFieldInspector.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Resources\CustomEditors.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>CustomEditors.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Resources\CustomEditors.ru.resx" />
     <EmbeddedResource Include="Forms\Resources\DirectoryInspectorIcons.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>DirectoryInspectorIcons.Designer.cs</LastGenOutput>
@@ -415,6 +433,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>MessageBoxData.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Resources\MessageBoxData.ru.resx" />
     <EmbeddedResource Include="Forms\Resources\MiscIcons.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>MiscIcons.Designer.cs</LastGenOutput>
@@ -548,6 +567,17 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="main-icon.ico" />
+    <None Include="Resources\prefabIcon.png" />
+    <None Include="Resources\sound.png" />
+    <None Include="Resources\warning1.png" />
+    <None Include="Resources\question1.png" />
+    <None Include="Resources\info1.png" />
+    <None Include="Resources\error1.png" />
+    <None Include="Resources\retry-small1.png" />
+    <None Include="Resources\check-small1.png" />
+    <None Include="Resources\iconmonstr-x-mark-5-161.png" />
+    <None Include="Resources\skip1.png" />
+    <None Include="Resources\gear.png" />
     <None Include="Resources\home.png" />
     <None Include="Resources\player.png" />
     <None Include="Resources\ending.png" />

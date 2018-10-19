@@ -195,4 +195,13 @@
   <data name="PlayerDesc" xml:space="preserve">
     <value>Starting point for player</value>
   </data>
+  <data name="EmptyObject" xml:space="preserve">
+    <value>Select an object to edit properties</value>
+  </data>
+  <data name="ProjectAuthor" xml:space="preserve">
+    <value>Author</value>
+  </data>
+  <data name="ProjectName" xml:space="preserve">
+    <value>Project name</value>
+  </data>
 </root>

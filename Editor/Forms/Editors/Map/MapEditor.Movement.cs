@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Cubed.Components.Controls;
+using Cubed.Forms.Common;
 using Cubed.World;
 using OpenTK;
 using OpenTK.Input;
@@ -103,8 +104,10 @@ namespace Cubed.Forms.Editors.Map {
 				
 				if (Input.Controls.MouseHit(MouseButton.Middle) && allowMouseLook) {
 					display.MouseLock = true;
+					MainForm.UpdateEditingMenu();
 				} else if (Input.Controls.MouseReleased(MouseButton.Middle) && allowMouseLook) {
 					display.MouseLock = false;
+					MainForm.UpdateEditingMenu();
 				}
 				if (display.MouseLock) {
 					rot.X = Input.Controls.MouseDelta.Y * 0.1f;

@@ -102,6 +102,7 @@ namespace Cubed.Data.Files {
 		protected static byte[] WriteRaw(Chunk chunk) {
 			MemoryStream stream = new MemoryStream();
 			BinaryWriter f = new BinaryWriter(stream, System.Text.Encoding.UTF8);
+			CheckTags();
 
 			Type t = chunk.GetType();
 			int tag = -1;

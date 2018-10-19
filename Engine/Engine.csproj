@@ -24,12 +24,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
+    <DebugType>none</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="OpenTK, Version=3.0.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
@@ -54,12 +55,15 @@
     <Compile Include="Components\Rendering\LineComponent.cs" />
     <Compile Include="Data\Defines\ProjectBasicInfo.cs" />
     <Compile Include="Data\Defines\ProjectInfo.cs" />
+    <Compile Include="Data\EditorGlue\Attributes\HintedNameAttribute.cs" />
+    <Compile Include="Data\EditorGlue\Attributes\HintedSectionAttribute.cs" />
     <Compile Include="Data\Files\Attributes\ChunkTagAttribute.cs" />
     <Compile Include="Data\Files\BinaryChunk.cs" />
     <Compile Include="Data\Files\ChunkedFile.cs" />
     <Compile Include="Data\Files\ContainerChunk.cs" />
     <Compile Include="Data\Files\Chunk.cs" />
     <Compile Include="Data\Files\KeyValueChunk.cs" />
+    <Compile Include="Data\ObjectCopier.cs" />
     <Compile Include="Drivers\Textures\GifImageLoader.cs" />
     <Compile Include="Drivers\Textures\BasicImageLoader.cs" />
     <Compile Include="Drivers\Textures\TextureLoader.cs" />

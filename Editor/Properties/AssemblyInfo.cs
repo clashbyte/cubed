@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Cubed Editor")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Editor for Cubed engine")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("ClashByte")]
 [assembly: AssemblyProduct("Cubed Editor")]
-[assembly: AssemblyCopyright("Copyright © ClashByte 2017")]
+[assembly: AssemblyCopyright("Copyright © ClashByte 2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

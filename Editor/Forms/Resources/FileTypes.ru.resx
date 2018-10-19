@@ -120,10 +120,16 @@
   <data name="AnimImage" xml:space="preserve">
     <value>Анимация</value>
   </data>
+  <data name="Audio" xml:space="preserve">
+    <value>Аудио</value>
+  </data>
   <data name="Image" xml:space="preserve">
     <value>Изображение</value>
   </data>
   <data name="Map" xml:space="preserve">
     <value>Уровень</value>
+  </data>
+  <data name="Preset" xml:space="preserve">
+    <value>Пресет объекта</value>
   </data>
 </root>

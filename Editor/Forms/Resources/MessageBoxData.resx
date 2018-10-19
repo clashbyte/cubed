@@ -120,6 +120,12 @@
   <data name="abortLabel" xml:space="preserve">
     <value>Abort</value>
   </data>
+  <data name="brokenProjectBody" xml:space="preserve">
+    <value>Project you are trying to open is broken! Do you want to proceed?</value>
+  </data>
+  <data name="brokenProjectTitle" xml:space="preserve">
+    <value>Broken project</value>
+  </data>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="buttonIgnore" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\..\Resources\skip.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -139,11 +145,41 @@
   <data name="errorIcon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\..\Resources\error.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="fileChangedBody" xml:space="preserve">
+    <value>File has been changed outside editor. Do you want to reload it from disk?</value>
+  </data>
+  <data name="fileChangedTitle" xml:space="preserve">
+    <value>File changed</value>
+  </data>
+  <data name="fileRemovedBody" xml:space="preserve">
+    <value>File removed from disk. Do you want to keep in editor?</value>
+  </data>
+  <data name="fileRemovedTitle" xml:space="preserve">
+    <value>File removed</value>
+  </data>
   <data name="ignoreLabel" xml:space="preserve">
     <value>Ignore</value>
   </data>
   <data name="infoIcon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\..\Resources\info.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="newFolderBody" xml:space="preserve">
+    <value>Specify folder name:</value>
+  </data>
+  <data name="newFolderTitle" xml:space="preserve">
+    <value>New folder</value>
+  </data>
+  <data name="newItemBody" xml:space="preserve">
+    <value>Specify item name:</value>
+  </data>
+  <data name="newItemTitle" xml:space="preserve">
+    <value>New Entry</value>
+  </data>
+  <data name="newPrefabBody" xml:space="preserve">
+    <value>Specify preset file name:</value>
+  </data>
+  <data name="newPrefabTitle" xml:space="preserve">
+    <value>Create preset</value>
   </data>
   <data name="noLabel" xml:space="preserve">
     <value>No</value>
@@ -154,8 +190,26 @@
   <data name="questionIcon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\..\Resources\question.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="removeBody" xml:space="preserve">
+    <value>Are you sure want to delete %FILE%?</value>
+  </data>
+  <data name="removeTitle" xml:space="preserve">
+    <value>Removing</value>
+  </data>
+  <data name="renameBody" xml:space="preserve">
+    <value>Specify new name for entry:</value>
+  </data>
+  <data name="renameTitle" xml:space="preserve">
+    <value>Change name</value>
+  </data>
   <data name="retryLabel" xml:space="preserve">
     <value>Retry</value>
+  </data>
+  <data name="saveChangesBody" xml:space="preserve">
+    <value>File contains unsaved changes. Do you want to save them?</value>
+  </data>
+  <data name="saveChangesTitle" xml:space="preserve">
+    <value>Unsaved changes</value>
   </data>
   <data name="warningIcon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\..\Resources\warning.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>

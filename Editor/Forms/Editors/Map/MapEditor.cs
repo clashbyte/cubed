@@ -201,6 +201,9 @@ namespace Cubed.Forms.Editors.Map {
 				editorInitialized = true;
 			}
 
+			// Updating menu
+			bool prevAllowLook = allowMouseLook;
+
 			// Updating controls
 			UpdateControls();
 
@@ -250,6 +253,11 @@ namespace Cubed.Forms.Editors.Map {
 						LogicToolUpdate();
 						break;
 				}
+			}
+
+			// Handling mouse look
+			if (prevAllowLook != allowMouseLook) {
+				MainForm.UpdateEditingMenu();
 			}
 		}
 
@@ -329,6 +337,7 @@ namespace Cubed.Forms.Editors.Map {
 				}
 				currentTool = newType;
 			}
+			MainForm.UpdateEditingMenu();
 		}
 
 		/// <summary>
@@ -410,6 +419,7 @@ namespace Cubed.Forms.Editors.Map {
 						break;
 				}
 			}
+			MainForm.UpdateEditingMenu();
 		}
 
 		/// <summary>
@@ -420,7 +430,7 @@ namespace Cubed.Forms.Editors.Map {
 				eo.Deselect(scene);
 			}
 			sceneSelectedObjects.Clear();
-			MainForm.SelectedTarget = environment;
+			InspectingObject = environment;
 		}
 
 		/// <summary>

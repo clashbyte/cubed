@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Cubed.Data.Files;
+using Cubed.Data.Game.Attributes;
 using Cubed.World;
 using OpenTK;
 
@@ -50,6 +52,57 @@ namespace Cubed.Prefabs {
 			rot.Z = f.ReadSingle();
 			Position = pos;
 			Angles = rot;
+		}
+
+		/// <summary>
+		/// Convert prefabs to chunk array
+		/// </summary>
+		/// <param name="prefabs">Prefab list</param>
+		/// <returns>Array of chunks</returns>
+		public static Chunk[] ToChunkArray(GamePrefab[] prefabs) {
+			List<Chunk> chunks = new List<Chunk>();
+			foreach (GamePrefab gp in prefabs) {
+				MemoryStream entStr = new MemoryStream();
+				BinaryWriter bw = new BinaryWriter(entStr);
+				PrefabAttribute pa = Attribute.GetCustomAttribute(gp.GetType(), typeof(PrefabAttribute)) as PrefabAttribute;
+				if (pa == null) {
+					continue;
+				}
+
+				// Writing object
+				bw.Write(pa.ID);
+				gp.Save(bw);
+
+				// Storing object
+				chunks.Add(new BinaryChunk() {
+					ID = "PRFB",
+					Version = 1,
+					Content = entStr.ToArray()
+				});
+			}
+			return chunks.ToArray();
+		}
+
+		/// <summary>
+		/// Convert chunks to prefab array
+		/// </summary>
+		/// <param name="chunks">Chunk list</param>
+		/// <returns>Array of prefabs</returns>
+		public static GamePrefab[] FromChunkArray(Chunk[] chunks) {
+			List<GamePrefab> prefabs = new List<GamePrefab>();
+			foreach (Chunk ch in chunks) {
+				BinaryChunk bc = ch as BinaryChunk;
+				BinaryReader cr = new BinaryReader(new MemoryStream(bc.Content));
+
+				// Reading type
+				Type t = PrefabAttribute.GetPrefab(cr.ReadInt32());
+				if (t != null) {
+					GamePrefab pref = Activator.CreateInstance(t) as GamePrefab;
+					pref.Load(cr);
+					prefabs.Add(pref);
+				}
+			}
+			return prefabs.ToArray();
 		}
 	}
 }

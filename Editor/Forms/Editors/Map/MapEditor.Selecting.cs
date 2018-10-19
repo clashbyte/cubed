@@ -6,10 +6,14 @@ using System.Text;
 using System.Windows.Forms;
 using Cubed.Components.Rendering;
 using Cubed.Core;
+using Cubed.Data.Editor.Attributes;
+using Cubed.Data.Files;
 using Cubed.Data.Projects;
 using Cubed.Editing;
 using Cubed.Editing.Gizmos;
 using Cubed.Forms.Common;
+using Cubed.Forms.Dialogs;
+using Cubed.Forms.Resources;
 using Cubed.Graphics;
 using Cubed.Maths;
 using Cubed.UI;
@@ -68,6 +72,11 @@ namespace Cubed.Forms.Editors.Map {
 		bool dragVerticalMode;
 
 		/// <summary>
+		/// Any changes in position
+		/// </summary>
+		bool dragChangesHappened;
+
+		/// <summary>
 		/// Dragging start location
 		/// </summary>
 		Vector3 draggingOrigin;
@@ -104,6 +113,8 @@ namespace Cubed.Forms.Editors.Map {
 				}
 			}
 			engine.Interface = selectInterface;
+			makePrefabButton.Enabled = sceneSelectedObjects.Count == 1;
+			makePrefabButton.Invalidate();
 		}
 
 		/// <summary>
@@ -121,6 +132,8 @@ namespace Cubed.Forms.Editors.Map {
 					g.Unassign(scene);
 				}
 			}
+			makePrefabButton.Enabled = false;
+			makePrefabButton.Invalidate();
 		}
 
 		/// <summary>
@@ -228,7 +241,7 @@ namespace Cubed.Forms.Editors.Map {
 						currentGizmo = pickedGizmo;
 						pickedGizmo.StartIteraction(camPos, camDir, Input.Controls.KeyDown(Key.ControlLeft));
 					} else {
-						TriggerChanges();
+						dragChangesHappened = false;
 						SelectEntity(pickedObject);
 						draggingObjects = true;
 						draggingOrigin = objectPickPos;
@@ -256,6 +269,7 @@ namespace Cubed.Forms.Editors.Map {
 				
 				allowMouseLook = false;
 			} else if (Input.Controls.MouseReleased(MouseButton.Left)) {
+				MainForm.UpdateEditingMenu();
 				if (draggingPathEntities != null) {
 					foreach (Entity ent in draggingPathEntities) {
 						scene.Entities.Remove(ent);
@@ -299,6 +313,10 @@ namespace Cubed.Forms.Editors.Map {
 							pos.Y = (float)Math.Round(pos.Y / 0.25f) * 0.25f;
 							pos.Z = (float)Math.Round(pos.Z / 0.25f) * 0.25f;
 						}
+						if ((eo.Prefab.Position - pos).Length > 0.0001f && !dragChangesHappened) {
+							TriggerChanges();
+							dragChangesHappened = true;
+						}
 						eo.Prefab.Position = pos;
 						draggingPathEntities[idx].GetComponent<LineComponent>().Vertices = new Vector3[]{
 							eo.BoundPosition,
@@ -323,7 +341,10 @@ namespace Cubed.Forms.Editors.Map {
 					sceneObjects.Remove(reo);
 				}
 				sceneSelectedObjects.Clear();
-				MainForm.SelectedTarget = null;
+				InspectingObject = null;
+				makePrefabButton.Enabled = false;
+				makePrefabButton.Invalidate();
+				MainForm.UpdateEditingMenu();
 			}
 
 			// Dragging new object on scene
@@ -371,9 +392,28 @@ namespace Cubed.Forms.Editors.Map {
 		/// </summary>
 		/// <param name="eo">Object to select</param>
 		void SelectEntity(EditableObject eo) {
-			if (eo == null || !sceneSelectedObjects.Contains(eo)) {
-				EditableObject inspectorObject = null;
-				if (!Input.Controls.KeyDown(Key.ShiftLeft)) {
+			if (eo != null) {
+				SelectEntities(new EditableObject[] { eo });
+			} else {
+				SelectEntities(new EditableObject[0]);
+			}
+		}
+
+		/// <summary>
+		/// Selecting multiple objects
+		/// </summary>
+		/// <param name="objects">Array of objects to select</param>
+		void SelectEntities(EditableObject[] objects) {
+			EditableObject inspectorObject = null;
+			if (!Input.Controls.KeyDown(Key.ShiftLeft)) {
+				bool flush = objects.Length == 0;
+				foreach (EditableObject seo in objects) {
+					if (!sceneSelectedObjects.Contains(seo)) {
+						flush = true;
+						break;
+					}
+				}
+				if (flush) {
 					foreach (EditableObject e in sceneSelectedObjects) {
 						e.Deselect(scene);
 						foreach (Gizmo g in e.ControlGizmos) {
@@ -382,18 +422,23 @@ namespace Cubed.Forms.Editors.Map {
 					}
 					sceneSelectedObjects.Clear();
 				}
-				if (eo != null) {
+			}
+			foreach (EditableObject eo in objects) {
+				if (!sceneSelectedObjects.Contains(eo)) {
 					eo.Select(scene);
 					sceneSelectedObjects.Add(eo);
 					foreach (Gizmo g in eo.ControlGizmos) {
 						g.Assign(scene, eo.Gizmo);
 					}
-					if (sceneSelectedObjects.Count == 1) {
-						inspectorObject = eo;
-					}
 				}
-				MainForm.SelectedTarget = inspectorObject;
 			}
+			if (sceneSelectedObjects.Count == 1) {
+				inspectorObject = sceneSelectedObjects[0];
+			}
+			InspectingObject = inspectorObject;
+			makePrefabButton.Enabled = inspectorObject != null;
+			makePrefabButton.Invalidate();
+			MainForm.UpdateEditingMenu();
 		}
 
 		/// <summary>
@@ -426,13 +471,26 @@ namespace Cubed.Forms.Editors.Map {
 
 					// Making simple sprite
 					string ext = System.IO.Path.GetExtension(en.Name).ToLower();
-					if (".jpg;.jpeg;.png;.gif;.anim;.bmp;".Split(';').Contains(ext)) {
+					if (".jpg;.jpeg;.png;.gif;.anim;.bmp".Split(';').Contains(ext)) {
 
 						Texture tex = new Texture(en.Path, Texture.LoadingMode.Queued);
 						eo = new MapSprite();
 						eo.Create(scene);
 						(eo as MapSprite).Texture = tex;
 
+					} else if(ext == ".preset") {
+
+						ContainerChunk presetRoot = ChunkedFile.Read(en.FullPath, true) as ContainerChunk;
+						if (presetRoot.ID == "PRST") {
+							Prefabs.GamePrefab gamePref = Prefabs.GamePrefab.FromChunkArray(presetRoot.Children.ToArray())[0];
+							Type t = TargetPrefabAttribute.GetEditableObject(gamePref.GetType());
+							if (t != null) {
+								eo = Activator.CreateInstance(t) as EditableObject;
+								eo.SetPrefab(gamePref);
+								eo.Create(scene);
+							}
+						}
+						
 					}
 
 					// Adding object
@@ -492,6 +550,47 @@ namespace Cubed.Forms.Editors.Map {
 				draggingNewObject = null;
 			} else {
 				e.Effect = DragDropEffects.None;
+			}
+		}
+
+		/// <summary>
+		/// Making prefab
+		/// </summary>
+		private void makePrefabButton_Click(object sender, EventArgs e) {
+			if (sceneSelectedObjects.Count == 1) {
+
+				// Enumerating restricted files
+				Project.Folder folder = MainForm.CurrentFolder;
+				List<string> restricted = new List<string>();
+				foreach (Project.Entry en in folder.Entries) {
+					if (System.IO.Path.GetExtension(en.Name).ToLower() == ".preset") {
+						restricted.Add(en.NameWithoutExt.ToLower());
+					}
+				}
+
+				// Opening dialog
+				TextInputDialog dlg = new TextInputDialog();
+				dlg.Text = MessageBoxData.newPrefabTitle;
+				dlg.Description = MessageBoxData.newPrefabBody;
+				dlg.Validator = name => {
+					name = name.Trim().ToLower();
+					if (!restricted.Contains(name) && name.Length > 0) {
+						return true;
+					}
+					return false;
+				};
+				if (dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK) {
+
+					// Writing prefab file
+					string err = "";
+					ContainerChunk cont = new ContainerChunk();
+					cont.ID = "PRST";
+					cont.Version = 1;
+					cont.Children.AddRange(Cubed.Prefabs.GamePrefab.ToChunkArray(new Cubed.Prefabs.GamePrefab[] { sceneSelectedObjects[0].Prefab }));
+					ChunkedFile.Write(System.IO.Path.Combine(folder.FullPath, dlg.Value+".preset"), cont, out err);
+
+				}
+
 			}
 		}
 

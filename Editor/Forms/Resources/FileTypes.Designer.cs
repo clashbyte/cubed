@@ -70,6 +70,15 @@ namespace Cubed.Forms.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Audio.
+        /// </summary>
+        internal static string Audio {
+            get {
+                return ResourceManager.GetString("Audio", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Image.
         /// </summary>
         internal static string Image {
@@ -84,6 +93,15 @@ namespace Cubed.Forms.Resources {
         internal static string Map {
             get {
                 return ResourceManager.GetString("Map", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Object preset.
+        /// </summary>
+        internal static string Preset {
+            get {
+                return ResourceManager.GetString("Preset", resourceCulture);
             }
         }
     }

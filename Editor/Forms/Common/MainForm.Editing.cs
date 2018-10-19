@@ -52,12 +52,17 @@ namespace Cubed.Forms.Common {
 					(prevTabPage.Tag as EditorForm).Pause(); 
 				}
 			}
+
+			object inspect = null;
 			prevTabPage = editorsControl.SelectedTab;
 			if (prevTabPage != null) {
 				if (prevTabPage.Tag is EditorForm) {
 					(prevTabPage.Tag as EditorForm).Resume();
+					inspect = (prevTabPage.Tag as EditorForm).InspectingObject;
 				}
 			}
+			inspector.Target = inspect;
+			UpdateEditingMenu();
 		}
 
 		/// <summary>
@@ -66,6 +71,15 @@ namespace Cubed.Forms.Common {
 		private void editorsControl_TabClose(object sender, UI.Controls.NSProjectControl.TabCloseEventArgs e) {
 			if (e.Page.Tag is EditorForm) {
 				e.Cancel = !CloseEditor(e.Page.Tag as EditorForm);
+			}
+		}
+
+		/// <summary>
+		/// Field changed
+		/// </summary>
+		private void inspector_FieldChanged(object sender, EventArgs e) {
+			if (editorsControl.SelectedTab.Tag is EditorForm) {
+				(editorsControl.SelectedTab.Tag as EditorForm).InspectedObjectModified();
 			}
 		}
 

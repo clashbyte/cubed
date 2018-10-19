@@ -10,6 +10,7 @@ using CefSharp;
 using CefSharp.WinForms;
 using Cubed.Forms.Common;
 using Cubed.Forms.Dialogs;
+using Cubed.Properties;
 
 namespace Cubed {
 	static class Program {
@@ -26,6 +27,8 @@ namespace Cubed {
 		private static void LoadApp() {
 			var settings = new CefSettings();
 			settings.BackgroundColor = Cef.ColorSetARGB(255, 50, 50, 50);
+			settings.LogSeverity = LogSeverity.Disable;
+			
 
 			// Set BrowserSubProcessPath based on app bitness at runtime
 			settings.BrowserSubprocessPath = Path.Combine(AppDomain.CurrentDomain.SetupInformation.ApplicationBase,
@@ -35,10 +38,22 @@ namespace Cubed {
 			// Make sure you set performDependencyCheck false
 			Cef.Initialize(settings, performDependencyCheck: false, browserProcessHandler: null);
 
+			// Handling settings
+			if (Settings.Default.UpgradeFromPrev) {
+				Settings.Default.Upgrade();
+				Settings.Default.UpgradeFromPrev = false;
+				Settings.Default.Save();
+			}
+
 			// Running app
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
-			Application.Run(new StartupForm());
+
+			// Creating form
+			StartupForm sf = new StartupForm();
+			if (!sf.ExitWithoutShow) {
+				Application.Run(sf);
+			}
 		}
 
 		// Will attempt to load missing assembly from either x86 or x64 subdir

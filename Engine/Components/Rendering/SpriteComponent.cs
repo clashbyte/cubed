@@ -56,6 +56,14 @@ namespace Cubed.Components.Rendering {
 		}
 
 		/// <summary>
+		/// Enable fogging
+		/// </summary>
+		public bool AffectedByFog {
+			get;
+			set;
+		}
+
+		/// <summary>
 		/// Sprite offset
 		/// </summary>
 		public Vector2 Offset {
@@ -145,6 +153,7 @@ namespace Cubed.Components.Rendering {
 			Blending = BlendingMode.AlphaChannel;
 			Facing = FacingMode.XY;
 			AffectedByLight = false;
+			AffectedByFog = false;
 			rebuildMesh = true;
 			rebuildTexCoords = true;
 		}
@@ -314,8 +323,8 @@ namespace Cubed.Components.Rendering {
 
 				// Setting up fog
 				Fog fog = Scene.Current.Fog;
-				shader.FogEnabled = fog != null;
-				if (fog != null) {
+				shader.FogEnabled = fog != null && AffectedByFog;
+				if (fog != null && AffectedByFog) {
 					shader.FogNear = fog.Near;
 					shader.FogFar = fog.Far;
 					shader.FogColor = fog.Color;

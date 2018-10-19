@@ -52,6 +52,9 @@ namespace Cubed.Forms.Inspections.Fields {
 		/// <param name="value">Parent</param>
 		protected virtual void SetValue(object value) {
 			if (writable) {
+				if (inspector != null) {
+					inspector.CallFieldEvent();
+				}
 				field.SetValue(inspector.Target, value, null);
 			}
 		}

@@ -8,6 +8,7 @@ using Cubed.Data.Editor;
 using Cubed.Data.Projects;
 using Cubed.Forms.Dialogs;
 using Cubed.Forms.Editors.Misc;
+using Cubed.Forms.Resources;
 using Cubed.UI.Controls;
 
 namespace Cubed.Forms.Common {
@@ -66,7 +67,7 @@ namespace Cubed.Forms.Common {
 				EditorForm ef = tp.Tag as EditorForm;
 
 				if (ef != null && !ef.Saved) {
-					DialogResult dr = MessageDialog.Open("Unsaved changes", "File has unsaved changes. Do you want to save them?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+					DialogResult dr = MessageDialog.Open(MessageBoxData.saveChangesTitle, MessageBoxData.saveChangesBody, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
 					if (dr == DialogResult.Yes) {
 						ef.StartSaving();
 						ef.Save();
@@ -87,6 +88,73 @@ namespace Cubed.Forms.Common {
 			ClosingAction = CloseAction.FullClose;
 			codeClosing = true;
 			Close();
+		}
+
+		/// <summary>
+		/// Undo in editor
+		/// </summary>
+		private void undoToolStripMenuItem_Click(object sender, EventArgs e) {
+			if (editorsControl.SelectedTab.Tag is EditorForm) {
+				(editorsControl.SelectedTab.Tag as EditorForm).Undo();
+				UpdateEditingMenu();
+			}
+		}
+
+		/// <summary>
+		/// Redo in editor
+		/// </summary>
+		private void redoToolStripMenuItem_Click(object sender, EventArgs e) {
+			if (editorsControl.SelectedTab.Tag is EditorForm) {
+				(editorsControl.SelectedTab.Tag as EditorForm).Redo();
+				UpdateEditingMenu();
+			}
+		}
+
+		/// <summary>
+		/// Copy items in editor
+		/// </summary>
+		private void copyToolStripMenuItem_Click(object sender, EventArgs e) {
+			if (editorsControl.SelectedTab.Tag is EditorForm) {
+				(editorsControl.SelectedTab.Tag as EditorForm).Copy(false);
+				UpdateEditingMenu();
+			}
+		}
+
+		/// <summary>
+		/// Cut items in editor
+		/// </summary>
+		private void cutToolStripMenuItem_Click(object sender, EventArgs e) {
+			if (editorsControl.SelectedTab.Tag is EditorForm) {
+				(editorsControl.SelectedTab.Tag as EditorForm).Copy(true);
+				UpdateEditingMenu();
+			}
+		}
+
+		/// <summary>
+		/// Paste items in editor
+		/// </summary>
+		private void pasteToolStripMenuItem_Click(object sender, EventArgs e) {
+			if (editorsControl.SelectedTab.Tag is EditorForm) {
+				(editorsControl.SelectedTab.Tag as EditorForm).Paste();
+				UpdateEditingMenu();
+			}
+		}
+
+		/// <summary>
+		/// Select all items in editor
+		/// </summary>
+		private void selectAllToolStripMenuItem_Click(object sender, EventArgs e) {
+			if (editorsControl.SelectedTab.Tag is EditorForm) {
+				(editorsControl.SelectedTab.Tag as EditorForm).SelectAll();
+				UpdateEditingMenu();
+			}
+		}
+
+		/// <summary>
+		/// Open editor preferences
+		/// </summary>
+		private void preferencesToolStripMenuItem_Click(object sender, EventArgs e) {
+			
 		}
 
 		/// <summary>
@@ -200,8 +268,8 @@ namespace Cubed.Forms.Common {
 
 			// Showing dialog
 			TextInputDialog dlg = new TextInputDialog();
-			dlg.Text = "Create new entry";
-			dlg.Description = "Enter filename:";
+			dlg.Text = m.Tag != null ? MessageBoxData.newItemTitle : MessageBoxData.newFolderTitle;
+			dlg.Description = m.Tag != null ? MessageBoxData.newItemBody : MessageBoxData.newFolderBody;
 			dlg.Validator = name => {
 				name = name.Trim().ToLower();
 				if (!restr.Contains(name) && name.Length > 0) {
@@ -248,8 +316,8 @@ namespace Cubed.Forms.Common {
 
 			// Showing dialog
 			TextInputDialog dlg = new TextInputDialog();
-			dlg.Text = "Rename entry";
-			dlg.Description = "Enter new filename:";
+			dlg.Text = MessageBoxData.renameTitle;
+			dlg.Description = MessageBoxData.renameBody;
 			dlg.Value = file.Name;
 			if (file is Project.Entry) {
 				dlg.Value = (file as Project.Entry).NameWithoutExt;
@@ -278,7 +346,7 @@ namespace Cubed.Forms.Common {
 			if (entry != null) {
 				if (entry.Tag is Project.EntryBase) {
 					Project.EntryBase eb = entry.Tag as Project.EntryBase;
-					if (MessageDialog.Open("Deleting", "Are you sure want to delete " + eb.Name + "?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.Yes) {
+					if (MessageDialog.Open(MessageBoxData.removeTitle, MessageBoxData.removeBody.Replace("%FILE%", eb.Name), MessageBoxButtons.YesNo, MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.Yes) {
 						if (eb is Project.Entry) {
 							System.IO.File.Delete((eb as Project.Entry).FullPath);
 						} else {
@@ -297,6 +365,30 @@ namespace Cubed.Forms.Common {
 				ProcessStartInfo psi = new ProcessStartInfo(currentFolder.FullPath);
 				psi.UseShellExecute = true;
 				Process.Start(psi);
+			}
+		}
+
+		/// <summary>
+		/// Updating edit menu state
+		/// </summary>
+		public static void UpdateEditingMenu() {
+			bool undo = false, redo = false, copy = false, paste = false, select = false;
+			if (Current != null) {
+				if (Current.editorsControl.SelectedTab != null) {
+					if (Current.editorsControl.SelectedTab.Tag is EditorForm) {
+						EditorForm ef = Current.editorsControl.SelectedTab.Tag as EditorForm;
+						undo = ef.CanUndo;
+						redo = ef.CanRedo;
+						copy = ef.CanCopyOrCut;
+						paste = ef.CanPaste;
+						select = ef.CanSelectAll;
+					}
+				}
+				Current.undoToolStripMenuItem.Enabled = undo;
+				Current.redoToolStripMenuItem.Enabled = redo;
+				Current.copyToolStripMenuItem.Enabled = Current.cutToolStripMenuItem.Enabled = copy;
+				Current.pasteToolStripMenuItem.Enabled = paste;
+				Current.selectAllToolStripMenuItem.Enabled = select;
 			}
 		}
 	}

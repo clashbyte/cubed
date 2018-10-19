@@ -50,6 +50,23 @@ namespace Cubed.Data.Files {
 		}
 
 		/// <summary>
+		/// Reading from byte array
+		/// </summary>
+		/// <param name="data">Data array</param>
+		/// <returns>Content</returns>
+		public static Chunk ReadFromBytes(byte[] data) {
+			return Chunk.ReadRaw(data);
+		}
+
+		/// <summary>
+		/// Converting to byte array
+		/// </summary>
+		/// <returns>Byte array</returns>
+		public static byte[] WriteAsBytes(Chunk chunk) {
+			return Chunk.WriteRaw(chunk);
+		}
+
+		/// <summary>
 		/// Reading data
 		/// </summary>
 		/// <param name="data"></param>

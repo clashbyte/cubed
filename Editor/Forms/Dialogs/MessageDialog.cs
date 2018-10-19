@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 using Cubed.Forms.Resources;
 using Cubed.UI.Graphics;
@@ -84,6 +86,7 @@ namespace Cubed.Forms.Dialogs {
 		/// <param name="e"></param>
 		protected override void OnShown(EventArgs e) {
 			base.OnShown(e);
+
 			Text = Title;
 			contentLabel.Text = Content;
 			results = new DialogResult[] {

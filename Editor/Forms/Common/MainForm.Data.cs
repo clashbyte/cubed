@@ -49,6 +49,22 @@ namespace Cubed.Forms.Common {
 				default:
 					break;
 			}
+
+			// Saving opened project
+			Properties.Settings.Default.LastProject = CurrentProjectPath;
+			List<string> projects = new List<string>(Properties.Settings.Default.ProjectHistory.Split(new char[]{'|'}, StringSplitOptions.RemoveEmptyEntries));
+			if (projects.Contains(CurrentProjectPath)) {
+				projects.Remove(CurrentProjectPath);	
+			}
+			List<string> extProjects = new List<string>();
+			foreach (string path in projects) {
+				if (System.IO.File.Exists(System.IO.Path.Combine(path, ".cubed"))) {
+					extProjects.Add(path);
+				}
+			}
+			extProjects.Insert(0, CurrentProjectPath);
+			Properties.Settings.Default.ProjectHistory = string.Join("|", extProjects);
+			Properties.Settings.Default.Save();
 		}
 
 		/// <summary>

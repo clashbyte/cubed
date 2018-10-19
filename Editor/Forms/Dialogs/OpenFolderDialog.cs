@@ -188,8 +188,8 @@ namespace Cubed.Forms.Dialogs {
 		/// </summary>
 		private void newFolderButton_Click(object sender, EventArgs e) {
 			TextInputDialog dlg = new TextInputDialog();
-			dlg.Text = "Making new folder";
-			dlg.Description = "Specify folder name:";
+			dlg.Text = MessageBoxData.newFolderTitle;
+			dlg.Description = MessageBoxData.newFolderBody;
 			dlg.Validator = (val) => {
 				if (val.Length == 0) {
 					return false;

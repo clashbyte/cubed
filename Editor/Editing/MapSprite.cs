@@ -46,6 +46,18 @@ namespace Cubed.Editing {
 			}
 		}
 
+		/// <summary>
+		/// Affected by fog
+		/// </summary>
+		public bool AffectedByFog {
+			get {
+				return (Prefab as Prefabs.MapSprite).AffectedByFog;
+			}
+			set {
+				(Prefab as Prefabs.MapSprite).AffectedByFog = value;
+			}
+		}
+
 		public Vector2 Offset {
 			get {
 				return (Prefab as Prefabs.MapSprite).Offset;
@@ -73,11 +85,45 @@ namespace Cubed.Editing {
 			}
 		}
 
+		public bool Solid {
+			get {
+				return (Prefab as Prefabs.MapSprite).Solid;
+			}
+			set {
+				(Prefab as Prefabs.MapSprite).Solid = value;
+				UpdateCollider();
+			}
+		}
+
+		public Vector3 ColliderOffset {
+			get {
+				return (Prefab as Prefabs.MapSprite).BoundOffset;
+			}
+			set {
+				(Prefab as Prefabs.MapSprite).BoundOffset = value;
+				UpdateCollider();
+			}
+		}
+
+		public Vector3 ColliderSize {
+			get {
+				return (Prefab as Prefabs.MapSprite).BoundSize;
+			}
+			set {
+				(Prefab as Prefabs.MapSprite).BoundSize = value;
+				UpdateCollider();
+			}
+		}
+
 		/// <summary>
 		/// Current texture
 		/// </summary>
 		static Texture gizmoIcon;
 
+		/// <summary>
+		/// Solid cube
+		/// </summary>
+		WireCubeComponent colliderBox;
 
 		/// <summary>
 		/// Is light selected
@@ -127,6 +173,10 @@ namespace Cubed.Editing {
 					WireColor = Color.Cyan,
 					WireWidth = 1.5f
 				});
+				SelectedGizmo.AddComponent(colliderBox = new WireCubeComponent() {
+					WireColor = Color.Orange,
+					WireWidth = 1f
+				});
 				SelectedGizmo.LocalPosition = Vector3.Zero;
 				scene.Entities.Add(SelectedGizmo);
 			}
@@ -134,6 +184,7 @@ namespace Cubed.Editing {
 			BoundSize = Vector3.One * 0.3f;
 			Prefab.Assign(scene);
 			Texture = (Prefab as Prefabs.MapSprite).Texture;
+			UpdateCollider();
 		}
 
 		/// <summary>
@@ -185,6 +236,15 @@ namespace Cubed.Editing {
 		public override void StopPlayMode(Scene scene) {
 			Gizmo.Visible = !selected;
 			SelectedGizmo.Visible = selected;
+		}
+
+		/// <summary>
+		/// Handling collider
+		/// </summary>
+		void UpdateCollider() {
+			colliderBox.Enabled = (Prefab as Prefabs.MapSprite).Solid;
+			colliderBox.Position = (Prefab as Prefabs.MapSprite).BoundOffset;
+			colliderBox.Size = (Prefab as Prefabs.MapSprite).BoundSize;
 		}
 	}
 }

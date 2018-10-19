@@ -48,6 +48,22 @@ namespace Cubed.Data.Editor {
 					null,
 					null
 				),
+				new FileType(
+					FileTypes.Audio,
+					".mp3;.ogg;.wav",
+					new UIIcon(DirectoryInspectorIcons.Sound),
+					null,
+					null,
+					null
+				),
+				new FileType(
+					FileTypes.Preset,
+					".preset",
+					new UIIcon(DirectoryInspectorIcons.Preset),
+					null,
+					null,
+					null
+				),
 			};
 			emptyIcon = new UIIcon(DirectoryInspectorIcons.File);
 			emptyName = "???";

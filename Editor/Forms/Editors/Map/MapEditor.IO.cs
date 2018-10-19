@@ -2,11 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Windows.Forms;
+using Cubed.Data.Editor;
 using Cubed.Data.Editor.Attributes;
 using Cubed.Data.Files;
 using Cubed.Data.Projects;
 using Cubed.Editing;
+using Cubed.Editing.Gizmos;
 using Cubed.Formats;
+using Cubed.Forms.Common;
 using Cubed.Prefabs;
 
 namespace Cubed.Forms.Editors.Map {
@@ -21,8 +25,45 @@ namespace Cubed.Forms.Editors.Map {
 			display.Render(screen.Size);
 			engine.MakeCurrent();
 
+			LoadFromChunk(Read(), true);
+		}
 
-			Chunk chunk = Read();
+		/// <summary>
+		/// Saving file
+		/// </summary>
+		public override void Save() {
+			Chunk chunk = SaveToChunk();
+			if (chunk != null) {
+				Write(chunk);
+			}
+			Saved = true;
+		}
+
+		/// <summary>
+		/// Saving file to chunk
+		/// </summary>
+		/// <returns>Chunk</returns>
+		protected override Chunk GetHistoryItem() {
+			return SaveToChunk();
+		}
+
+		/// <summary>
+		/// Reading from history
+		/// </summary>
+		/// <param name="chunk">Chunk to read from</param>
+		protected override void RestoreHistoryItem(Chunk chunk) {
+			engine.MakeCurrent();
+			engine_UpdateLogic(null, null);
+			display.Render(screen.Size);
+			engine.MakeCurrent();
+
+			LoadFromChunk(chunk, false);
+		}
+
+		/// <summary>
+		/// Loading data from chunk
+		/// </summary>
+		void LoadFromChunk(Chunk chunk, bool affectCamera) {
 			if (chunk != null) {
 				MapReader.MapData data = MapReader.Read(chunk);
 				if (data != null) {
@@ -30,6 +71,7 @@ namespace Cubed.Forms.Editors.Map {
 					// Cleaning texture cache
 					cachedTextures.Clear();
 					textureAnimators.Clear();
+					InspectingObject = null;
 
 					// Reading map
 					if (data.Map != null) {
@@ -63,7 +105,11 @@ namespace Cubed.Forms.Editors.Map {
 
 					// Reading entities
 					foreach (EditableObject eo in sceneSelectedObjects) {
-						eo.Deselect(scene);
+						Gizmo[] gizmos = eo.ControlGizmos;
+						eo.Deselect(scene); 
+						foreach (Gizmo gz in eo.ControlGizmos) {
+							gz.Unassign(scene);
+						}
 					}
 					foreach (EditableObject eo in sceneObjects) {
 						eo.Destroy(scene);
@@ -94,18 +140,21 @@ namespace Cubed.Forms.Editors.Map {
 					environment.FogData.Far = data.Fog.Far;
 
 					// Reading editor parameters
-					cam.Position = data.CameraPos;
-					cam.Angles = data.CameraAngle;
-					gridHeight = data.GridHeight;
+					if (affectCamera) {
+						cam.Position = data.CameraPos;
+						cam.Angles = data.CameraAngle;
+						gridHeight = data.GridHeight;
+					}
 
 				}
 			}
 		}
 
 		/// <summary>
-		/// Saving file
+		/// Saving data to chunk
 		/// </summary>
-		public override void Save() {
+		/// <returns>Saved chunk</returns>
+		Chunk SaveToChunk() {
 
 			// Creating file
 			MapReader.MapData data = new MapReader.MapData();
@@ -127,11 +176,7 @@ namespace Cubed.Forms.Editors.Map {
 			data.Entities = prefabs.ToArray();
 
 			// Writing data
-			Chunk chunk = MapReader.Write(data);
-			if (chunk != null) {
-				Write(chunk);
-			}
-			Saved = true;
+			return MapReader.Write(data);
 		}
 
 		/// <summary>
@@ -242,12 +287,166 @@ namespace Cubed.Forms.Editors.Map {
 		}
 
 		/// <summary>
-		/// Triggering changes
+		/// Flag for undo permit
 		/// </summary>
-		void TriggerChanges() {
-
-			Saved = false;
+		public override bool CanUndo {
+			get {
+				if (!allowMouseLook || walkModeEnable.Checked) {
+					return false;
+				}
+				return base.CanUndo;
+			}
 		}
 
+		/// <summary>
+		/// Flag for redo permit
+		/// </summary>
+		public override bool CanRedo {
+			get {
+				if (!allowMouseLook || walkModeEnable.Checked) {
+					return false;
+				}
+				return base.CanRedo;
+			}
+		}
+
+		/// <summary>
+		/// Flag for copying and cutting
+		/// </summary>
+		public override bool CanCopyOrCut {
+			get {
+				if (!allowMouseLook || walkModeEnable.Checked) {
+					return false;
+				}
+				if (currentTool != ToolType.Select && currentTool != ToolType.Logics) {
+					return false;
+				}
+				if (sceneSelectedObjects.Count == 0) {
+					return false;
+				}
+				return true;
+			}
+		}
+
+		/// <summary>
+		/// Flag for pasting
+		/// </summary>
+		public override bool CanPaste {
+			get {
+				if (!allowMouseLook || walkModeEnable.Checked) {
+					return false;
+				}
+				if (!ClipboardContent.HasChunk()) {
+					return false;
+				}
+				Chunk ch = ClipboardContent.Read();
+				if (ch != null){
+					if (ch.ID == "GPRF") {
+						return true;
+					}
+				}
+				return false;
+			}
+		}
+
+		/// <summary>
+		/// Flag for selection
+		/// </summary>
+		public override bool CanSelectAll {
+			get {
+				if (!allowMouseLook || walkModeEnable.Checked) {
+					return false;
+				}
+				if (currentTool != ToolType.Select && currentTool != ToolType.Logics) {
+					return false;
+				}
+				return sceneObjects.Count > 0;
+			}
+		}
+
+		/// <summary>
+		/// Copying stuff
+		/// </summary>
+		public override void Copy(bool cut) {
+			if (!CanCopyOrCut) {
+				return;
+			}
+
+			// Saving objects to chunk
+			List<GamePrefab> prefabs = new List<GamePrefab>();
+			foreach (EditableObject eo in sceneSelectedObjects) {
+				prefabs.Add(eo.Prefab);
+			}
+			Chunk[] chunks = GamePrefab.ToChunkArray(prefabs.ToArray());
+
+			// Creating main chunk
+			ContainerChunk cont = new ContainerChunk();
+			cont.ID = "GPRF";
+			cont.Children.AddRange(chunks);
+			ClipboardContent.Write(cont);
+
+			// Removing if cut
+			if (cut) {
+				TriggerChanges();
+				foreach (EditableObject reo in sceneSelectedObjects) {
+					reo.Deselect(scene);
+					foreach (Gizmo g in reo.ControlGizmos) {
+						g.Unassign(scene);
+					}
+					reo.Destroy(scene);
+					sceneObjects.Remove(reo);
+				}
+				sceneSelectedObjects.Clear();
+				InspectingObject = null;
+				makePrefabButton.Enabled = false;
+				makePrefabButton.Invalidate();
+				MainForm.UpdateEditingMenu();
+			}
+		}
+
+		/// <summary>
+		/// Pasting stuff
+		/// </summary>
+		public override void Paste() {
+			if (!CanPaste) {
+				return;
+			}
+			if (currentTool != ToolType.Select && currentTool != ToolType.Logics) {
+				toolSelect.Checked = true;
+			}
+			engine.MakeCurrent();
+			engine_UpdateLogic(null, null);
+			display.Render(screen.Size);
+			engine.MakeCurrent();
+
+			// Restoring objects
+			ContainerChunk cont = (ContainerChunk)ClipboardContent.Read();
+			GamePrefab[] prefabs = GamePrefab.FromChunkArray(cont.Children.ToArray());
+			List<EditableObject> objs = new List<EditableObject>();
+			foreach (GamePrefab pref in prefabs) {
+				Type t = TargetPrefabAttribute.GetEditableObject(pref.GetType());
+				if (t != null) {
+					EditableObject eo = Activator.CreateInstance(t) as EditableObject;
+					eo.SetPrefab(pref);
+					eo.Create(scene);
+					objs.Add(eo);
+				}
+			}
+
+			// Adding to scene and selecting
+			sceneObjects.AddRange(objs);
+			SelectEntities(objs.ToArray());
+		}
+
+		/// <summary>
+		/// Selecting all objects
+		/// </summary>
+		public override void SelectAll() {
+			if (!CanSelectAll) {
+				return;
+			}
+			SelectEntities(sceneObjects.ToArray());
+		}
+		
 	}
 }

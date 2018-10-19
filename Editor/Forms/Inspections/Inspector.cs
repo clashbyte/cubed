@@ -13,9 +13,16 @@ using Cubed.Data.Editor.Attributes;
 using OpenTK;
 using Cubed.Graphics;
 using Cubed.UI.Graphics;
+using Cubed.Forms.Resources;
+using Cubed.Data.EditorGlue.Attributes;
 
 namespace Cubed.Forms.Inspections {
 	public partial class Inspector : Panel {
+
+		/// <summary>
+		/// Event for field change
+		/// </summary>
+		public event EventHandler FieldChanged;
 
 		/// <summary>
 		/// Assigned editors for props
@@ -50,6 +57,21 @@ namespace Cubed.Forms.Inspections {
 				if (target != value) {
 					target = value;
 					Rebuild();
+				}
+			}
+		}
+
+		/// <summary>
+		/// Flag for info panel visibility
+		/// </summary>
+		public bool InfoPanelVisible {
+			get {
+				return infoVisible;
+			}
+			set {
+				infoVisible = value;
+				if (target != null && infoPanel != null) {
+					infoPanel.Visible = infoVisible;
 				}
 			}
 		}
@@ -115,13 +137,18 @@ namespace Cubed.Forms.Inspections {
 		Timer updateTimer;
 
 		/// <summary>
+		/// Info part visible
+		/// </summary>
+		bool infoVisible = true;
+
+		/// <summary>
 		/// Inspector constructor
 		/// </summary>
 		public Inspector() {
 
 			// Empty label
 			emptyLabel = new NSLabel() {
-				Text = "Select object to edit properties",
+				Text = InspectorStrings.EmptyObject,
 				Dock = DockStyle.Fill,
 				TextAlign = ContentAlignment.MiddleCenter,
 				ForeColor = Color.DarkGray
@@ -169,6 +196,14 @@ namespace Cubed.Forms.Inspections {
 			Rebuild();
 		}
 
+		/// <summary>
+		/// Handling event
+		/// </summary>
+		public void CallFieldEvent() {
+			if (FieldChanged != null) {
+				FieldChanged(this, EventArgs.Empty);
+			}
+		}
 
 		/// <summary>
 		/// Rebuilding all components
@@ -198,10 +233,19 @@ namespace Cubed.Forms.Inspections {
 
 				// Reading sections
 				Dictionary<int, FieldGroup> groups = new Dictionary<int, FieldGroup>();
-				InspectorSectionAttribute[] sectionAttribs = (InspectorSectionAttribute[])Attribute.GetCustomAttributes(type, typeof(InspectorSectionAttribute));
-				if (sectionAttribs == null) {
-					sectionAttribs = new InspectorSectionAttribute[0];
+				List<InspectorSectionAttribute> sectionList = new List<InspectorSectionAttribute>();
+				InspectorSectionAttribute[] potSects = (InspectorSectionAttribute[])Attribute.GetCustomAttributes(type, typeof(InspectorSectionAttribute));
+				if (potSects != null) {
+					sectionList.AddRange(potSects);
 				}
+				HintedSectionAttribute[] hintSects = (HintedSectionAttribute[])Attribute.GetCustomAttributes(type, typeof(HintedSectionAttribute));
+				if (hintSects != null) {
+					foreach (HintedSectionAttribute hs in hintSects) {
+						sectionList.Add(new InspectorSectionAttribute(hs.ID, hs.Name, hs.Icon));
+					}
+				}
+
+				InspectorSectionAttribute[] sectionAttribs = sectionList.ToArray();
 				foreach (InspectorSectionAttribute sattr in sectionAttribs) {
 					if (!groups.ContainsKey(sattr.ID)) {
 						groups.Add(sattr.ID, new FieldGroup());
@@ -226,6 +270,13 @@ namespace Cubed.Forms.Inspections {
 						if (sattr != null) {
 							if (groups.ContainsKey(sattr.ID)) {
 								section = sattr.ID;
+							}
+						} else {
+							HintedSectionAttribute hsattr = (HintedSectionAttribute)Attribute.GetCustomAttribute(p, typeof(HintedSectionAttribute));
+							if (hsattr != null) {
+								if (groups.ContainsKey(hsattr.ID)) {
+									section = hsattr.ID;
+								}
 							}
 						}
 						groups[section].Properties.Add(p);
@@ -294,10 +345,11 @@ namespace Cubed.Forms.Inspections {
 				totalHeight = 1;
 				fieldGroups = null;
 			}
-			hostPanel.Visible = infoPanel.Visible = target != null;
+			hostPanel.Visible = target != null;
 			emptyLabel.Visible = target == null;
 			ResumeLayout();
 			AdjustScrollbar();
+			infoPanel.Visible = infoVisible && target != null;
 
 			if (fieldGroups != null) {
 				if (updateTimer == null) {

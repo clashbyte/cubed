@@ -51,7 +51,7 @@ namespace Cubed.Forms.Editors.Misc {
 		/// </summary>
 		public HomePage() {
 			InitializeComponent();
-			tabName = "Starting page";
+			tabName = CustomEditors.StartingPage;
 			tabIcon = new UIIcon(DirectoryInspectorIcons.Home);
 
 			SuspendLayout();

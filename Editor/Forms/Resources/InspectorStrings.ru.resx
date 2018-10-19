@@ -120,6 +120,9 @@
   <data name="DefaultGroup" xml:space="preserve">
     <value>Основное</value>
   </data>
+  <data name="EmptyObject" xml:space="preserve">
+    <value>Выберите объект для изменения свойств</value>
+  </data>
   <data name="EnvironmentInfo" xml:space="preserve">
     <value>Окружение карты</value>
   </data>
@@ -131,6 +134,12 @@
   </data>
   <data name="LightDesc" xml:space="preserve">
     <value>Создаёт светлые участки на карте</value>
+  </data>
+  <data name="ProjectAuthor" xml:space="preserve">
+    <value>Автор</value>
+  </data>
+  <data name="ProjectName" xml:space="preserve">
+    <value>Название</value>
   </data>
   <data name="Sprite" xml:space="preserve">
     <value>Спрайт</value>

@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using Cubed.Forms.Resources;
 
 namespace Cubed.Forms.Dialogs {
 
@@ -51,6 +52,8 @@ namespace Cubed.Forms.Dialogs {
 		public TextInputDialog() {
 			InitializeComponent();
 			Description = "Input text:";
+			submitButton.Text = MessageBoxData.okLabel;
+			cancelButton.Text = MessageBoxData.cancelLabel;
 		}
 
 		/// <summary>

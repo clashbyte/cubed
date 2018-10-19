@@ -32,7 +32,7 @@ namespace Cubed.Data.Projects {
 		/// </summary>
 		public static ProjectInfo Info {
 			get;
-			private set;
+			set;
 		}
 
 		/// <summary>

@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Windows.Forms;
 using Cubed.Data.Editor.Attributes;
+using Cubed.Data.EditorGlue.Attributes;
 using Cubed.Forms.Inspections.Fields;
 using Cubed.UI.Controls;
 
@@ -72,6 +73,11 @@ namespace Cubed.Forms.Inspections {
 			InspectorNameAttribute nameAttrib = (InspectorNameAttribute)Attribute.GetCustomAttribute(info, typeof(InspectorNameAttribute));
 			if (nameAttrib != null) {
 				name = nameAttrib.Name;
+			} else {
+				HintedNameAttribute hintedAttrib = (HintedNameAttribute)Attribute.GetCustomAttribute(info, typeof(HintedNameAttribute));
+				if (hintedAttrib != null) {
+					name = (new InspectorNameAttribute(hintedAttrib.Name)).Name;
+				}
 			}
 
 			// Label
