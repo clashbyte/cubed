@@ -48,7 +48,7 @@ namespace Cubed.Data.Editor.Attributes {
 				Name = InspectorNameAttribute.GetName(name);
 			}
 			if (icon != null) {
-				Icon = InspectorIconAttribute.GetIcon(name);
+				Icon = InspectorIconAttribute.GetIcon(icon);
 			}
 		}
 

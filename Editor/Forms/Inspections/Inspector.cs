@@ -28,7 +28,6 @@ namespace Cubed.Forms.Inspections {
 		/// Assigned editors for props
 		/// </summary>
 		static readonly Dictionary<Type, Type> fieldTypes = new Dictionary<Type, Type>() {
-			{ typeof(string),	typeof(StringFieldInspector) },
 			{ typeof(bool),		typeof(BoolFieldInspector) },
 			{ typeof(int),		typeof(NumberFieldInspector) },
 			{ typeof(uint),		typeof(NumberFieldInspector) },
@@ -42,6 +41,7 @@ namespace Cubed.Forms.Inspections {
 			{ typeof(Vector2),	typeof(Vector2FieldInspector) },
 			{ typeof(Vector3),	typeof(Vector3FieldInspector) },
 			{ typeof(Color),	typeof(ColorFieldInspector) },
+			{ typeof(Image),	typeof(FileFieldInspector)},
 			{ typeof(Texture),	typeof(FileFieldInspector) },
 		};
 
@@ -316,6 +316,13 @@ namespace Cubed.Forms.Inspections {
 							Type tp = null;
 							if (p.PropertyType.IsEnum) {
 								tp = typeof(EnumFieldInspector);
+							} else if(p.PropertyType == typeof(string) || p.PropertyType == typeof(String)) {
+								HintedFilePickerAttribute fpick = (HintedFilePickerAttribute)Attribute.GetCustomAttribute(p, typeof(HintedFilePickerAttribute));
+								if (fpick != null) {
+									tp = typeof(FileFieldInspector);
+								} else {
+									tp = typeof(StringFieldInspector);
+								}
 							} else if (fieldTypes.ContainsKey(p.PropertyType)) {
 								tp = fieldTypes[p.PropertyType];
 							}

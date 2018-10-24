@@ -3552,6 +3552,9 @@ namespace Cubed.UI.Controls
 
 				for (int i = skip; i < Entries.Count; i++)
 				{
+					if (i < 0) {
+						continue;
+					}
 					Entry en = Entries[i];
 					Rectangle rect = new Rectangle(dx * ItemWidth + 3, dy * ItemHeight + 1 - off, ItemWidth, ItemHeight);
 					Rectangle iconRect = new Rectangle((int)((float)rect.X + (float)rect.Width / 2f - (float)IconSize * delta / 2f), (int)((float)rect.Y + (float)rect.Width / 2f - (float)IconSize * delta / 2f), (int)((float)IconSize * delta), (int)((float)IconSize * delta));

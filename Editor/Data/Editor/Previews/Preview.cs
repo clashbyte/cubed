@@ -7,6 +7,7 @@ using System.Threading;
 using Cubed.UI.Graphics;
 using Cubed.Data.Projects;
 using System.Drawing;
+using Cubed.Forms.Resources;
 
 namespace Cubed.Data.Editor.Previews {
 	
@@ -124,6 +125,37 @@ namespace Cubed.Data.Editor.Previews {
 		}
 
 		/// <summary>
+		/// Creating from image
+		/// </summary>
+		/// <param name="src">Raw image</param>
+		Preview(Image src) {
+			File = "";
+			SubIcon = null;
+			ShowSubIcon = false;
+			animated = false;
+
+			Bitmap m = new Bitmap(128, 128);
+			using (System.Drawing.Graphics g = System.Drawing.Graphics.FromImage(m)) {
+				g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+				if (src.Width < 128 && src.Height < 128) {
+					g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
+					g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
+				} else {
+					g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+					g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+				}
+
+				float deltaX = 128f / (float)src.Width;
+				float deltaY = 128f / (float)src.Height;
+				float delta = deltaX < deltaY ? deltaX : deltaY;
+				float cw = (float)src.Width * delta;
+				float ch = (float)src.Height * delta;
+				g.DrawImage(src, 64f - cw / 2f, 64f - ch / 2f, cw, ch);
+			}
+			Icon = new UIIcon(m);
+		}
+
+		/// <summary>
 		/// Refresh preview
 		/// </summary>
 		void Refresh(Project.Entry entry) {
@@ -162,6 +194,14 @@ namespace Cubed.Data.Editor.Previews {
 				cache.Add(entry.FullPath.ToLower(), new Preview(entry));
 			}
 			return cache[entry.FullPath.ToLower()];
+		}
+
+		/// <summary>
+		/// Creating preview for raw image
+		/// </summary>
+		/// <returns>Preview data</returns>
+		public static Preview GetForRawImage(Image image) {
+			return new Preview(image);
 		}
 
 		/// <summary>

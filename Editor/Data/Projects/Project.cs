@@ -372,6 +372,9 @@ namespace Cubed.Data.Projects {
 					}
 					return preview;
 				}
+				set {
+					preview = value;
+				}
 			}
 
 			/// <summary>
@@ -482,7 +485,7 @@ namespace Cubed.Data.Projects {
 			/// <summary>
 			/// Entries last events
 			/// </summary>
-			Dictionary<DebouncedFile, long> entries;
+			ConcurrentDictionary<DebouncedFile, long> entries;
 
 			/// <summary>
 			/// Changes list
@@ -542,7 +545,8 @@ namespace Cubed.Data.Projects {
 					}
 				}
 				foreach (var fl in files) {
-					entries.Remove(fl);
+					long stub = 0;
+					entries.TryRemove(fl, out stub);
 				}
 			}
 
@@ -550,7 +554,7 @@ namespace Cubed.Data.Projects {
 			/// Threaded watching
 			/// </summary>
 			void ThreadedWatch() {
-				entries = new Dictionary<DebouncedFile, long>();
+				entries = new ConcurrentDictionary<DebouncedFile, long>();
 				FileSystemWatcher fw = new FileSystemWatcher();
 				fw.InternalBufferSize = 8192;
 				fw.Path = rootPath;
@@ -570,11 +574,12 @@ namespace Cubed.Data.Projects {
 							}
 						}
 						foreach (DebouncedFile df in dlist) {
+							long stub = 0;
 							changeList.Enqueue(new FileChange() {
 								Event = df.Event,
 								Path = df.Path
 							});
-							entries.Remove(df);
+							entries.TryRemove(df, out stub);
 						}
 						Thread.Sleep(5);
 					}
@@ -634,7 +639,7 @@ namespace Cubed.Data.Projects {
 						}
 					}
 					if (!found) {
-						entries.Add(df, now + DEBOUNCE_DELAY);
+						entries.TryAdd(df, now + DEBOUNCE_DELAY);
 					}
 				}
 			}

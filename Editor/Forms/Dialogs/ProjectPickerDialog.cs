@@ -56,6 +56,9 @@ namespace Cubed.Forms.Dialogs {
 			prevFile = Dropper.File;
 			if (Dropper.File != null) {
 				currentDir = Dropper.File.Parent as Project.Folder;
+				if (currentDir == null) {
+					currentDir = Project.Root;
+				}
 			} else {
 				currentDir = Project.Root;
 			}

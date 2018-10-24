@@ -58,6 +58,7 @@ namespace Cubed.Forms.Editors.Map {
 			engine.MakeCurrent();
 
 			LoadFromChunk(chunk, false);
+			SelectEntity(null);
 		}
 
 		/// <summary>

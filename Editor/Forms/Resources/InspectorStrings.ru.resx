@@ -135,6 +135,12 @@
   <data name="LightDesc" xml:space="preserve">
     <value>Создаёт светлые участки на карте</value>
   </data>
+  <data name="Player" xml:space="preserve">
+    <value>Игрок</value>
+  </data>
+  <data name="PlayerDesc" xml:space="preserve">
+    <value>Точка появления игрока на уровне</value>
+  </data>
   <data name="ProjectAuthor" xml:space="preserve">
     <value>Автор</value>
   </data>

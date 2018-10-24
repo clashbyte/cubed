@@ -509,7 +509,6 @@ namespace Cubed.Forms.Editors.Map {
 					return ambientColor;
 				}
 				set {
-					parent.Saved = false;
 					ambientColor = value;
 					if (parent.lightsEnabledFlag.Checked) {
 						parent.map.Ambient = ambientColor;
@@ -527,7 +526,6 @@ namespace Cubed.Forms.Editors.Map {
 					return Sky[Skybox.Side.Top];
 				}
 				set {
-					parent.Saved = false;
 					Sky[Skybox.Side.Top] = value;
 				}
 			}
@@ -543,7 +541,6 @@ namespace Cubed.Forms.Editors.Map {
 					return Sky[Skybox.Side.Bottom];
 				}
 				set {
-					parent.Saved = false;
 					Sky[Skybox.Side.Bottom] = value;
 				}
 			}
@@ -559,7 +556,6 @@ namespace Cubed.Forms.Editors.Map {
 					return Sky[Skybox.Side.Left];
 				}
 				set {
-					parent.Saved = false;
 					Sky[Skybox.Side.Left] = value;
 				}
 			}
@@ -575,7 +571,6 @@ namespace Cubed.Forms.Editors.Map {
 					return Sky[Skybox.Side.Right];
 				}
 				set {
-					parent.Saved = false;
 					Sky[Skybox.Side.Right] = value;
 				}
 			}
@@ -591,7 +586,6 @@ namespace Cubed.Forms.Editors.Map {
 					return Sky[Skybox.Side.Front];
 				}
 				set {
-					parent.Saved = false;
 					Sky[Skybox.Side.Front] = value;
 				}
 			}
@@ -607,7 +601,6 @@ namespace Cubed.Forms.Editors.Map {
 					return Sky[Skybox.Side.Back];
 				}
 				set {
-					parent.Saved = false;
 					Sky[Skybox.Side.Back] = value;
 				}
 			}
@@ -622,7 +615,6 @@ namespace Cubed.Forms.Editors.Map {
 					return fogEnabled;
 				}
 				set {
-					parent.Saved = false;
 					fogEnabled = value;
 					if (parent.skyboxEnabledFlag.Checked) {
 						if (fogEnabled) {
@@ -644,7 +636,6 @@ namespace Cubed.Forms.Editors.Map {
 					return FogData.Color;
 				}
 				set {
-					parent.Saved = false;
 					FogData.Color = value;
 				}
 			}
@@ -659,7 +650,6 @@ namespace Cubed.Forms.Editors.Map {
 					return FogData.Near;
 				}
 				set {
-					parent.Saved = false;
 					FogData.Near = value;
 				}
 			}
@@ -674,7 +664,6 @@ namespace Cubed.Forms.Editors.Map {
 					return FogData.Far;
 				}
 				set {
-					parent.Saved = false;
 					FogData.Far = value;
 				}
 			}
