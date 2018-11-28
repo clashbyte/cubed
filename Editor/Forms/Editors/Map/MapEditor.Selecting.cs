@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using Cubed.Audio;
 using Cubed.Components.Rendering;
 using Cubed.Core;
 using Cubed.Data.Editor.Attributes;
@@ -477,6 +478,13 @@ namespace Cubed.Forms.Editors.Map {
 						eo = new MapSprite();
 						eo.Create(scene);
 						(eo as MapSprite).Texture = tex;
+
+					} else if(".wav;.mp3;.ogg;.mid".Split(';').Contains(ext)) {
+
+						AudioTrack track = new AudioTrack(en.Path, false);
+						eo = new MapSound();
+						eo.Create(scene);
+						(eo as MapSound).Audio = track;
 
 					} else if(ext == ".preset") {
 

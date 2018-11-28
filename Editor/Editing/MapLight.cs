@@ -155,11 +155,13 @@ namespace Cubed.Editing {
 					WireColor = Color.Yellow,
 					WireWidth = 1.5f
 				});
-				SelectedGizmo.AddComponent(new LineComponent() {
-					Mode = LineComponent.LineType.Loop,
-					WireColor = Color.Yellow,
-					WireWidth = 1f
-				});
+				for (int i = 0; i < 3; i++) {
+					SelectedGizmo.AddComponent(new LineComponent() {
+						Mode = LineComponent.LineType.Loop,
+						WireColor = Color.Yellow,
+						WireWidth = 1f
+					});
+				}
 				SelectedGizmo.LocalPosition = Vector3.Zero;
 				scene.Entities.Add(SelectedGizmo);
 			}
@@ -167,11 +169,13 @@ namespace Cubed.Editing {
 			BoundSize = Vector3.One * 0.3f;
 
 			// Adding scene gizmos
-			rangeGizmos = new PositionGizmo[4] {
-				new PositionGizmo(System.Drawing.Color.Yellow, 0.15f) { Parent = Gizmo, Filter = FilterGizmoPosition },
-				new PositionGizmo(System.Drawing.Color.Yellow, 0.15f) { Parent = Gizmo, Filter = FilterGizmoPosition },
-				new PositionGizmo(System.Drawing.Color.Yellow, 0.15f) { Parent = Gizmo, Filter = FilterGizmoPosition },
-				new PositionGizmo(System.Drawing.Color.Yellow, 0.15f) { Parent = Gizmo, Filter = FilterGizmoPosition },
+			rangeGizmos = new PositionGizmo[6] {
+				new PositionGizmo(System.Drawing.Color.Yellow, 0.15f) { Parent = Gizmo, Filter = FilterGizmoPosition, Lock = PositionGizmo.AxisLock.HorizontalOnly },
+				new PositionGizmo(System.Drawing.Color.Yellow, 0.15f) { Parent = Gizmo, Filter = FilterGizmoPosition, Lock = PositionGizmo.AxisLock.HorizontalOnly },
+				new PositionGizmo(System.Drawing.Color.Yellow, 0.15f) { Parent = Gizmo, Filter = FilterGizmoPosition, Lock = PositionGizmo.AxisLock.HorizontalOnly },
+				new PositionGizmo(System.Drawing.Color.Yellow, 0.15f) { Parent = Gizmo, Filter = FilterGizmoPosition, Lock = PositionGizmo.AxisLock.HorizontalOnly },
+				new PositionGizmo(System.Drawing.Color.Yellow, 0.15f) { Parent = Gizmo, Filter = FilterGizmoPosition, Lock = PositionGizmo.AxisLock.VerticalOnly },
+				new PositionGizmo(System.Drawing.Color.Yellow, 0.15f) { Parent = Gizmo, Filter = FilterGizmoPosition, Lock = PositionGizmo.AxisLock.VerticalOnly },
 			};
 			RebuildRing(((Cubed.Prefabs.MapLight)Prefab).Range);
 			Prefab.Assign(scene);
@@ -231,18 +235,29 @@ namespace Cubed.Editing {
 		/// </summary>
 		/// <param name="range">Light range</param>
 		void RebuildRing(float range) {
-			int count = (int)Math.Ceiling(range * 8);
+			int count = 64;
 			float dif = MathHelper.TwoPi / (float)count;
-			Vector3[] verts = new Vector3[count];
-			for (int i = 0; i < count; i++) {
-				float r = (float)i * dif;
-				verts[i] = new Vector3((float)Math.Sin(r) * range, 0, (float)Math.Cos(r) * range);
+			LineComponent[] comps = SelectedGizmo.GetComponents<LineComponent>();
+			for (int j = 0; j < 3; j++) {
+				Vector3[] verts = new Vector3[count];
+				for (int i = 0; i < count; i++) {
+					float r = (float)i * dif;
+					if (j == 0) {
+						verts[i] = new Vector3((float)Math.Sin(r) * range, 0, (float)Math.Cos(r) * range);
+					} else if(j == 1) {
+						verts[i] = new Vector3((float)Math.Sin(r) * range, (float)Math.Cos(r) * range, 0);
+					} else {
+						verts[i] = new Vector3(0, (float)Math.Cos(r) * range, (float)Math.Sin(r) * range);
+					}
+				}
+				comps[j].Vertices = verts;
 			}
-			SelectedGizmo.GetComponent<LineComponent>().Vertices = verts;
 			rangeGizmos[0].Position = Vector3.UnitZ * range + Gizmo.Position;
 			rangeGizmos[1].Position = Vector3.UnitX * range + Gizmo.Position;
 			rangeGizmos[2].Position = Vector3.UnitZ * -range + Gizmo.Position;
 			rangeGizmos[3].Position = Vector3.UnitX * -range + Gizmo.Position;
+			rangeGizmos[4].Position = Vector3.UnitY * range + Gizmo.Position;
+			rangeGizmos[5].Position = Vector3.UnitY * -range + Gizmo.Position;
 		}
 
 		/// <summary>
@@ -255,8 +270,18 @@ namespace Cubed.Editing {
 			int idx = Array.IndexOf(rangeGizmos, gizmo);
 			Vector3 cp = Prefab.Position;
 			float val = 0;
-			target.Y = cp.Y;
-			if (idx == 0 || idx == 2) {
+			if (idx > 3) {
+				target.Z = cp.Z;
+				target.X = cp.X;
+				val = target.Y - cp.Y;
+				if (idx == 4) {
+					val = Math.Max(0.1f, Math.Min(val, 32f));
+				} else {
+					val = Math.Max(-32f, Math.Min(val, -0.1f));
+				}
+				target.Y = val + cp.Y;
+			} else if (idx == 0 || idx == 2) {
+				target.Y = cp.Y;
 				target.X = cp.X;
 				val = target.Z - cp.Z;
 				if (idx == 0) {
@@ -266,6 +291,7 @@ namespace Cubed.Editing {
 				}
 				target.Z = val + cp.Z;
 			} else {
+				target.Y = cp.Y;
 				target.Z = cp.Z;
 				val = target.X - cp.X;
 				if (idx == 1) {

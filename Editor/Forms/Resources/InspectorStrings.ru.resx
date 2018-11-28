@@ -117,6 +117,24 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AffectedByFog" xml:space="preserve">
+    <value>Воздействие тумана</value>
+  </data>
+  <data name="AffectedByLight" xml:space="preserve">
+    <value>Воздействие света</value>
+  </data>
+  <data name="Angle" xml:space="preserve">
+    <value>Поворот</value>
+  </data>
+  <data name="Blending" xml:space="preserve">
+    <value>Смешивание</value>
+  </data>
+  <data name="BoundGroup" xml:space="preserve">
+    <value>Столкновения и габариты</value>
+  </data>
+  <data name="BrokenGroup" xml:space="preserve">
+    <value>Разрушенный вид</value>
+  </data>
   <data name="DefaultGroup" xml:space="preserve">
     <value>Основное</value>
   </data>
@@ -129,11 +147,17 @@
   <data name="EnvironmentInfoDesc" xml:space="preserve">
     <value>Параметры неба, освещения и звуков</value>
   </data>
+  <data name="Facing" xml:space="preserve">
+    <value>Режим вращения</value>
+  </data>
   <data name="Light" xml:space="preserve">
     <value>Лампа</value>
   </data>
   <data name="LightDesc" xml:space="preserve">
     <value>Создаёт светлые участки на карте</value>
+  </data>
+  <data name="Offset" xml:space="preserve">
+    <value>Сдвиг</value>
   </data>
   <data name="Player" xml:space="preserve">
     <value>Игрок</value>
@@ -147,10 +171,34 @@
   <data name="ProjectName" xml:space="preserve">
     <value>Название</value>
   </data>
+  <data name="Scale" xml:space="preserve">
+    <value>Размер</value>
+  </data>
+  <data name="SizeGroup" xml:space="preserve">
+    <value>Размеры</value>
+  </data>
+  <data name="Solid" xml:space="preserve">
+    <value>Твёрдый</value>
+  </data>
+  <data name="Sound" xml:space="preserve">
+    <value>Звук</value>
+  </data>
+  <data name="SoundDesc" xml:space="preserve">
+    <value>Источник звука</value>
+  </data>
   <data name="Sprite" xml:space="preserve">
     <value>Спрайт</value>
   </data>
   <data name="SpriteDesc" xml:space="preserve">
     <value>Объект для декорирования карт</value>
+  </data>
+  <data name="Texture" xml:space="preserve">
+    <value>Текстура</value>
+  </data>
+  <data name="Tint" xml:space="preserve">
+    <value>Оттенок</value>
+  </data>
+  <data name="VisualGroup" xml:space="preserve">
+    <value>Внешний вид</value>
   </data>
 </root>

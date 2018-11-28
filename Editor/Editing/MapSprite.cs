@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using Cubed.Components.Rendering;
 using Cubed.Data.Editor.Attributes;
+using Cubed.Editing.Gizmos;
 using Cubed.Graphics;
 using Cubed.World;
 using OpenTK;
@@ -18,11 +19,25 @@ namespace Cubed.Editing {
 	[InspectorName("Sprite")]
 	[InspectorDescription("SpriteDesc")]
 	[TargetPrefab(typeof(Prefabs.MapSprite))]
+	[InspectorSection(0, "VisualGroup", "VisualGroup")]
+	[InspectorSection(1, "BrokenGroup", "BrokenGroup")]
+	[InspectorSection(2, "SizeGroup", "SizeGroup")]
+	[InspectorSection(3, "BoundGroup", "BoundGroup")]
 	public class MapSprite : EditableObject {
+
+		public override Gizmo[] ControlGizmos {
+			get {
+				return new Gizmo[] {
+					colliderGizmo	
+				};
+			}
+		}
 
 		/// <summary>
 		/// Texture
 		/// </summary>
+		[InspectorSection(0)]
+		[InspectorName("Texture")]
 		public Texture Texture {
 			get {
 				return (Prefab as Prefabs.MapSprite).Texture;
@@ -35,8 +50,38 @@ namespace Cubed.Editing {
 		}
 
 		/// <summary>
+		/// Facing
+		/// </summary>
+		[InspectorSection(2)]
+		[InspectorName("Facing")]
+		public Prefabs.MapSprite.FacingMode Facing {
+			get {
+				return (Prefab as Prefabs.MapSprite).Facing;
+			}
+			set {
+				(Prefab as Prefabs.MapSprite).Facing = value;
+			}
+		}
+
+		/// <summary>
+		/// Blending
+		/// </summary>
+		[InspectorSection(0)]
+		[InspectorName("Blending")]
+		public Prefabs.MapSprite.BlendingMode Blending {
+			get {
+				return (Prefab as Prefabs.MapSprite).Blending;
+			}
+			set {
+				(Prefab as Prefabs.MapSprite).Blending = value;
+			}
+		}
+
+		/// <summary>
 		/// Affected by light
 		/// </summary>
+		[InspectorSection(0)]
+		[InspectorName("AffectedByLight")]
 		public bool AffectedByLight {
 			get {
 				return (Prefab as Prefabs.MapSprite).AffectedByLight;
@@ -49,6 +94,8 @@ namespace Cubed.Editing {
 		/// <summary>
 		/// Affected by fog
 		/// </summary>
+		[InspectorSection(0)]
+		[InspectorName("AffectedByFog")]
 		public bool AffectedByFog {
 			get {
 				return (Prefab as Prefabs.MapSprite).AffectedByFog;
@@ -58,6 +105,11 @@ namespace Cubed.Editing {
 			}
 		}
 
+		/// <summary>
+		/// Sprite offset
+		/// </summary>
+		[InspectorSection(2)]
+		[InspectorName("Offset")]
 		public Vector2 Offset {
 			get {
 				return (Prefab as Prefabs.MapSprite).Offset;
@@ -67,6 +119,11 @@ namespace Cubed.Editing {
 			}
 		}
 
+		/// <summary>
+		/// Sprite scale
+		/// </summary>
+		[InspectorSection(2)]
+		[InspectorName("Scale")]
 		public Vector2 Scale {
 			get {
 				return (Prefab as Prefabs.MapSprite).Scale;
@@ -76,6 +133,22 @@ namespace Cubed.Editing {
 			}
 		}
 
+		/// <summary>
+		/// Angle
+		/// </summary>
+		[InspectorSection(2)]
+		[InspectorName("Angle")]
+		public float Angle {
+			get {
+				return (Prefab).Angles.Y;
+			}
+			set {
+				Prefab.Angles = Vector3.UnitY * value;
+			}
+		}
+
+		[InspectorSection(0)]
+		[InspectorName("Tint")]
 		public Color Tint {
 			get {
 				return (Prefab as Prefabs.MapSprite).Tint;
@@ -85,6 +158,8 @@ namespace Cubed.Editing {
 			}
 		}
 
+		[InspectorSection(3)]
+		[InspectorName("Solid")]
 		public bool Solid {
 			get {
 				return (Prefab as Prefabs.MapSprite).Solid;
@@ -95,6 +170,8 @@ namespace Cubed.Editing {
 			}
 		}
 
+		[InspectorSection(3)]
+		[InspectorName("Offset")]
 		public Vector3 ColliderOffset {
 			get {
 				return (Prefab as Prefabs.MapSprite).BoundOffset;
@@ -105,6 +182,8 @@ namespace Cubed.Editing {
 			}
 		}
 
+		[InspectorSection(3)]
+		[InspectorName("Scale")]
 		public Vector3 ColliderSize {
 			get {
 				return (Prefab as Prefabs.MapSprite).BoundSize;
@@ -121,14 +200,14 @@ namespace Cubed.Editing {
 		static Texture gizmoIcon;
 
 		/// <summary>
-		/// Solid cube
-		/// </summary>
-		WireCubeComponent colliderBox;
-
-		/// <summary>
 		/// Is light selected
 		/// </summary>
 		bool selected;
+
+		/// <summary>
+		/// Collider gizmo
+		/// </summary>
+		ZoneGizmo colliderGizmo;
 
 		/// <summary>
 		/// Creating light
@@ -173,18 +252,24 @@ namespace Cubed.Editing {
 					WireColor = Color.Cyan,
 					WireWidth = 1.5f
 				});
+				/*
 				SelectedGizmo.AddComponent(colliderBox = new WireCubeComponent() {
 					WireColor = Color.Orange,
 					WireWidth = 1f
 				});
+				 */
 				SelectedGizmo.LocalPosition = Vector3.Zero;
 				scene.Entities.Add(SelectedGizmo);
 			}
 			BoundPosition = Vector3.Zero;
 			BoundSize = Vector3.One * 0.3f;
+			colliderGizmo = new ZoneGizmo(Color.Orange, 0.05f) {
+				Filter = ZoneFilter
+			};
+
 			Prefab.Assign(scene);
 			Texture = (Prefab as Prefabs.MapSprite).Texture;
-			UpdateCollider();
+			//UpdateCollider();
 		}
 
 		/// <summary>
@@ -209,8 +294,9 @@ namespace Cubed.Editing {
 		/// <param name="scene"></param>
 		public override void Select(Scene scene) {
 			selected = true;
-			Gizmo.Visible = false;
+			Gizmo.Visible = true;
 			SelectedGizmo.Visible = true;
+			UpdateCollider();
 		}
 
 		/// <summary>
@@ -242,9 +328,23 @@ namespace Cubed.Editing {
 		/// Handling collider
 		/// </summary>
 		void UpdateCollider() {
-			colliderBox.Enabled = (Prefab as Prefabs.MapSprite).Solid;
-			colliderBox.Position = (Prefab as Prefabs.MapSprite).BoundOffset;
-			colliderBox.Size = (Prefab as Prefabs.MapSprite).BoundSize;
+			colliderGizmo.BoxPosition = (Prefab as Prefabs.MapSprite).BoundOffset;
+			colliderGizmo.BoxSize = (Prefab as Prefabs.MapSprite).BoundSize;
+		}
+
+		/// <summary>
+		/// Filter for collider size
+		/// </summary>
+		Tuple<Vector3, Vector3> ZoneFilter(ZoneGizmo gizmo, Tuple<Vector3, Vector3> input) {
+			Vector3 pos = input.Item1;
+			Vector3 size = input.Item2;
+			size.X = Math.Max(size.X, 0.05f);
+			size.Y = Math.Max(size.Y, 0.05f);
+			size.Z = Math.Max(size.Z, 0.05f);
+			ColliderOffset = pos;
+			ColliderSize = size;
+			UpdateCollider();
+			return new Tuple<Vector3, Vector3>(pos, size);
 		}
 	}
 }

@@ -80,6 +80,7 @@
 			this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
 			this.projectRenameMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.projectDeleteMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.engineControl1 = new Cubed.Drivers.EngineControl();
 			((System.ComponentModel.ISupportInitialize)(this.filesContainer)).BeginInit();
 			this.filesContainer.Panel1.SuspendLayout();
 			this.filesContainer.Panel2.SuspendLayout();
@@ -108,6 +109,7 @@
 			// 
 			// filesContainer.Panel2
 			// 
+			this.filesContainer.Panel2.Controls.Add(this.engineControl1);
 			this.filesContainer.Panel2.Controls.Add(this.panel1);
 			this.filesContainer.Panel2.Controls.Add(this.projectFileInfo);
 			// 
@@ -497,6 +499,12 @@
 			resources.ApplyResources(this.projectDeleteMenuItem, "projectDeleteMenuItem");
 			this.projectDeleteMenuItem.Click += new System.EventHandler(this.projectDeleteMenuItem_Click);
 			// 
+			// engineControl1
+			// 
+			this.engineControl1.Display = null;
+			resources.ApplyResources(this.engineControl1, "engineControl1");
+			this.engineControl1.Name = "engineControl1";
+			// 
 			// MainForm
 			// 
 			resources.ApplyResources(this, "$this");
@@ -583,5 +591,6 @@
 		private System.Windows.Forms.ToolStripMenuItem projectDeleteMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem closeProjectToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem openInExplorerToolStripMenuItem;
+		private Drivers.EngineControl engineControl1;
 	}
 }

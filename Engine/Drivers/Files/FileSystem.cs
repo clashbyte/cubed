@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -31,6 +32,13 @@ namespace Cubed.Drivers.Files {
 		/// <param name="file">File name</param>
 		/// <returns>File content</returns>
 		public abstract byte[] Get(string file);
+
+		/// <summary>
+		/// Create file stream
+		/// </summary>
+		/// <param name="file">File name</param>
+		/// <returns>File stream</returns>
+		public abstract Stream GetStream(string file);
 
 	}
 }

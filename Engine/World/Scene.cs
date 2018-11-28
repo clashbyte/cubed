@@ -145,7 +145,8 @@ namespace Cubed.World {
 						lightList.Add(en as Light);
 					}
 				}
-				Map.Update(lightList);
+				Map.Update(lightList, this);
+				Caps.CheckErrors();
 			}
 
 			// Updating objects
@@ -153,9 +154,11 @@ namespace Cubed.World {
 				if (!Paused) {
 					foreach (Entity e in Entities) {
 						e.Update();
+						Caps.CheckErrors();
 					}
 					foreach (EntityComponent e in updateable) {
 						(e as IUpdatable).Update();
+						Caps.CheckErrors();
 					}
 				}
 			}
@@ -188,6 +191,7 @@ namespace Cubed.World {
 				if (!Paused) {
 					foreach (EntityComponent e in lateUpdateable) {
 						(e as ILateUpdatable).LateUpdate();
+						Caps.CheckErrors();
 					}
 				}
 			}
@@ -226,11 +230,14 @@ namespace Cubed.World {
 			Vector3 cameraPos = Vector3.Zero;
 			if (Camera != null) {
 				Camera.Setup();
+				Caps.CheckErrors();
 				if (Sky != null && Mode == ClearMode.ClearAll) {
 					Camera.LoadSkyMatrix();
 					Sky.Render();
+					Caps.CheckErrors();
 				}
 				Camera.LoadMatrix();
+				Caps.CheckErrors();
 				cameraPos = Camera.Position;
 				GL.Enable(EnableCap.DepthTest);
 				GL.DepthFunc(DepthFunction.Lequal);
@@ -284,15 +291,14 @@ namespace Cubed.World {
 
 			// Rendering map geometry
 			if (Map != null) {
-				//GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
-				//GL.LineWidth(2f);
-				Map.Render();
-				//GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+				Map.Render(this);
+				Caps.CheckErrors();
 			}
 
 			// Opaque pass
 			foreach (RenderableGroup g in opaqueGroups) {
 				g.Render();
+				Caps.CheckErrors();
 			}
 
 			// Alpha pass
@@ -315,6 +321,7 @@ namespace Cubed.World {
 					// Rendering surfaces
 					foreach (RenderableGroup g in alphaTestGroups) {
 						g.Render();
+						Caps.CheckErrors();
 					}
 
 					// Disabling alphatest
@@ -339,6 +346,7 @@ namespace Cubed.World {
 					// Rendering surfaces
 					foreach (RangedRenderableGroup rg in alphaBlendGroups) {
 						rg.Render();
+						Caps.CheckErrors();
 					}
 
 					// Enabling depth back

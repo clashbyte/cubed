@@ -86,7 +86,8 @@ namespace Cubed.Prefabs {
 		public MapLight() {
 			light = new Light() {
 				Color = Color.White,
-				Range = 5
+				Range = 5,
+				Static = true
 			};
 			light.Parent = this;
 		}

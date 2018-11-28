@@ -17,7 +17,7 @@ namespace Cubed.Forms.Editors.Map {
 			typeof(PlayerSpawn),
 			typeof(MapLight),
 			typeof(MapSprite),
-
+			typeof(MapSound),
 		};
 
 		/// <summary>

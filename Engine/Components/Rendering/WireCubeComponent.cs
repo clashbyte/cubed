@@ -22,6 +22,14 @@ namespace Cubed.Components.Rendering {
 		static ushort[] indexArray;
 
 		/// <summary>
+		/// Flag for semitransparent
+		/// </summary>
+		public bool AlwaysVisible {
+			get;
+			set;
+		}
+
+		/// <summary>
 		/// Расположение относительно центра объекта
 		/// </summary>
 		public Vector3 Position {
@@ -228,6 +236,11 @@ namespace Cubed.Components.Rendering {
 				};
 			}
 
+			// Depth test
+			if (AlwaysVisible) {
+				GL.Disable(EnableCap.DepthTest);
+			}
+
 			// Отрисовка куба, без текстуры
 			GL.BindTexture(TextureTarget.Texture2D, 0);
 			GL.LineWidth(WireWidth);
@@ -251,6 +264,7 @@ namespace Cubed.Components.Rendering {
 				GL.DrawElements(PrimitiveType.Lines, indexArray.Length, DrawElementsType.UnsignedShort, indexArray);
 				GL.DisableClientState(ArrayCap.VertexArray);
 			}
+			GL.Enable(EnableCap.DepthTest);
 		}
 
 	}

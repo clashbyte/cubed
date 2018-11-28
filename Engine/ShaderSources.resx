@@ -122,23 +122,131 @@
 
 uniform vec4 ambient;
 uniform vec4 fogColor;
+uniform vec4 sunColor;
 uniform sampler2D texture;
+uniform sampler2D staticLightmap;
 uniform sampler2D lightmap;
+uniform sampler2D sunMap;
+
 varying vec2 texCoord;
 varying vec2 lightTexCoord;
+varying vec2 sunTexCoord;
 varying float fogAmount;
+varying float sunDist;
 
 void main() {
+	vec4 light = ambient;
+	light += texture2D(lightmap, lightTexCoord);
+	light += texture2D(staticLightmap, lightTexCoord);
+	
+	//float sunDepth = texture2D(sunMap, sunTexCoord).r;
+	//if(sunDist &lt; sunDepth) {
+	//	light = vec4(1.0, 0.0, 0.0, 0.0);
+	//}
+	//light = vec4(sunTexCoord.x, sunTexCoord.y, 0.0, 0.0);
+	
+
 	vec4 color = 
 		texture2D(texture, texCoord) * 
-		clamp(texture2D(lightmap, lightTexCoord) + ambient, 0, 1);
+		clamp(light, 0, 1);
 	gl_FragColor = mix(color, fogColor, fogAmount);
+}</value>
+  </data>
+  <data name="MapLightPassFragment" xml:space="preserve">
+    <value>#version 120
+
+uniform samplerCube depthBuffer;
+uniform sampler2D lightTexture;
+uniform float lightRange;
+uniform vec4 lightColor;
+uniform vec3 lightPos;
+
+varying vec3 fragPos;
+varying vec3 normal;
+varying vec2 texCoord;
+
+void main() {
+	vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
+	float range = distance(fragPos, lightPos);
+	vec3 dir = normalize(lightPos - fragPos);
+	float dt = dot(dir, normal);
+	if(range &lt; lightRange &amp;&amp; dt &gt; 0.01) {
+		color = vec4(lightColor.xyz * (1.0 - range / lightRange), 1.0);
+		
+		dir = normalize(lightPos - (fragPos + normal * range * 0.01));
+		if (textureCube(depthBuffer, dir).r &lt; range - 0.1) {
+			color = vec4(0.0, 0.0, 0.0, 1.0);
+		}
+		
+		color *= texture2D(lightTexture, texCoord);
+	}
+	gl_FragColor = color;
+}</value>
+  </data>
+  <data name="MapLightPassVertex" xml:space="preserve">
+    <value>#version 120
+
+attribute vec3 inPosition;
+attribute vec3 inNormal;
+attribute vec2 inFlatPosition;
+
+uniform mat4 projectionMatrix;
+uniform mat4 cameraMatrix;
+uniform mat4 entityMatrix;
+uniform mat4 lightRotation;
+uniform vec3 lightPos;
+uniform float lightRange;
+
+varying vec3 fragPos;
+varying vec3 normal;
+varying vec2 texCoord;
+
+void main() {
+	mat4 m = projectionMatrix * cameraMatrix;
+	vec4 v = vec4(inFlatPosition, 0.0, 1.0);
+	gl_Position = m * v;
+	fragPos = (entityMatrix * vec4(inPosition, 1.0)).xyz;
+	
+	float fullRange = sqrt(lightRange * lightRange * 2) * 2.0;
+	vec4 temp = vec4(fragPos - lightPos, 1.0) * lightRotation;
+	float texU = clamp(temp.x / fullRange + 0.5, 0.0, 1.0);
+	float texV = clamp(temp.z / fullRange + 0.5, 0.0, 1.0);
+	texCoord = vec2(texU, texV);
+	normal = inNormal;
+}</value>
+  </data>
+  <data name="MapShadowFragment" xml:space="preserve">
+    <value>#version 120
+
+varying vec3 fragPos;
+
+void main() {
+	gl_FragColor = vec4(length(fragPos), 1.0, 1.0, 1.0);
+}</value>
+  </data>
+  <data name="MapShadowVertex" xml:space="preserve">
+    <value>#version 120
+
+attribute vec3 inPosition;
+
+uniform mat4 projectionMatrix;
+uniform mat4 cameraMatrix;
+uniform mat4 entityMatrix;
+
+varying vec3 fragPos;
+
+void main() {
+	mat4 m = projectionMatrix * cameraMatrix * entityMatrix;
+	vec4 v = vec4(inPosition, 1.0);
+	gl_Position = m * v;
+	fragPos = gl_Position.xyz;
 }</value>
   </data>
   <data name="MapVertex" xml:space="preserve">
     <value>#version 120
 
 attribute vec3 inPosition;
+attribute vec3 inNormal;
 attribute vec2 inTexCoord;
 attribute vec2 inLightCoord;
 
@@ -146,6 +254,7 @@ uniform mat4 projectionMatrix;
 uniform mat4 cameraMatrix;
 uniform mat4 entityMatrix;
 uniform mat4 textureMatrix;
+uniform mat4 sunMatrix;
 uniform bool fog;
 uniform float fogNear;
 uniform float fogFar;
@@ -153,14 +262,26 @@ uniform float fogFar;
 varying vec2 texCoord;
 varying vec2 lightTexCoord;
 varying float fogAmount;
+varying vec3 fragPos;
+varying vec3 normal;
+varying vec2 sunTexCoord;
+varying float sunDist;
 
 void main() {
 	mat4 m = projectionMatrix * cameraMatrix * entityMatrix;
 	vec4 v = vec4(inPosition, 1.0);
 	texCoord = (textureMatrix * vec4(inTexCoord, 0.0, 0.0)).xy;
 	lightTexCoord = inLightCoord;
+	normal = inNormal;
 	gl_Position = m * v;
-
+	
+	vec4 tempPos = entityMatrix * v;
+	fragPos = tempPos.xyz;
+	
+	vec4 lightPos = sunMatrix * tempPos;
+	sunTexCoord = clamp(vec2(lightPos.x / 64.0 + 0.5, lightPos.y / 64.0 + 0.5), 0.0, 1.0);
+	sunDist = lightPos.z;
+	
 	fogAmount = 0;
 	if(fog) {
 		float dist = length(gl_Position.xyz);

@@ -22,6 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
@@ -31,8 +32,16 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <UseVSHostingProcess>false</UseVSHostingProcess>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AudioSynthesis, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Library\AudioSynthesis.dll</HintPath>
+    </Reference>
+    <Reference Include="NVorbis, Version=0.8.6.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NVorbis.0.8.6\lib\net35\NVorbis.dll</HintPath>
+    </Reference>
     <Reference Include="OpenTK, Version=3.0.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
       <HintPath>..\packages\OpenTK.3.0.0-pre\lib\net20\OpenTK.dll</HintPath>
       <Private>True</Private>
@@ -47,6 +56,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Audio\AudioCache.cs" />
+    <Compile Include="Audio\AudioEffects.cs" />
+    <Compile Include="Audio\AudioSystem.cs" />
+    <Compile Include="Audio\AudioTrack.cs" />
+    <Compile Include="Audio\Decoders\AudioDecoder.cs" />
+    <Compile Include="Audio\Decoders\MidiDecoder.cs" />
+    <Compile Include="Audio\Decoders\OggDecoder.cs" />
+    <Compile Include="Audio\Decoders\Mp3Decoder.cs" />
+    <Compile Include="Audio\Decoders\WavDecoder.cs" />
+    <Compile Include="Audio\SynchronizedCollection.cs" />
+    <Compile Include="Components\Audio\SoundSource.cs" />
     <Compile Include="Components\Component.cs" />
     <Compile Include="Components\Controls\WalkController.cs" />
     <Compile Include="Components\IRenderable.cs" />
@@ -65,6 +85,8 @@
     <Compile Include="Data\Files\Chunk.cs" />
     <Compile Include="Data\Files\KeyValueChunk.cs" />
     <Compile Include="Data\ObjectCopier.cs" />
+    <Compile Include="Data\Shaders\MapLightPassShader.cs" />
+    <Compile Include="Data\Shaders\MapShadowShader.cs" />
     <Compile Include="Drivers\Textures\GifImageLoader.cs" />
     <Compile Include="Drivers\Textures\BasicImageLoader.cs" />
     <Compile Include="Drivers\Textures\TextureLoader.cs" />
@@ -138,6 +160,7 @@
     <Compile Include="World\Fog.cs" />
     <Compile Include="World\Light.cs" />
     <Compile Include="World\Map.cs" />
+    <Compile Include="World\MapTriangulator.cs" />
     <Compile Include="World\Scene.cs" />
     <Compile Include="World\Skybox.cs" />
   </ItemGroup>
@@ -157,6 +180,7 @@
     <None Include="Resources\arial.fnt" />
     <None Include="Resources\basic.fnt" />
     <None Include="Resources\console.fnt" />
+    <None Include="Resources\GMGSx.SF2" />
     <None Include="Resources\icons.fnt" />
     <None Include="Resources\small.fnt" />
     <None Include="Resources\smalln.fnt" />
@@ -185,6 +209,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\project-error.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Library\MP3Sharp\MP3Sharp.csproj">
+      <Project>{bf3b29f8-da04-4973-93db-144a5bbe2472}</Project>
+      <Name>MP3Sharp</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -15,6 +15,7 @@ using Cubed.Graphics;
 using Cubed.UI.Graphics;
 using Cubed.Forms.Resources;
 using Cubed.Data.EditorGlue.Attributes;
+using Cubed.Audio;
 
 namespace Cubed.Forms.Inspections {
 	public partial class Inspector : Panel {
@@ -28,21 +29,22 @@ namespace Cubed.Forms.Inspections {
 		/// Assigned editors for props
 		/// </summary>
 		static readonly Dictionary<Type, Type> fieldTypes = new Dictionary<Type, Type>() {
-			{ typeof(bool),		typeof(BoolFieldInspector) },
-			{ typeof(int),		typeof(NumberFieldInspector) },
-			{ typeof(uint),		typeof(NumberFieldInspector) },
-			{ typeof(short),	typeof(NumberFieldInspector) },
-			{ typeof(ushort),	typeof(NumberFieldInspector) },
-			{ typeof(byte),		typeof(NumberFieldInspector) },
-			{ typeof(sbyte),	typeof(NumberFieldInspector) },
-			{ typeof(long),		typeof(NumberFieldInspector) },
-			{ typeof(ulong),	typeof(NumberFieldInspector) },
-			{ typeof(float),	typeof(NumberFieldInspector) },
-			{ typeof(Vector2),	typeof(Vector2FieldInspector) },
-			{ typeof(Vector3),	typeof(Vector3FieldInspector) },
-			{ typeof(Color),	typeof(ColorFieldInspector) },
-			{ typeof(Image),	typeof(FileFieldInspector)},
-			{ typeof(Texture),	typeof(FileFieldInspector) },
+			{ typeof(bool),			typeof(BoolFieldInspector) },
+			{ typeof(int),			typeof(NumberFieldInspector) },
+			{ typeof(uint),			typeof(NumberFieldInspector) },
+			{ typeof(short),		typeof(NumberFieldInspector) },
+			{ typeof(ushort),		typeof(NumberFieldInspector) },
+			{ typeof(byte),			typeof(NumberFieldInspector) },
+			{ typeof(sbyte),		typeof(NumberFieldInspector) },
+			{ typeof(long),			typeof(NumberFieldInspector) },
+			{ typeof(ulong),		typeof(NumberFieldInspector) },
+			{ typeof(float),		typeof(NumberFieldInspector) },
+			{ typeof(Vector2),		typeof(Vector2FieldInspector) },
+			{ typeof(Vector3),		typeof(Vector3FieldInspector) },
+			{ typeof(Color),		typeof(ColorFieldInspector) },
+			{ typeof(Image),		typeof(FileFieldInspector)},
+			{ typeof(Texture),		typeof(FileFieldInspector) },
+			{ typeof(AudioTrack),	typeof(FileFieldInspector) },
 		};
 
 
@@ -344,7 +346,7 @@ namespace Cubed.Forms.Inspections {
 						
 					}
 				}
-				totalHeight = py;
+				totalHeight = py + infoPanel.Height;
 				subPanel.ResumeLayout();
 				hostPanel.ResumeLayout();
 				fieldGroups = fgroups;

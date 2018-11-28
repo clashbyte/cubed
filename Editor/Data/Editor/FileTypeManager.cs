@@ -50,7 +50,7 @@ namespace Cubed.Data.Editor {
 				),
 				new FileType(
 					FileTypes.Audio,
-					".mp3;.ogg;.wav",
+					".mp3;.ogg;.wav;.mid",
 					new UIIcon(DirectoryInspectorIcons.Sound),
 					null,
 					null,

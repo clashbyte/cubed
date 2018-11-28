@@ -92,6 +92,16 @@ namespace Cubed.Graphics {
 		}
 
 		/// <summary>
+		/// Checking context errors
+		/// </summary>
+		internal static void CheckErrors() {
+			ErrorCode code = GL.GetError();
+			if (code != ErrorCode.NoError) {
+				System.Diagnostics.Debugger.Break();
+			}
+		}
+
+		/// <summary>
 		/// Перевод строки в класс Version
 		/// </summary>
 		/// <param name="txt">Строка с версией</param>
@@ -109,7 +119,7 @@ namespace Cubed.Graphics {
 		/// </summary>
 		internal static void FallbackToLegacy() {
 			shaderPipeline = false;
-			System.Diagnostics.Debug.WriteLine("[Engine] Requested fallback to legacy renderer");
+			//System.Diagnostics.Debug.WriteLine("[Engine] Requested fallback to legacy renderer");
 		}
 	}
 }

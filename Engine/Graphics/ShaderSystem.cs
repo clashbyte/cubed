@@ -61,5 +61,15 @@ namespace Cubed.Graphics {
 				GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
 			}
 		}
+
+		/// <summary>
+		/// Checking errors
+		/// </summary>
+		public static void CheckErrors() {
+			ErrorCode err = GL.GetError();
+			if (err != ErrorCode.NoError) {
+				System.Diagnostics.Debugger.Break();
+			}
+		}
 	}
 }

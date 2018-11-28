@@ -101,6 +101,8 @@
     <Compile Include="Editing\Gizmos\PositionGizmo.cs" />
     <Compile Include="Editing\Gizmos\AngleGizmo.cs" />
     <Compile Include="Editing\Gizmos\Gizmo.cs" />
+    <Compile Include="Editing\Gizmos\ZoneGizmo.cs" />
+    <Compile Include="Editing\MapSound.cs" />
     <Compile Include="Editing\PlayerSpawn.cs" />
     <Compile Include="Editing\MapSprite.cs" />
     <Compile Include="Editing\MapLight.cs" />
@@ -308,9 +310,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>InspectorStrings.ru.resx</DependentUpon>
     </Compile>
-    <Compile Include="UI\Controls\NSTheme.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="UI\Controls\NSTheme.cs" />
     <Compile Include="Drivers\EngineControl.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -567,6 +567,10 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="main-icon.ico" />
+    <None Include="Resources\soundBig.png" />
+    <None Include="Resources\section-size.png" />
+    <None Include="Resources\section-bound.png" />
+    <None Include="Resources\section-appear.png" />
     <None Include="Resources\prefabIcon.png" />
     <None Include="Resources\sound.png" />
     <None Include="Resources\warning1.png" />

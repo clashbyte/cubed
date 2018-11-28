@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Cubed.Components;
-using Cubed.Components.Rendering;
 using Cubed.Core;
 using Cubed.Data.Rendering;
 using Cubed.Data.Shaders;
 using Cubed.Graphics;
+using Cubed.Maths;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
@@ -20,6 +18,16 @@ namespace Cubed.World {
 	/// Single level
 	/// </summary>
 	public class Map {
+
+		/// <summary>
+		/// Milliseconds for all lights
+		/// </summary>
+		const int LIGHTS_QUOTA_MS = 4;
+
+		/// <summary>
+		/// Milliseconds for all chunks
+		/// </summary>
+		const int CHUNKS_QUOTA_MS = 4;
 
 		/// <summary>
 		/// Get or set map chunk
@@ -73,10 +81,18 @@ namespace Cubed.World {
 				if (ambient != value) {
 					ambient = value;
 					foreach (Chunk c in chunks.Values) {
-						c.QueueRelight();
+						c.needRelightStatic = true;
 					}
 				}
 			}
+		}
+
+		/// <summary>
+		/// Light for sun
+		/// </summary>
+		public DirectionalLight Sunlight {
+			get;
+			set;
 		}
 
 		/// <summary>
@@ -88,6 +104,31 @@ namespace Cubed.World {
 		/// Scene ambient color
 		/// </summary>
 		Color ambient;
+
+		/// <summary>
+		/// Lights update quota
+		/// </summary>
+		int lightUpdateQuota = 32;
+
+		/// <summary>
+		/// Chunks to relight quota
+		/// </summary>
+		int chunkRelightQuota = 32;
+
+		/// <summary>
+		/// Queue for light update
+		/// </summary>
+		Queue<Light> lightUpdateQueue;
+
+		/// <summary>
+		/// Queue for chunks light update
+		/// </summary>
+		Queue<Chunk> chunkUpdateQueue;
+
+		/// <summary>
+		/// Previous lights
+		/// </summary>
+		Light[] lastAffectedLights;
 
 		/// <summary>
 		/// Parental scene
@@ -114,6 +155,9 @@ namespace Cubed.World {
 		public Map() {
 			chunks = new Dictionary<string, Chunk>();
 			Ambient = Color.DimGray;
+			lightUpdateQueue = new Queue<Light>();
+			chunkUpdateQueue = new Queue<Chunk>();
+			lastAffectedLights = new Light[0];
 		}
 
 		/// <summary>
@@ -182,7 +226,7 @@ namespace Cubed.World {
 					chunks.Add(hash, ch);
 					ch.SetParent(this, cx - 1, cy, cz);
 				} else {
-					chunks[hash].QueueRebuild();
+					chunks[hash].needRebuild = true;
 				}
 			}
 			if (tx == Chunk.BLOCKS - 1) {
@@ -192,7 +236,7 @@ namespace Cubed.World {
 					chunks.Add(hash, ch);
 					ch.SetParent(this, cx + 1, cy, cz);
 				} else {
-					chunks[hash].QueueRebuild();
+					chunks[hash].needRebuild = true;
 				}
 			}
 			if (ty == 0) {
@@ -202,7 +246,7 @@ namespace Cubed.World {
 					chunks.Add(hash, ch);
 					ch.SetParent(this, cx, cy, cz - 1);
 				} else {
-					chunks[hash].QueueRebuild();
+					chunks[hash].needRebuild = true;
 				}
 			}
 			if (ty == Chunk.BLOCKS - 1) {
@@ -212,33 +256,13 @@ namespace Cubed.World {
 					chunks.Add(hash, ch);
 					ch.SetParent(this, cx, cy, cz + 1);
 				} else {
-					chunks[hash].QueueRebuild();
+					chunks[hash].needRebuild = true;
 				}
 			}
 
 			// Setting block
 			chunk[tx, ty] = block;
-			chunk.QueueRebuild();
-			if (Engine.Current != null) {
-				if (Engine.Current.World != null) {
-					if (Engine.Current.World.Map == this) {
-						Vector3 pos = new Vector3(x, y, z);
-						foreach (Entity ent in Engine.Current.World.Entities) {
-							if (ent is Light) {
-								Light l = ent as Light;
-								if (l.Range >= (l.Position - pos).LengthFast) {
-									l.MakeDirty();
-									foreach (Chunk ch in chunks.Values) {
-										if (ch.TouchesLight(l) && ch != chunk) {
-											ch.QueueRelight();
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
+			chunk.needRebuild = true;
 		}
 
 		/// <summary>
@@ -247,77 +271,59 @@ namespace Cubed.World {
 		/// <param name="pos"></param>
 		/// <returns></returns>
 		public Color GetLightLevel(float x, float y, float z) {
-			int cx = (int)Math.Floor(x / (float)Chunk.BLOCKS);
-			int cy = (int)Math.Floor(y);
-			int cz = (int)Math.Floor(z / (float)Chunk.BLOCKS);
+			float r = ambient.R;
+			float g = ambient.G;
+			float b = ambient.B;
 
-			string hash = Hash(cx, cy, cz);
-			if (chunks.ContainsKey(hash)) {
-				float tx = x % Chunk.BLOCKS;
-				float ty = z % Chunk.BLOCKS;
-				if (tx < 0) {
-					tx += Chunk.BLOCKS;
-				}
-				if (ty < 0) {
-					ty += Chunk.BLOCKS;
-				}
-
-				// Calculating light from coords
-				return chunks[hash].GetLightLevel(
-					tx, ty
-				);
-			} else {
-
-				// Calculating raw light distances
-				Vector2 pos = new Vector2(x, z);
-				float r = ambient.R, g = ambient.G, b = ambient.B;
-				foreach (Entity ent in Engine.Current.World.Entities) {
-					if (ent is Light) {
-						Light l = ent as Light;
-						Vector3 lpos = ent.Position;
-						if (Math.Floor(lpos.Y) == Math.Floor(y)) {
-							float magSquared = (pos - lpos.Xz).LengthSquared;
-							if (magSquared < l.Range * l.Range) {
-								float amount = 1f - (float)Math.Sqrt(magSquared) / l.Range;
-								r += l.Color.R * amount;
-								g += l.Color.G * amount;
-								b += l.Color.B * amount;
+			// Updating colors
+			Vector3 loc = new Vector3(x, y, z);
+			foreach (Light light in lastAffectedLights) {
+				Vector3 dir = light.LastUpdatePoint - loc;
+				float rng = light.Range;
+				float dist = dir.Length;
+				if (dist <= rng) {
+					bool allow = true;
+					if (light.Shadows) {
+						MapIntersections.Hit hit = MapIntersections.Intersect(loc, dir.Normalized(), this);
+						if (hit != null) {
+							float len = (loc - hit.Point).LengthFast;
+							if (len < dist) {
+								allow = false;
 							}
 						}
 					}
+					if (allow) {
+						float mul = 1f - dist / rng;
+						r += (float)light.Color.R * mul;
+						g += (float)light.Color.G * mul;
+						b += (float)light.Color.B * mul;
+					}
 				}
-				return Color.FromArgb(
-					(byte)Math.Min(r, 255),
-					(byte)Math.Min(g, 255),
-					(byte)Math.Min(b, 255)
-				);
 			}
+
+			// Getting color
+			return Color.FromArgb((byte)Math.Min(r, 255), (byte)Math.Min(g, 255), (byte)Math.Min(b, 255));
 		}
 
 		/// <summary>
 		/// Render map
 		/// </summary>
-		internal void Render() {
+		internal void Render(Scene parent) {
+			Parent = parent;
+			Caps.CheckErrors();
 			foreach (KeyValuePair<string, Chunk> item in chunks) {
 				item.Value.Render();
 			}
+			Caps.CheckErrors();
 		}
 
 		/// <summary>
 		/// Rebuilding and relighting
 		/// </summary>
-		internal void Update(List<Light> lights, bool forceRebuild = false) {
-			for (int i = 0; i < 2; i++) {
-				foreach (Light l in lights) {
-					if (i == 1) {
-						l.UpdateForMap(this);
-						l.Cleanup();
-					}
-				}
-				foreach (KeyValuePair<string, Chunk> chunk in chunks) {
-					chunk.Value.Update(lights, forceRebuild);
-				}
-			}
+		internal void Update(List<Light> lights, Scene parent) {
+			Parent = parent;
+			lastAffectedLights = lights.ToArray();
+			CheckLighting(lights);
 		}
 
 		/// <summary>
@@ -329,6 +335,99 @@ namespace Cubed.World {
 		}
 
 		/// <summary>
+		/// Checking all the chunks for rebuild
+		/// </summary>
+		void CheckLighting(IEnumerable<Light> lights) {
+
+			// Updating queue
+			Stopwatch sw = new Stopwatch();
+
+			// Checking all chunks for rebuilding
+			foreach (KeyValuePair<string, Chunk> pair in chunks) {
+				Chunk chunk = pair.Value;
+				chunk.CheckLights(lights);
+				if (chunk.needRebuild) {
+					chunk.RebuildGeometry();
+					chunk.needRebuild = false;
+					chunk.needRelightStatic = true;
+					chunk.needRelightDynamic = true;
+				}
+			}
+			Caps.CheckErrors();
+
+			// Rebuilding directional sunlight
+			if (Sunlight != null && Parent != null) {
+				Sunlight.Update(Parent.Camera);
+				Sunlight.Render(this);
+			}
+			Caps.CheckErrors();
+
+			// Checking light queue
+			foreach (Light light in lights) {
+				if (light.IsChanged && !lightUpdateQueue.Contains(light)) {
+					lightUpdateQueue.Enqueue(light);
+				}
+			}
+			Caps.CheckErrors();
+
+			// Updating lights in queue
+			int updatedLights = 0;
+			int lightLimit = lightUpdateQuota;
+			sw.Restart();
+			while (lightLimit > 0 && lightUpdateQueue.Count > 0) {
+				Light light = lightUpdateQueue.Dequeue();
+				light.RebuildTexture(this);
+				light.Cleanup();
+
+				lightLimit--;
+				updatedLights++;
+			}
+			sw.Stop();
+			Caps.CheckErrors();
+
+			// Recalculating light quota
+			if (sw.ElapsedMilliseconds > LIGHTS_QUOTA_MS && lightUpdateQuota > 1) {
+				long allowedTicks = TimeSpan.TicksPerMillisecond * LIGHTS_QUOTA_MS;
+				long ticks = sw.ElapsedTicks;
+				long ticksPerLight = ticks / updatedLights;
+				lightUpdateQuota = (int)Math.Max(allowedTicks / ticksPerLight, 1);
+			}
+			
+			// Relight all needed chunks
+			foreach (KeyValuePair<string, Chunk> pair in chunks) {
+				Chunk chunk = pair.Value;
+				if ((chunk.needRelightStatic || chunk.needRelightDynamic) && !chunkUpdateQueue.Contains(chunk)) {
+					chunkUpdateQueue.Enqueue(chunk);
+				}
+			}
+
+			// Updating lights in queue
+			int updatedChunks = 0;
+			int chunkLimit = chunkRelightQuota;
+			sw.Restart();
+			while (chunkLimit > 0 && chunkUpdateQueue.Count > 0) {
+				Chunk chunk = chunkUpdateQueue.Dequeue();
+				chunk.RebuildLighting();
+				chunk.needRelightStatic = false;
+				chunk.needRelightDynamic = false;
+				
+				chunkLimit--;
+				updatedChunks++;
+			}
+			sw.Stop();
+			Caps.CheckErrors();
+
+			// Recalculating chunk quota
+			if (sw.ElapsedMilliseconds > CHUNKS_QUOTA_MS && chunkRelightQuota > 1) {
+				long allowedTicks = TimeSpan.TicksPerMillisecond * CHUNKS_QUOTA_MS;
+				long ticks = sw.ElapsedTicks;
+				long ticksPerChunk = ticks / updatedChunks;
+				chunkRelightQuota = (int)Math.Max(allowedTicks / ticksPerChunk, 1);
+			}
+		}
+
+
+		/// <summary>
 		/// Single map chunk
 		/// </summary>
 		public class Chunk {
@@ -337,11 +436,6 @@ namespace Cubed.World {
 			/// Chunk size in blocks
 			/// </summary>
 			public const int BLOCKS = 8;
-
-			/// <summary>
-			/// Lightmap resolution
-			/// </summary>
-			public const int LIGHTMAP_SIZE = 128;
 
 			/// <summary>
 			/// Chunk location in map
@@ -367,12 +461,17 @@ namespace Cubed.World {
 			/// <summary>
 			/// Chunk needs to be rebuilt
 			/// </summary>
-			bool dirty = false;
+			internal bool needRebuild = false;
 
 			/// <summary>
-			/// Chunk needs to be relight
+			/// Chunk needs to be relight in static
 			/// </summary>
-			bool relight = false;
+			internal bool needRelightStatic = false;
+
+			/// <summary>
+			/// Chunk needs to be relight in dynamic
+			/// </summary>
+			internal bool needRelightDynamic = false;
 
 			/// <summary>
 			/// Current chunk
@@ -400,9 +499,19 @@ namespace Cubed.World {
 			RenderGroup nullGroup;
 
 			/// <summary>
+			/// Composite render group of all other groups
+			/// </summary>
+			RenderGroup shadowGroup;
+
+			/// <summary>
 			/// Texture of lighting
 			/// </summary>
-			int lightingTex;
+			internal int staticLightmap, dynamicLightmap;
+
+			/// <summary>
+			/// Lightmap dimensions
+			/// </summary>
+			int lightmapWidth, lightmapHeight;
 
 			/// <summary>
 			/// Framebuffer
@@ -415,11 +524,6 @@ namespace Cubed.World {
 			List<Light> affectedLights;
 
 			/// <summary>
-			/// Light barriers
-			/// </summary>
-			List<LightObstructor> obstructors;
-
-			/// <summary>
 			/// Chunk constructor
 			/// </summary>
 			public Chunk() {
@@ -427,10 +531,9 @@ namespace Cubed.World {
 				blocks = new Block[Chunk.BLOCKS, Chunk.BLOCKS];
 				groups = new Dictionary<Texture, RenderGroup>();
 				affectedLights = new List<Light>();
-				obstructors = new List<LightObstructor>();
 				nullGroup = null;
-				dirty = true;
-				relight = true;
+				needRebuild = true;
+				needRelightStatic = true;
 			}
 
 			/// <summary>
@@ -453,26 +556,26 @@ namespace Cubed.World {
 						blocks[y, x].Parent = this;
 					}
 					if (x == 0 && neighbors[(int)Side.Left] != null) {
-						neighbors[(int)Side.Left].QueueRebuild();
+						neighbors[(int)Side.Left].needRebuild = true;
 					}
 					if (x == BLOCKS - 1 && neighbors[(int)Side.Right] != null) {
-						neighbors[(int)Side.Right].QueueRebuild();
+						neighbors[(int)Side.Right].needRebuild = true;
 					}
 					if (y == 0 && neighbors[(int)Side.Back] != null) {
-						neighbors[(int)Side.Back].QueueRebuild();
+						neighbors[(int)Side.Back].needRebuild = true;
 					}
 					if (y == BLOCKS - 1 && neighbors[(int)Side.Forward] != null) {
-						neighbors[(int)Side.Forward].QueueRebuild();
+						neighbors[(int)Side.Forward].needRebuild = true;
 					}
 					if (neighbors[(int)Side.Top] != null) {
-						neighbors[(int)Side.Top].QueueRebuild();
+						neighbors[(int)Side.Top].needRebuild = true;
 					}
 					if (neighbors[(int)Side.Bottom] != null) {
-						neighbors[(int)Side.Bottom].QueueRebuild();
+						neighbors[(int)Side.Bottom].needRebuild = true;
 					}
 
-					dirty = true;
-					relight = true;
+					needRebuild = true;
+					needRelightStatic = true;
 				}
 			}
 
@@ -486,7 +589,7 @@ namespace Cubed.World {
 				for (int i = 0; i < 6; i++) {
 					SetNeighbor(i);
 				}
-				QueueRebuild();
+				needRebuild = true;
 			}
 
 			/// <summary>
@@ -497,87 +600,14 @@ namespace Cubed.World {
 					SetNeighbor(i, true);
 				}
 			}
-
-			/// <summary>
-			/// Get light level of mesh
-			/// </summary>
-			/// <param name="x"></param>
-			/// <param name="y"></param>
-			/// <returns></returns>
-			internal Color GetLightLevel(float x, float y) {
-
-				// Checking for lights
-				List<Light> lights = new List<Light>();
-				foreach (Entity ent in Engine.Current.World.Entities) {
-					if (ent is Light) {
-						lights.Add(ent as Light);
-					}
-				}
-				
-				// Updating all lights
-				Parent.Update(lights);
-
-				// Getting color
-				if (lightingTex != 0) {
-
-					// Check for cache
-					if (lightCache == null) {
-						lightCache = new Color[LIGHTMAP_SIZE, LIGHTMAP_SIZE];
-						byte[] rawData = new byte[LIGHTMAP_SIZE * LIGHTMAP_SIZE * 3];
-
-						GL.BindTexture(TextureTarget.Texture2D, lightingTex);
-						GL.BindFramebuffer(FramebufferTarget.Framebuffer, frameBuffer);
-						GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, lightingTex, 0);
-						GL.BindTexture(TextureTarget.Texture2D, 0);
-						GL.ReadPixels(0, 0, LIGHTMAP_SIZE, LIGHTMAP_SIZE, PixelFormat.Rgb, PixelType.UnsignedByte, rawData);
-						GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-
-						// Converting pixel data to array
-						int dataPos = 0;
-						for (int ry = 0; ry < LIGHTMAP_SIZE; ry++) {
-							for (int rx = 0; rx < LIGHTMAP_SIZE; rx++) {
-								lightCache[ry, rx] = Color.FromArgb(rawData[dataPos], rawData[dataPos + 1], rawData[dataPos + 2]);
-								dataPos += 3;
-							}
-						}
-					}
-
-					// Resolving light level
-					y = (float)Chunk.BLOCKS - y;
-					int cx = Math.Min((int)Math.Floor(x / (float)Chunk.BLOCKS * (float)Chunk.LIGHTMAP_SIZE), LIGHTMAP_SIZE - 1);
-					int cy = Math.Min((int)Math.Floor(y / (float)Chunk.BLOCKS * (float)Chunk.LIGHTMAP_SIZE), LIGHTMAP_SIZE - 1);
-					Color cached = lightCache[cy, cx];
-					Color ambient = Engine.Current.World.Map.ambient;
-					return Color.FromArgb(
-						Math.Min(ambient.R + cached.R, 255),
-						Math.Min(ambient.G + cached.G, 255),
-						Math.Min(ambient.B + cached.B, 255)
-					);
-				}
-				return Color.Red;
-			}
-
-			/// <summary>
-			/// Queue geometry rebuilding
-			/// </summary>
-			internal void QueueRebuild() {
-				dirty = true;
-			}
-
-			/// <summary>
-			/// Queue light rebuilding
-			/// </summary>
-			internal void QueueRelight() {
-				relight = true;
-			}
-
+			
 			/// <summary>
 			/// Check for light and chunk intersection
 			/// </summary>
 			/// <param name="l">Light</param>
 			/// <returns>True if intersection exist</returns>
 			internal bool TouchesLight(Light l) {
-				if (l.Position.Y >= Location.Y && l.Position.Y < Location.Y + 1f) {
+				if (!(l.Position.Y + l.Range <= Location.Y || l.Position.Y - l.Range > Location.Y + 1f)) {
 					RectangleF lightRect = new RectangleF(l.Position.X - l.Range, l.Position.Z - l.Range, l.Range * 2f, l.Range * 2f);
 					RectangleF chunkRect = new RectangleF(Location.X * BLOCKS, Location.Z * BLOCKS, BLOCKS, BLOCKS);
 					return lightRect.IntersectsWith(chunkRect);
@@ -628,50 +658,50 @@ namespace Cubed.World {
 					} else {
 						c.neighbors[nside] = null;
 					}
-					c.dirty = true;
+					c.needRebuild = true;
 				}
 				if (!forget) {
 					neighbors[side] = c;
 				} else {
 					neighbors[side] = null;
 				}
-				dirty = true;
+				needRebuild = true;
 			}
 
 			/// <summary>
-			/// Check for rebuild and relighting
+			/// Checking light data
 			/// </summary>
-			/// <param name="forceRebuild"></param>
-			internal void Update(List<Light> lights, bool forceRebuild = false, bool allowRelight = true) {
+			/// <param name="lights">Current light list</param>
+			internal void CheckLights(IEnumerable<Light> lights) {
 				foreach (Light l1 in lights) {
 					if (TouchesLight(l1) && !affectedLights.Contains(l1)) {
 						affectedLights.Add(l1);
-						relight = true;
+						if (l1.Static) {
+							needRelightStatic = true;
+						} else {
+							needRelightDynamic = true;
+						}
 					}
 				}
 				List<Light> tempLights = new List<Light>(affectedLights);
 				foreach (Light l in tempLights) {
 					if (!TouchesLight(l) || !lights.Contains(l)) {
 						affectedLights.Remove(l);
-						relight = true;
+						if (l.Static) {
+							needRelightStatic = true;
+						} else {
+							needRelightDynamic = true;
+						}
 					}
 				}
 				foreach (Light l2 in affectedLights) {
 					if (l2.IsChanged) {
-						relight = true;
+						if (l2.Static) {
+							needRelightStatic = true;
+						} else {
+							needRelightDynamic = true;
+						}
 					}
-				}
-
-				if (dirty || forceRebuild) {
-					RebuildGeometry();
-					RebuildObstructors();
-					relight = true;
-					dirty = false;
-				}
-				if (relight && allowRelight) {
-					RebuildObstructors();
-					RecalculateLight();
-					relight = false;
 				}
 			}
 
@@ -683,13 +713,31 @@ namespace Cubed.World {
 					ShaderSystem.EntityMatrix = matrix;
 
 					// Binding texture
+					Caps.CheckErrors();
 					GL.ActiveTexture(TextureUnit.Texture1);
 					GL.Enable(EnableCap.Texture2D);
-					GL.BindTexture(TextureTarget.Texture2D, lightingTex);
+					GL.BindTexture(TextureTarget.Texture2D, staticLightmap);
+					GL.ActiveTexture(TextureUnit.Texture2);
+					GL.Enable(EnableCap.Texture2D);
+					GL.BindTexture(TextureTarget.Texture2D, dynamicLightmap);
+					GL.ActiveTexture(TextureUnit.Texture3);
+					GL.Enable(EnableCap.Texture2D);
+					Caps.CheckErrors();
+					if (Parent.Sunlight != null) {
+						GL.BindTexture(TextureTarget.Texture2D, Parent.Sunlight.Texture);
+						MapShader.Shader.SunColor = Parent.Sunlight.Color;
+						MapShader.Shader.SunMatrix = Parent.Sunlight.FullMatrix;
+						Caps.CheckErrors();
+					} else {
+						MapShader.Shader.SunColor = Color.Black;
+						MapShader.Shader.SunMatrix = Matrix4.Identity;
+						Texture.BindEmpty();
+						Caps.CheckErrors();
+					}
 					GL.ActiveTexture(TextureUnit.Texture0);
+					Caps.CheckErrors();
 
 					// Drawing surfaces
-					MapShader.Shader.Bind();
 					MapShader.Shader.AmbientColor = Parent.Ambient;
 
 					// Setting up fog
@@ -702,46 +750,37 @@ namespace Cubed.World {
 					}
 
 					// Rendering surfaces
+					Caps.CheckErrors();
+					MapShader.Shader.Bind();
 					foreach (KeyValuePair<Texture, RenderGroup> group in groups) {
 						RenderSingle(group.Key, group.Value);
+						Caps.CheckErrors();
 					}
 					RenderSingle(null, nullGroup);
+					Caps.CheckErrors();
 
 					// Unbinding
 					MapShader.Shader.Unbind();
+					Caps.CheckErrors();
 					GL.ActiveTexture(TextureUnit.Texture1);
+					GL.BindTexture(TextureTarget.Texture2D, 0);
+					GL.Disable(EnableCap.Texture2D);
+					GL.ActiveTexture(TextureUnit.Texture2);
+					GL.BindTexture(TextureTarget.Texture2D, 0);
+					GL.Disable(EnableCap.Texture2D);
+					GL.ActiveTexture(TextureUnit.Texture3);
 					Texture.BindEmpty();
 					GL.Disable(EnableCap.Texture2D);
 					GL.ActiveTexture(TextureUnit.Texture0);
+					Caps.CheckErrors();
 				}
-			}
-
-			/// <summary>
-			/// Return transformed obstructors
-			/// </summary>
-			/// <param name="l">Light</param>
-			/// <returns>Array of obstructors</returns>
-			internal LightObstructor[] GetObstructors(Light l) {
-				Vector3 lp = l.Position;
-				List<LightObstructor> ls = new List<LightObstructor>();
-				foreach (LightObstructor ob in obstructors) {
-					LightObstructor o = new LightObstructor();
-					foreach (Vector2 v in ob.Points) {
-						o.Points.Add(new Vector2(
-							v.X + Location.X * BLOCKS - lp.X,
-							v.Y + Location.Z * BLOCKS - lp.Z
-						));
-					}
-					ls.Add(o);
-				}
-				return ls.ToArray();
 			}
 
 			/// <summary>
 			/// Checkig for camera
 			/// </summary>
 			/// <returns>True if chunk is in view</returns>
-			bool IsVisible() {
+			internal bool IsVisible() {
 				if (Parent != null) {
 					return Frustum.Contains(new Vector3(
 						Location.X * BLOCKS + BLOCKS / 2,
@@ -766,17 +805,25 @@ namespace Cubed.World {
 					}
 					if (Caps.ShaderPipeline) {
 
+						Caps.CheckErrors();
 						MapShader shader = MapShader.Shader;
 						GL.BindBuffer(BufferTarget.ArrayBuffer, rg.VertexBuffer);
 						GL.VertexAttribPointer(shader.VertexBufferLocation, 3, VertexAttribPointerType.Float, false, 0, 0);
+						if (shader.NormalsBufferLocation > -1) {
+							GL.BindBuffer(BufferTarget.ArrayBuffer, rg.NormalBuffer);
+							GL.VertexAttribPointer(shader.NormalsBufferLocation, 3, VertexAttribPointerType.Float, false, 0, 0);
+						}
 						GL.BindBuffer(BufferTarget.ArrayBuffer, rg.TexCoordBuffer);
 						GL.VertexAttribPointer(shader.TexCoordBufferLocation, 2, VertexAttribPointerType.Float, false, 0, 0);
 						GL.BindBuffer(BufferTarget.ArrayBuffer, rg.LightmapCoordBuffer);
 						GL.VertexAttribPointer(shader.LightTexCoordBufferLocation, 2, VertexAttribPointerType.Float, false, 0, 0);
 						GL.BindBuffer(BufferTarget.ElementArrayBuffer, rg.IndexBuffer);
+						Caps.CheckErrors();
 						GL.DrawElements(PrimitiveType.Triangles, rg.IndexCount, DrawElementsType.UnsignedShort, 0);
+						Caps.CheckErrors();
 						GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
 						GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+						Caps.CheckErrors();
 
 					} else {
 						/*
@@ -811,9 +858,30 @@ namespace Cubed.World {
 			}
 
 			/// <summary>
+			/// Render shadow group
+			/// </summary>
+			internal void RenderShadow() {
+				MapShadowShader shader = MapShadowShader.Shader;
+				GL.BindBuffer(BufferTarget.ArrayBuffer, shadowGroup.VertexBuffer);
+				GL.VertexAttribPointer(shader.VertexBufferLocation, 3, VertexAttribPointerType.Float, false, 0, 0);
+				GL.BindBuffer(BufferTarget.ElementArrayBuffer, shadowGroup.IndexBuffer);
+				GL.DrawElements(PrimitiveType.Triangles, shadowGroup.IndexCount, DrawElementsType.UnsignedShort, 0);
+				GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+				GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+			}
+
+			/// <summary>
+			/// Get chunk matrix
+			/// </summary>
+			/// <returns>Matrix</returns>
+			internal Matrix4 GetMatrix() {
+				return matrix;
+			}
+
+			/// <summary>
 			/// Rebuilding geometry
 			/// </summary>
-			void RebuildGeometry() {
+			internal void RebuildGeometry() {
 
 				// Listing all textures
 				List<Texture> textures = new List<Texture>();
@@ -853,16 +921,14 @@ namespace Cubed.World {
 					textures.Add(null);
 				}
 
+				// Prepare group list
+				List<MapTriangulator.FaceGroup> faceGroups = new List<MapTriangulator.FaceGroup>();
 
 				// Rebuilding surfaces
 				foreach (Texture tex in textures) {
 
-					// Creating arrays
-					List<float> vertCoords = new List<float>();
-					List<float> texCoords = new List<float>();
-					List<float> lightCoords = new List<float>();
-					List<short> indices = new List<short>();
-					int idx = 0;
+					// Face group
+					MapTriangulator.FaceGroup faceGroup = new MapTriangulator.FaceGroup();
 
 					// Composing blocks
 					for (int y = 0; y < BLOCKS; y++) {
@@ -870,6 +936,7 @@ namespace Cubed.World {
 							Block b = blocks[y, x];
 							float div = 1f / (float)BLOCKS;
 							float cx = (float)x * div, cy = 1f - (float)y * div;
+							MapTriangulator.Face face = null;
 
 							// Floor and ceiling height
 							float[] floorHeight = new float[] {
@@ -885,57 +952,61 @@ namespace Cubed.World {
 								if (fb.HasFloor) {
 									floorHeight = fb.FloorHeight;
 									if (fb.Floor == tex) {
-										vertCoords.AddRange(new float[]{
-											x, floorHeight[0], -y,
-											x + 1, floorHeight[1], -y,
-											x, floorHeight[2], -y - 1,
-											x + 1, floorHeight[3], -y - 1
-										});
-										lightCoords.AddRange(new float[]{
-											cx, cy,
-											cx + div, cy,
-											cx, cy - div,
-											cx + div, cy - div
-										});
-										texCoords.AddRange(new float[]{
-											1f, 0f,
-											0f, 0f,
-											1f, 1f,
-											0f, 1f
-										});
-										indices.AddRange(new short[]{
-											(short)(idx + 0), (short)(idx + 1), (short)(idx + 2),
-											(short)(idx + 1), (short)(idx + 3), (short)(idx + 2)
-										});
-										idx += 4;
+										face = new MapTriangulator.Face() {
+											Coords = new float[]{
+												x, floorHeight[0], -y,
+												x + 1, floorHeight[1], -y,
+												x, floorHeight[2], -y - 1,
+												x + 1, floorHeight[3], -y - 1
+											},
+											LightCoords = new float[] {
+												0, 0,
+												1, 0,
+												0, 1,
+												1, 1
+											},
+											TexCoords = new float[]{
+												1f, 0f,
+												0f, 0f,
+												1f, 1f,
+												0f, 1f
+											},
+											Indices = new ushort[] {
+												0, 1, 2,
+												1, 3, 2
+											}
+										};
+										faceGroup.Faces.Add(face);
 									}
 								}
 								if (fb.HasCeiling) {
 									ceilingHeight = fb.CeilingHeight;
 									if (fb.Ceiling == tex) {
-										vertCoords.AddRange(new float[]{
-											x + 1, 1 - ceilingHeight[0], -y,
-											x, 1 - ceilingHeight[1], -y,
-											x + 1, 1 - ceilingHeight[2], -y - 1,
-											x, 1 - ceilingHeight[3], -y - 1
-										});
-										lightCoords.AddRange(new float[]{
-											cx + div, cy,
-											cx, cy,
-											cx + div, cy - div,
-											cx, cy - div
-										});
-										texCoords.AddRange(new float[]{
-											1f, 0f,
-											0f, 0f,
-											1f, 1f,
-											0f, 1f
-										});
-											indices.AddRange(new short[]{
-											(short)(idx + 0), (short)(idx + 1), (short)(idx + 2),
-											(short)(idx + 1), (short)(idx + 3), (short)(idx + 2)
-										});
-										idx += 4;
+										face = new MapTriangulator.Face() {
+											Coords = new float[]{
+												x + 1, 1 - ceilingHeight[0], -y,
+												x, 1 - ceilingHeight[1], -y,
+												x + 1, 1 - ceilingHeight[2], -y - 1,
+												x, 1 - ceilingHeight[3], -y - 1
+											},
+											LightCoords = new float[] {
+												0, 0,
+												1, 0,
+												0, 1,
+												1, 1
+											},
+											TexCoords = new float[]{
+												1f, 0f,
+												0f, 0f,
+												1f, 1f,
+												0f, 1f
+											},
+											Indices = new ushort[] {
+												0, 1, 2,
+												1, 3, 2
+											}
+										};
+										faceGroup.Faces.Add(face);
 									}
 								}
 							}
@@ -992,7 +1063,6 @@ namespace Cubed.World {
 									if (needWall) {
 										float[] lightUV = null;
 										float[] vertXYZ = null;
-										float bias = 0.001f;//1f / (float)(LIGHTMAP_SIZE * 2f);
 
 										// Wall height
 										float[] height = new float[] {
@@ -1014,10 +1084,10 @@ namespace Cubed.World {
 													x + 1,	height[3], -y - 1
 												};
 												lightUV = new float[] {
-													cx,			cy - div + bias,
-													cx + div,	cy - div + bias,
-													cx,			cy - div + bias,
-													cx + div,	cy - div + bias
+													0, height[0],
+													1, height[1],
+													0, height[2],
+													1, height[3]
 												};
 												break;
 
@@ -1034,10 +1104,10 @@ namespace Cubed.World {
 													x,		height[3], -y
 												};
 												lightUV = new float[] {
-													cx + div,	cy - bias,
-													cx,			cy - bias,
-													cx + div,	cy - bias,
-													cx,			cy - bias
+													0, height[0],
+													1, height[1],
+													0, height[2],
+													1, height[3]
 												};
 												break;
 
@@ -1054,10 +1124,10 @@ namespace Cubed.World {
 													x + 1,	height[3], -y
 												};
 												lightUV = new float[] {
-													cx + div - bias,	cy - div,
-													cx + div - bias,	cy,
-													cx + div - bias,	cy - div,
-													cx + div - bias,	cy,
+													0, height[0],
+													1, height[1],
+													0, height[2],
+													1, height[3]
 												};
 												break;
 
@@ -1074,10 +1144,10 @@ namespace Cubed.World {
 													x,	height[3], -y - 1
 												};
 												lightUV = new float[] {
-													cx + bias,	cy,
-													cx + bias,	cy - div,
-													cx + bias,	cy,
-													cx + bias,	cy - div
+													0, height[0],
+													1, height[1],
+													0, height[2],
+													1, height[3]
 												};
 												break;
 											
@@ -1085,29 +1155,29 @@ namespace Cubed.World {
 
 										// Adding surfaces
 										if (lightUV != null && vertXYZ != null) {
-											vertCoords.AddRange(vertXYZ);
-											lightCoords.AddRange(lightUV);
-											texCoords.AddRange(new float[]{
-												0f, 1f - height[0],
-												1f, 1f - height[1],
-												0f, 1f - height[2],
-												1f, 1f - height[3]
-											});
-											indices.AddRange(new short[]{
-												(short)(idx + 0), (short)(idx + 2), (short)(idx + 1),
-												(short)(idx + 1), (short)(idx + 2), (short)(idx + 3)
-											});
-											idx += 4;
+											face = new MapTriangulator.Face() {
+												Coords = vertXYZ,
+												LightCoords = lightUV,
+												TexCoords = new float[]{
+													0f, 1f - height[0],
+													1f, 1f - height[1],
+													0f, 1f - height[2],
+													1f, 1f - height[3]
+												},
+												Indices = new ushort[] {
+													0, 2, 1,
+													1, 2, 3
+												}
+											};
+											faceGroup.Faces.Add(face);
 										}
 									}	
 
 									// Floor trimming wall
 									if (needFloorWall || needCeilWall) {
-										float bias = 0.001f;
 										float[] ofh = fnb.FloorHeight;
 										float[] och = fnb.CeilingHeight;
 										float[] baseCoords = null;
-										float[] baseLightCoords = null;
 
 										// Trim height
 										float baseFL = 0, baseFR = 0;
@@ -1131,10 +1201,6 @@ namespace Cubed.World {
 													x,		-y - 1,
 													x + 1,	-y - 1
 												};
-												baseLightCoords = new float[] {
-													cx,			cy - div + bias,
-													cx + div,	cy - div + bias
-												};
 												break;
 
 											
@@ -1151,10 +1217,6 @@ namespace Cubed.World {
 												baseCoords = new float[] {
 													x +	1,	-y,
 													x,		-y
-												};
-												baseLightCoords = new float[] {
-													cx + div,	cy - bias,
-													cx,			cy - bias
 												};
 												break;
 
@@ -1173,10 +1235,6 @@ namespace Cubed.World {
 													x + 1,	-y - 1,
 													x + 1,	-y
 												};
-												baseLightCoords = new float[] {
-													cx + div - bias,	cy - div,
-													cx + div - bias,	cy
-												};
 												break;
 
 											// Left side
@@ -1193,158 +1251,170 @@ namespace Cubed.World {
 													x, -y,
 													x, -y - 1
 												};
-												baseLightCoords = new float[] {
-													cx + bias,	cy,
-													cx + bias,	cy - div,
-												};
 												break;
 												
 										}
-
+										
 										// Checking height
 										if (needFloorWall && (hFL > baseFL || hFR > baseFR)) {
 											if (hFL > baseFL && hFR > baseFR) {
-												vertCoords.AddRange(new float[]{
-													baseCoords[0], hFL, baseCoords[1],
-													baseCoords[2], hFR, baseCoords[3],
-													baseCoords[0], baseFL, baseCoords[1],
-													baseCoords[2], baseFR, baseCoords[3],
-												});
-												lightCoords.AddRange(new float[]{
-													baseLightCoords[0], baseLightCoords[1],
-													baseLightCoords[2], baseLightCoords[3],
-													baseLightCoords[0], baseLightCoords[1],
-													baseLightCoords[2], baseLightCoords[3]
-												});
-												texCoords.AddRange(new float[]{
-													0f, 1f - hFL,
-													1f, 1f - hFR,
-													0f, 1f - baseFL,
-													1f, 1f - baseFR
-												});
-												indices.AddRange(new short[]{
-													(short)(idx + 0), (short)(idx + 2), (short)(idx + 1),
-													(short)(idx + 1), (short)(idx + 2), (short)(idx + 3)
-												});
-												idx += 4;
+												face = new MapTriangulator.Face() {
+													Coords = new float[]{
+														baseCoords[0], hFL, baseCoords[1],
+														baseCoords[2], hFR, baseCoords[3],
+														baseCoords[0], baseFL, baseCoords[1],
+														baseCoords[2], baseFR, baseCoords[3],
+													},
+													TexCoords = new float[]{
+														0f, 1f - hFL,
+														1f, 1f - hFR,
+														0f, 1f - baseFL,
+														1f, 1f - baseFR
+													},
+													LightCoords = new float[]{
+														0f, 1f - hFL,
+														1f, 1f - hFR,
+														0f, 1f - baseFL,
+														1f, 1f - baseFR
+													},
+													Indices = new ushort[] {
+														0, 2, 1,
+														1, 2, 3
+													}
+												};
+												faceGroup.Faces.Add(face);
 											} else {
 												float delta = GetFloorIntersection(baseFL, baseFR, hFL, hFR);
 												if (hFL > baseFL) {
-													vertCoords.AddRange(new float[]{
-														baseCoords[0], baseFL, baseCoords[1],
-														baseCoords[0], hFL, baseCoords[1],
-														baseCoords[0] + (baseCoords[2] - baseCoords[0]) * delta, 
-														baseFL + (baseFR - baseFL) * delta, 
-														baseCoords[1] + (baseCoords[3] - baseCoords[1]) * delta
-													});
-													lightCoords.AddRange(new float[]{
-														baseLightCoords[0], baseLightCoords[1],
-														baseLightCoords[0], baseLightCoords[1],
-														baseLightCoords[0] + (baseLightCoords[2] - baseLightCoords[0]) * delta,
-														baseLightCoords[1] + (baseLightCoords[3] - baseLightCoords[1]) * delta,
-													});
-													texCoords.AddRange(new float[]{
-														0f, 1f - baseFL,
-														0f, 1f - hFL,
-														delta, 1f - (baseFL + (baseFR - baseFL) * delta) 
-													});
+													face = new MapTriangulator.Face() {
+														Coords = new float[]{
+															baseCoords[0], baseFL, baseCoords[1],
+															baseCoords[0], hFL, baseCoords[1],
+															baseCoords[0] + (baseCoords[2] - baseCoords[0]) * delta,
+															baseFL + (baseFR - baseFL) * delta,
+															baseCoords[1] + (baseCoords[3] - baseCoords[1]) * delta
+														},
+														TexCoords = new float[]{
+															0f, 1f - baseFL,
+															0f, 1f - hFL,
+															delta, 1f - (baseFL + (baseFR - baseFL) * delta)
+														},
+														LightCoords = new float[]{
+															0f, 1f - baseFL,
+															0f, 1f - hFL,
+															delta, 1f - (baseFL + (baseFR - baseFL) * delta)
+														},
+														Indices = new ushort[] {
+															0, 2, 1
+														}
+													};
+													faceGroup.Faces.Add(face);
 												} else {
-													vertCoords.AddRange(new float[]{
-														baseCoords[2], hFR, baseCoords[3],
-														baseCoords[2], baseFR, baseCoords[3],
-														baseCoords[0] + (baseCoords[2] - baseCoords[0]) * delta, 
-														baseFL + (baseFR - baseFL) * delta, 
-														baseCoords[1] + (baseCoords[3] - baseCoords[1]) * delta
-													});
-													lightCoords.AddRange(new float[]{
-														baseLightCoords[0], baseLightCoords[1],
-														baseLightCoords[0], baseLightCoords[1],
-														baseLightCoords[0] + (baseLightCoords[2] - baseLightCoords[0]) * delta,
-														baseLightCoords[1] + (baseLightCoords[3] - baseLightCoords[1]) * delta,
-													});
-													texCoords.AddRange(new float[]{
-														1f, 1f - hFR,
-														1f, 1f - baseFR,
-														delta, 1f - (baseFL + (baseFR - baseFL) * delta) 
-													});
+													face = new MapTriangulator.Face() {
+														Coords = new float[]{
+															baseCoords[2], hFR, baseCoords[3],
+															baseCoords[2], baseFR, baseCoords[3],
+															baseCoords[0] + (baseCoords[2] - baseCoords[0]) * delta,
+															baseFL + (baseFR - baseFL) * delta,
+															baseCoords[1] + (baseCoords[3] - baseCoords[1]) * delta
+														},
+														TexCoords = new float[]{
+															1f, 1f - hFR,
+															1f, 1f - baseFR,
+															delta, 1f - (baseFL + (baseFR - baseFL) * delta)
+														},
+														LightCoords = new float[]{
+															1f, 1f - hFR,
+															1f, 1f - baseFR,
+															delta, 1f - (baseFL + (baseFR - baseFL) * delta)
+														},
+														Indices = new ushort[] {
+															0, 2, 1
+														}
+													};
+													faceGroup.Faces.Add(face);
 												}
-												indices.AddRange(new short[]{
-													(short)(idx + 0), (short)(idx + 2), (short)(idx + 1),
-												});
-												idx += 3;
 											}
 										}
 										
 										if (needCeilWall && (hCL > baseCL || hCR > baseCR)) {
 											if (hCL > baseCL && hCR > baseCR) {
-												vertCoords.AddRange(new float[]{
-													baseCoords[0], 1f - baseCL, baseCoords[1],
-													baseCoords[2], 1f - baseCR, baseCoords[3],
-													baseCoords[0], 1f - hCL, baseCoords[1],
-													baseCoords[2], 1f - hCR, baseCoords[3],
-												});
-												lightCoords.AddRange(new float[]{
-													baseLightCoords[0], baseLightCoords[1],
-													baseLightCoords[2], baseLightCoords[3],
-													baseLightCoords[0], baseLightCoords[1],
-													baseLightCoords[2], baseLightCoords[3]
-												});
-												texCoords.AddRange(new float[]{
-													0f, baseCL,
-													1f, baseCR,
-													0f, hCL,
-													1f, hCR
-												});
-												indices.AddRange(new short[]{
-													(short)(idx + 0), (short)(idx + 2), (short)(idx + 1),
-													(short)(idx + 1), (short)(idx + 2), (short)(idx + 3)
-												});
-												idx += 4;
+												face = new MapTriangulator.Face() {
+													Coords = new float[]{
+														baseCoords[0], 1f - baseCL, baseCoords[1],
+														baseCoords[2], 1f - baseCR, baseCoords[3],
+														baseCoords[0], 1f - hCL, baseCoords[1],
+														baseCoords[2], 1f - hCR, baseCoords[3],
+													},
+													TexCoords = new float[]{
+														0f, baseCL,
+														1f, baseCR,
+														0f, hCL,
+														1f, hCR
+													},
+													LightCoords = new float[]{
+														0f, baseCL,
+														1f, baseCR,
+														0f, hCL,
+														1f, hCR
+													},
+													Indices = new ushort[] {
+														0, 2, 1,
+														1, 2, 3
+													}
+												};
+												faceGroup.Faces.Add(face);
 											} else {
 												float delta = GetFloorIntersection(baseCL, baseCR, hCL, hCR);
 												if (hCL > baseCL) {
-													vertCoords.AddRange(new float[]{
-														baseCoords[0], 1f - hCL, baseCoords[1],
-														baseCoords[0], 1f- baseCL, baseCoords[1],
-														baseCoords[0] + (baseCoords[2] - baseCoords[0]) * delta, 
-														1f - (baseCL + (baseCR - baseCL) * delta), 
-														baseCoords[1] + (baseCoords[3] - baseCoords[1]) * delta
-													});
-													lightCoords.AddRange(new float[]{
-														baseLightCoords[0], baseLightCoords[1],
-														baseLightCoords[0], baseLightCoords[1],
-														baseLightCoords[0] + (baseLightCoords[2] - baseLightCoords[0]) * delta,
-														baseLightCoords[1] + (baseLightCoords[3] - baseLightCoords[1]) * delta,
-													});
-													texCoords.AddRange(new float[]{
-														0f, hCL,
-														0f, baseCL,
-														delta, (baseCL + (baseCR - baseCL) * delta) 
-													});
+													face = new MapTriangulator.Face() {
+														Coords = new float[]{
+															baseCoords[0], 1f - hCL, baseCoords[1],
+															baseCoords[0], 1f- baseCL, baseCoords[1],
+															baseCoords[0] + (baseCoords[2] - baseCoords[0]) * delta,
+															1f - (baseCL + (baseCR - baseCL) * delta),
+															baseCoords[1] + (baseCoords[3] - baseCoords[1]) * delta
+														},
+														TexCoords = new float[]{
+															0f, hCL,
+															0f, baseCL,
+															delta, (baseCL + (baseCR - baseCL) * delta)
+														},
+														LightCoords = new float[]{
+															0f, hCL,
+															0f, baseCL,
+															delta, (baseCL + (baseCR - baseCL) * delta)
+														},
+														Indices = new ushort[] {
+															0, 2, 1
+														}
+													};
+													faceGroup.Faces.Add(face);
 												} else {
-													vertCoords.AddRange(new float[]{
-														baseCoords[2], 1f - baseCR, baseCoords[3],
-														baseCoords[2], 1f - hCR, baseCoords[3],
-														baseCoords[0] + (baseCoords[2] - baseCoords[0]) * delta, 
-														1f - (baseCL + (baseCR - baseCL) * delta), 
-														baseCoords[1] + (baseCoords[3] - baseCoords[1]) * delta
-													});
-													lightCoords.AddRange(new float[]{
-														baseLightCoords[0], baseLightCoords[1],
-														baseLightCoords[0], baseLightCoords[1],
-														baseLightCoords[0] + (baseLightCoords[2] - baseLightCoords[0]) * delta,
-														baseLightCoords[1] + (baseLightCoords[3] - baseLightCoords[1]) * delta,
-													});
-													texCoords.AddRange(new float[]{
-														1f, baseCR,
-														1f, hCR,
-														delta, (baseCL + (baseCR - baseCL) * delta) 
-													});
+													face = new MapTriangulator.Face() {
+														Coords = new float[]{
+															baseCoords[2], 1f - baseCR, baseCoords[3],
+															baseCoords[2], 1f - hCR, baseCoords[3],
+															baseCoords[0] + (baseCoords[2] - baseCoords[0]) * delta,
+															1f - (baseCL + (baseCR - baseCL) * delta),
+															baseCoords[1] + (baseCoords[3] - baseCoords[1]) * delta
+														},
+														TexCoords = new float[]{
+															1f, baseCR,
+															1f, hCR,
+															delta, (baseCL + (baseCR - baseCL) * delta)
+														},
+														LightCoords = new float[]{
+															1f, baseCR,
+															1f, hCR,
+															delta, (baseCL + (baseCR - baseCL) * delta)
+														},
+														Indices = new ushort[] {
+															0, 2, 1
+														}
+													};
+													faceGroup.Faces.Add(face);
 												}
-												indices.AddRange(new short[]{
-													(short)(idx + 0), (short)(idx + 2), (short)(idx + 1),
-												});
-												idx += 3;
 											}
 										}
 									}
@@ -1353,7 +1423,28 @@ namespace Cubed.World {
 						}
 					}
 
+					// Saving face group
+					faceGroup.Texture = tex;
+					faceGroups.Add(faceGroup);
+				}
+
+				// Making lightmap texture
+				int lightSX = 0, lightSY = 0;
+				MapTriangulator.CalculateLightCoords(faceGroups, out lightSX, out lightSY);
+				lightmapWidth = lightSX;
+				lightmapHeight = lightSY;
+
+				// Compositing big mesh occluder
+				if (shadowGroup == null) {
+					shadowGroup = new RenderGroup();
+				}
+				FillRenderGroup(shadowGroup, faceGroups);
+
+				// Converting to render groups
+				foreach (MapTriangulator.FaceGroup fg in faceGroups) {
+
 					// Creating group
+					Texture tex = fg.Texture;
 					RenderGroup rg = null;
 					if (tex == null) {
 						if (nullGroup == null) {
@@ -1368,30 +1459,7 @@ namespace Cubed.World {
 							groups.Add(tex, rg);
 						}
 					}
-					
-					if (rg.VertexBuffer == 0 || !GL.IsBuffer(rg.VertexBuffer)) {
-						rg.VertexBuffer = GL.GenBuffer();
-					}
-					if (rg.TexCoordBuffer == 0 || !GL.IsBuffer(rg.TexCoordBuffer)) {
-						rg.TexCoordBuffer = GL.GenBuffer();
-					}
-					if (rg.LightmapCoordBuffer == 0 || !GL.IsBuffer(rg.LightmapCoordBuffer)) {
-						rg.LightmapCoordBuffer = GL.GenBuffer();
-					}
-					if (rg.IndexBuffer == 0 || !GL.IsBuffer(rg.IndexBuffer)) {
-						rg.IndexBuffer = GL.GenBuffer();
-					}
-					rg.IndexCount = indices.Count;
-					GL.BindBuffer(BufferTarget.ArrayBuffer, rg.VertexBuffer);
-					GL.BufferData(BufferTarget.ArrayBuffer, vertCoords.Count * 4, vertCoords.ToArray(), BufferUsageHint.StaticDraw);
-					GL.BindBuffer(BufferTarget.ArrayBuffer, rg.TexCoordBuffer);
-					GL.BufferData(BufferTarget.ArrayBuffer, texCoords.Count * 4, texCoords.ToArray(), BufferUsageHint.StaticDraw);
-					GL.BindBuffer(BufferTarget.ArrayBuffer, rg.LightmapCoordBuffer);
-					GL.BufferData(BufferTarget.ArrayBuffer, lightCoords.Count * 4, lightCoords.ToArray(), BufferUsageHint.StaticDraw);
-					GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-					GL.BindBuffer(BufferTarget.ElementArrayBuffer, rg.IndexBuffer);
-					GL.BufferData(BufferTarget.ElementArrayBuffer, indices.Count * 2, indices.ToArray(), BufferUsageHint.StaticDraw);
-					GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+					FillRenderGroup(rg, new MapTriangulator.FaceGroup[] { fg });
 				}
 				
 				// Cleaning unused buffers
@@ -1408,6 +1476,9 @@ namespace Cubed.World {
 						if (rg.LightmapCoordBuffer != 0) {
 							GL.DeleteBuffer(rg.LightmapCoordBuffer);
 						}
+						if (rg.NormalBuffer != 0) {
+							GL.DeleteBuffer(rg.NormalBuffer);
+						}
 						if (rg.IndexBuffer != 0) {
 							GL.DeleteBuffer(rg.IndexBuffer);
 						}
@@ -1418,6 +1489,162 @@ namespace Cubed.World {
 					groups.Remove(tex);
 				}
 
+				// Flagging lights to rebuild
+				foreach (Light light in affectedLights) {
+					light.MakeDirty();
+					light.Static = light.Static;
+				}
+			}
+
+			/// <summary>
+			/// Rebuilding lights
+			/// </summary>
+			internal void RebuildLighting() {
+				if (lightmapHeight == 0 || lightmapWidth == 0) {
+					return;
+				}
+				if (needRelightStatic) {
+					RebuildLightLayer(affectedLights, true, ref staticLightmap, lightmapWidth, lightmapHeight);
+					Caps.CheckErrors();
+				}
+				if (needRelightDynamic) {
+					RebuildLightLayer(affectedLights, false, ref dynamicLightmap, lightmapWidth, lightmapHeight);
+					Caps.CheckErrors();
+				}
+			}
+
+			/// <summary>
+			/// Rebuild single light layer
+			/// </summary>
+			/// <param name="lights">Array of lights</param>
+			/// <param name="isStatic">Flag for static lights</param>
+			/// <param name="texWidth">Lightmap width</param>
+			/// <param name="texHeight">Lightmap height</param>
+			void RebuildLightLayer(IEnumerable<Light> lights, bool isStatic, ref int glTex, int texWidth, int texHeight) {
+
+				// Checking internal buffers
+				if (!GL.IsBuffer(shadowGroup.IndexBuffer) || !GL.IsBuffer(shadowGroup.VertexBuffer) || !GL.IsBuffer(shadowGroup.NormalBuffer) || !GL.IsBuffer(shadowGroup.LightmapCoordBuffer)) {
+					return;
+				}
+
+				// Saving matrices
+				Matrix4 camMat = ShaderSystem.CameraMatrix;
+				Matrix4 entMat = ShaderSystem.EntityMatrix;
+				Matrix4 prjMat = ShaderSystem.ProjectionMatrix;
+				Matrix4 texMat = ShaderSystem.TextureMatrix;
+
+				// Checking framebuffer
+				if (frameBuffer == 0 || !GL.IsFramebuffer(frameBuffer)) {
+					frameBuffer = GL.GenFramebuffer();
+				}
+				GL.BindFramebuffer(FramebufferTarget.Framebuffer, frameBuffer);
+				Caps.CheckErrors();
+
+				// Checking texture
+				GL.ActiveTexture(TextureUnit.Texture0);
+				GL.Enable(EnableCap.Texture2D);
+				if (glTex == 0 || !GL.IsTexture(glTex)) {
+					glTex = GL.GenTexture();
+				}
+				GL.BindTexture(TextureTarget.Texture2D, glTex);
+				GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+				GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
+				GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Clamp);
+				GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Clamp);
+				GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Three, texWidth, texHeight, 0, PixelFormat.Rgb, PixelType.UnsignedByte, IntPtr.Zero);
+				GL.BindTexture(TextureTarget.Texture2D, 0);
+				GL.Disable(EnableCap.Texture2D);
+
+				// Adding attachments
+				GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, glTex, 0);
+
+				Caps.CheckErrors();
+
+				GL.ActiveTexture(TextureUnit.Texture0);
+				GL.Disable(EnableCap.DepthTest);
+
+				// Rendering scene
+				GL.Viewport(0, 0, texWidth, texHeight);
+				GL.Enable(EnableCap.Blend);
+				GL.ClearColor(0, 0, 0, 0);
+				GL.Clear(ClearBufferMask.ColorBufferBit);
+				GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.One);
+				Caps.CheckErrors();
+				
+				// Binding shader
+				ShaderSystem.CameraMatrix = Matrix4.Identity;
+				ShaderSystem.EntityMatrix = matrix;
+				ShaderSystem.ProjectionMatrix = Matrix4.CreateOrthographicOffCenter(0, 1, 0, 1, -1, 2);
+				MapLightPassShader shader = MapLightPassShader.Shader;
+				Caps.CheckErrors();
+
+				shader.Bind();
+				GL.BindBuffer(BufferTarget.ArrayBuffer, shadowGroup.VertexBuffer);
+				GL.VertexAttribPointer(shader.VertexBufferLocation, 3, VertexAttribPointerType.Float, false, 0, 0);
+				GL.BindBuffer(BufferTarget.ArrayBuffer, shadowGroup.NormalBuffer);
+				GL.VertexAttribPointer(shader.NormalBufferLocation, 3, VertexAttribPointerType.Float, false, 0, 0);
+				GL.BindBuffer(BufferTarget.ArrayBuffer, shadowGroup.LightmapCoordBuffer);
+				GL.VertexAttribPointer(shader.TexBufferLocation, 2, VertexAttribPointerType.Float, false, 0, 0);
+				GL.BindBuffer(BufferTarget.ElementArrayBuffer, shadowGroup.IndexBuffer);
+				shader.Unbind();
+
+				// Enabling textures
+				GL.ActiveTexture(TextureUnit.Texture0);
+				GL.Enable(EnableCap.TextureCubeMap);
+				GL.ActiveTexture(TextureUnit.Texture1);
+				GL.Enable(EnableCap.Texture2D);
+				Caps.CheckErrors();
+
+				// Rendering lights
+				foreach (Light light in lights) {
+					if (light.Static == isStatic) {
+						Vector3 pos = light.LastUpdatePoint;
+						pos.Z = -pos.Z;
+
+						GL.ActiveTexture(TextureUnit.Texture0);
+						GL.BindTexture(TextureTarget.TextureCubeMap, light.DepthTextureBuffer);
+						GL.ActiveTexture(TextureUnit.Texture1);
+						if (light.Texture != null && light.Texture.State == Texture.LoadingState.Complete) {
+							light.Texture.Bind();
+						} else {
+							Texture.BindEmpty();
+						}
+						Caps.CheckErrors();
+
+						shader.LightColor = light.Color;
+						shader.LightRange = light.Range;
+						shader.LightPos = pos;
+						shader.LightRotation = light.TextureAngle;
+
+						shader.Bind();
+						Caps.CheckErrors();
+						GL.DrawElements(PrimitiveType.Triangles, shadowGroup.IndexCount, DrawElementsType.UnsignedShort, 0);
+						Caps.CheckErrors();
+						shader.Unbind();
+					}
+				}
+
+				// Unbinding data
+				GL.Disable(EnableCap.Blend);
+				GL.Enable(EnableCap.DepthTest);
+				GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+				GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+				GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+				Caps.CheckErrors();
+
+				// Unbinding textures
+				GL.ActiveTexture(TextureUnit.Texture1);
+				GL.BindTexture(TextureTarget.Texture2D, 0);
+				GL.Disable(EnableCap.Texture2D);
+				GL.ActiveTexture(TextureUnit.Texture0);
+				GL.BindTexture(TextureTarget.TextureCubeMap, 0);
+				GL.Disable(EnableCap.TextureCubeMap);
+
+				// Restoring matrices
+				ShaderSystem.CameraMatrix = camMat;
+				ShaderSystem.EntityMatrix = entMat;
+				ShaderSystem.ProjectionMatrix = prjMat;
+				ShaderSystem.TextureMatrix = texMat;
 			}
 
 			/// <summary>
@@ -1485,136 +1712,52 @@ namespace Cubed.World {
 			}
 
 			/// <summary>
-			/// Rebuilding light texture
+			/// Converting face group to rendergroup
 			/// </summary>
-			void RecalculateLight() {
-				// Pushing state
-				GL.PushAttrib(AttribMask.AllAttribBits);
+			/// <param name="rg">Target group</param>
+			/// <param name="group">Face group</param>
+			void FillRenderGroup(RenderGroup rg, IEnumerable<MapTriangulator.FaceGroup> groups) {
 
-				// Storing matrices
-				Matrix4 projMatrix = Matrix4.CreateOrthographicOffCenter(0, BLOCKS, BLOCKS, 0, -1, 1);
-				GL.MatrixMode(MatrixMode.Projection);
-				GL.PushMatrix();
-				GL.LoadMatrix(ref projMatrix);
-				GL.MatrixMode(MatrixMode.Modelview);
-				GL.PushMatrix();
-				GL.LoadIdentity();
-
-				/*
-				Matrix4 oldCam = ShaderSystem.CameraMatrix;
-				Matrix4 oldProj = ShaderSystem.ProjectionMatrix;
-				ShaderSystem.EntityMatrix = Matrix4.Identity;
-				ShaderSystem.CameraMatrix = Matrix4.Identity;
-				ShaderSystem.ProjectionMatrix = Matrix4.CreateOrthographicOffCenter(0, BLOCKS, BLOCKS, 0, -1, 1);
-				GL.MatrixMode(MatrixMode.Projection);
-				GL.PushMatrix();
-				GL.LoadMatrix(ref ShaderSystem.ProjectionMatrix);
-				GL.MatrixMode(MatrixMode.Modelview);
-				GL.PushMatrix();
-				GL.LoadIdentity();
-				GL.Disable(EnableCap.DepthTest);
-				*/
-				 
-				// Preparing render texture
-				GL.Enable(EnableCap.Texture2D);
-				if (lightingTex == 0 || !GL.IsTexture(lightingTex)) {
-					lightingTex = GL.GenTexture();
-					GL.BindTexture(TextureTarget.Texture2D, lightingTex);
-					GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba8, LIGHTMAP_SIZE, LIGHTMAP_SIZE, 0, PixelFormat.Rgb, PixelType.UnsignedByte, IntPtr.Zero);
-					GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)All.Nearest);
-					GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)All.Nearest);
-					GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)All.Clamp);
-					GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)All.Clamp);
+				// Triangulating
+				List<MapTriangulator.FaceGroup> faceGroups = new List<MapTriangulator.FaceGroup>(groups);
+				float[] coords = null, texCoords = null, lightCoords = null, normals = null;
+				ushort[] indices = null;
+				int total = 0;
+				if (faceGroups.Count > 1) {
+					total = MapTriangulator.TriangulateMerged(faceGroups, out coords, out texCoords, out lightCoords, out normals, out indices);
 				} else {
-					GL.BindTexture(TextureTarget.Texture2D, lightingTex);
+					total = faceGroups[0].Triangulate(out coords, out texCoords, out lightCoords, out normals, out indices);
 				}
 
-				// Preparing framebuffer
-				if (frameBuffer == 0 || !GL.IsFramebuffer(frameBuffer)) {
-					frameBuffer = GL.GenFramebuffer();
+				// Sending to GL
+				if (rg.VertexBuffer == 0 || !GL.IsBuffer(rg.VertexBuffer)) {
+					rg.VertexBuffer = GL.GenBuffer();
 				}
-				GL.BindFramebuffer(FramebufferTarget.Framebuffer, frameBuffer);
-				GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, lightingTex, 0);
-				GL.BindTexture(TextureTarget.Texture2D, 0);
-				
-				// Processing lights
-				GL.ClearColor(0, 0, 0, 1);
-				GL.Viewport(new Size(LIGHTMAP_SIZE, LIGHTMAP_SIZE));
-				GL.Clear(ClearBufferMask.ColorBufferBit);
-				GL.Disable(EnableCap.CullFace);
-
-				/*
-				GL.Begin(PrimitiveType.Quads);
-				GL.Color4(Color.Green);
-				GL.Vertex2(0, 0);
-				GL.Color4(Color.Red);
-				GL.Vertex2(8, 0);
-				GL.Color4(Color.Blue);
-				GL.Vertex2(8, 8);
-				GL.Color4(Color.Yellow);
-				GL.Vertex2(0, 8);
-				GL.End();
-				 */
-				// Rendering light one by one
-				GL.Enable(EnableCap.Blend);
-				GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.One);		
-				GL.Enable(EnableCap.Texture2D);
-
-				foreach (Light l in affectedLights) {
-					Vector2 pos = new Vector2(l.Position.X - Location.X * BLOCKS, l.Position.Z - Location.Z * BLOCKS);
-
-					GL.BindTexture(TextureTarget.Texture2D, l.textureBuffer);
-					GL.Begin(PrimitiveType.Quads);
-					GL.Color4(Color.White);
-					float tf = l.textureFactor;
-					GL.TexCoord2(0.5f - tf * 0.5f, 0.5f + tf * 0.5f);
-					GL.Vertex2(pos.X - l.Range, (pos.Y - l.Range));
-					GL.TexCoord2(0.5f + tf * 0.5f, 0.5f + tf * 0.5f);
-					GL.Vertex2(pos.X + l.Range, (pos.Y - l.Range));
-					GL.TexCoord2(0.5f + tf * 0.5f, 0.5f - tf * 0.5f);
-					GL.Vertex2(pos.X + l.Range, (pos.Y + l.Range));
-					GL.TexCoord2(0.5f - tf * 0.5f, 0.5f - tf * 0.5f);
-					GL.Vertex2(pos.X - l.Range, (pos.Y + l.Range));
-					GL.End();
-
+				if (rg.NormalBuffer == 0 || !GL.IsBuffer(rg.NormalBuffer)) {
+					rg.NormalBuffer = GL.GenBuffer();
 				}
-				GL.Disable(EnableCap.Blend);
-
-				// Releasing buffer
-				GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-
-				// Restoring matrices
-				/*
-				ShaderSystem.CameraMatrix = oldCam;
-				ShaderSystem.ProjectionMatrix = oldProj;
-				*/
-				GL.MatrixMode(MatrixMode.Projection);
-				GL.PopMatrix(); 
-				GL.MatrixMode(MatrixMode.Modelview);
-				GL.PopMatrix();
-
-				// Returning attributes
-				GL.PopAttrib();
-				lightCache = null;
-			}
-
-			/// <summary>
-			/// Recalculate all obstructors
-			/// </summary>
-			void RebuildObstructors() {
-
-				// Clearing
-				obstructors.Clear();
-
-				// Creating blocks
-				for (int y = 0; y < BLOCKS; y++) {
-					for (int x = 0; x < BLOCKS; x++) {
-						if (blocks[y, x] is WallBlock) {
-							obstructors.Add(LightObstructor.ForRectangle(x, y, 1, 1));
-						}
-					}
+				if (rg.TexCoordBuffer == 0 || !GL.IsBuffer(rg.TexCoordBuffer)) {
+					rg.TexCoordBuffer = GL.GenBuffer();
 				}
-
+				if (rg.LightmapCoordBuffer == 0 || !GL.IsBuffer(rg.LightmapCoordBuffer)) {
+					rg.LightmapCoordBuffer = GL.GenBuffer();
+				}
+				if (rg.IndexBuffer == 0 || !GL.IsBuffer(rg.IndexBuffer)) {
+					rg.IndexBuffer = GL.GenBuffer();
+				}
+				rg.IndexCount = total;
+				GL.BindBuffer(BufferTarget.ArrayBuffer, rg.VertexBuffer);
+				GL.BufferData(BufferTarget.ArrayBuffer, coords.Length * 4, coords, BufferUsageHint.StaticDraw);
+				GL.BindBuffer(BufferTarget.ArrayBuffer, rg.NormalBuffer);
+				GL.BufferData(BufferTarget.ArrayBuffer, normals.Length * 4, normals, BufferUsageHint.StaticDraw);
+				GL.BindBuffer(BufferTarget.ArrayBuffer, rg.TexCoordBuffer);
+				GL.BufferData(BufferTarget.ArrayBuffer, texCoords.Length * 4, texCoords, BufferUsageHint.StaticDraw);
+				GL.BindBuffer(BufferTarget.ArrayBuffer, rg.LightmapCoordBuffer);
+				GL.BufferData(BufferTarget.ArrayBuffer, lightCoords.Length * 4, lightCoords, BufferUsageHint.StaticDraw);
+				GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+				GL.BindBuffer(BufferTarget.ElementArrayBuffer, rg.IndexBuffer);
+				GL.BufferData(BufferTarget.ElementArrayBuffer, indices.Length * 2, indices, BufferUsageHint.StaticDraw);
+				GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
 			}
 
 			/// <summary>
@@ -1650,6 +1793,14 @@ namespace Cubed.World {
 				/// Lightmap coordinates buffer ID
 				/// </summary>
 				public int LightmapCoordBuffer {
+					get;
+					set;
+				}
+
+				/// <summary>
+				/// Normals buffer ID
+				/// </summary>
+				public int NormalBuffer {
 					get;
 					set;
 				}
@@ -1696,7 +1847,7 @@ namespace Cubed.World {
 				set {
 					textures[(int)side] = value;
 					if (Parent != null) {
-						Parent.QueueRebuild();
+						Parent.needRebuild = true;
 					}
 				}
 			}
@@ -1741,7 +1892,7 @@ namespace Cubed.World {
 					if (value != floor) {
 						floor = value;
 						if (Parent != null) {
-							Parent.QueueRebuild();
+							Parent.needRebuild = true;
 						}
 					}
 				}
@@ -1758,7 +1909,7 @@ namespace Cubed.World {
 					if (value != ceiling) {
 						ceiling = value;
 						if (Parent != null) {
-							Parent.QueueRebuild();
+							Parent.needRebuild = true;
 						}
 					}
 				}
@@ -1793,7 +1944,7 @@ namespace Cubed.World {
 					if (value != hasFloor) {
 						hasFloor = value;
 						if (Parent != null) {
-							Parent.QueueRebuild();
+							Parent.needRebuild = true;
 						}
 					}
 				}
@@ -1810,7 +1961,7 @@ namespace Cubed.World {
 					if (value != hasCeiling) {
 						hasCeiling = value;
 						if (Parent != null) {
-							Parent.QueueRebuild();
+							Parent.needRebuild = true;
 						}
 					}
 				}
@@ -1835,7 +1986,7 @@ namespace Cubed.World {
 						if (floorHeights[i] != value[i]) {
 							floorHeights[i] = value[i];
 							if (Parent != null) {
-								Parent.QueueRebuild();
+								Parent.needRebuild = true;
 							}
 						}
 					}
@@ -1861,7 +2012,7 @@ namespace Cubed.World {
 						if (ceilHeights[i] != value[i]) {
 							ceilHeights[i] = value[i];
 							if (Parent != null) {
-								Parent.QueueRebuild();
+								Parent.needRebuild = true;
 							}
 						}
 					}
@@ -1911,7 +2062,7 @@ namespace Cubed.World {
 						if (textures[(int)s] != value) {
 							textures[(int)s] = value;
 							if (parent.Parent != null) {
-								parent.Parent.QueueRebuild();
+								parent.Parent.needRebuild = true;
 							}
 						}
 					}
@@ -1941,41 +2092,96 @@ namespace Cubed.World {
 		}
 		
 		/// <summary>
-		/// Light barrier
+		/// Directional light class
 		/// </summary>
-		internal class LightObstructor {
+		public class DirectionalLight {
 
 			/// <summary>
-			/// Array of points
+			/// Color of this light
 			/// </summary>
-			public List<Vector2> Points {
+			public Color Color {
+				get;
+				set;
+			}
+
+			/// <summary>
+			/// Light angles
+			/// </summary>
+			public Vector2 Angles {
+				get;
+				set;
+			}
+
+			/// <summary>
+			/// Projection matrix
+			/// </summary>
+			internal Matrix4 Projection {
 				get;
 				private set;
 			}
 
 			/// <summary>
-			/// Obstructor constructor
+			/// Model view matrix
 			/// </summary>
-			public LightObstructor() {
-				Points = new List<Vector2>();
+			internal Matrix4 ModelView {
+				get;
+				private set;
 			}
 
 			/// <summary>
-			/// Create obstructor for rectangle
+			/// Fully composed matrix
 			/// </summary>
-			/// <param name="x"></param>
-			/// <param name="y"></param>
-			/// <param name="w"></param>
-			/// <param name="h"></param>
-			/// <returns></returns>
-			public static LightObstructor ForRectangle(float x, float y, float w, float h) {
-				LightObstructor o = new LightObstructor();
-				o.Points.Add(new Vector2(x, y));
-				o.Points.Add(new Vector2(x+w, y));
-				o.Points.Add(new Vector2(x+w, y+h));
-				o.Points.Add(new Vector2(x, y+h));
-				return o;
+			internal Matrix4 FullMatrix {
+				get;
+				private set;
 			}
+
+			/// <summary>
+			/// Texture buffer
+			/// </summary>
+			internal int Texture;
+
+			/// <summary>
+			/// Updating all matrices
+			/// </summary>
+			internal void Update(Camera camera) {
+				Vector3 pos = camera.Position;
+				pos.X = (float)Math.Round(pos.X);
+				pos.Y = (float)Math.Round(pos.Y);
+				pos.Z = (float)Math.Round(pos.Z);
+
+				Projection = Matrix4.CreateOrthographic(64, 64, 0, 128);
+				ModelView =
+					Matrix4.CreateTranslation(-Vector3.UnitZ * 64) *
+					Matrix4.CreateRotationX(MathHelper.DegreesToRadians(-Angles.X)) *
+					Matrix4.CreateRotationY(MathHelper.DegreesToRadians(-Angles.Y)) *
+					Matrix4.CreateTranslation(pos);
+				ModelView.Invert();
+
+				FullMatrix = Projection * ModelView;
+			}
+
+			/// <summary>
+			/// Rendering 
+			/// </summary>
+			internal void Render(Map map) {
+
+				// Retrieving chunks
+				Chunk[] chunks = map.GetAllChunks();
+
+				// Setting up matrix
+				List<Chunk> candidates = new List<Chunk>();
+				Frustum.Setup(Projection, ModelView);
+				foreach (Chunk chunk in chunks) {
+					if (chunk.IsVisible()) {
+						candidates.Add(chunk);
+					}
+				}
+
+				// Rendering buffer
+				Light.RebuildDirectionalTexture(candidates, ref Texture, 256);
+			}
+
 		}
 
 		/// <summary>

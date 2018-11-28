@@ -22,6 +22,14 @@ namespace Cubed.Components.Rendering {
 		static ushort[] indexArray;
 
 		/// <summary>
+		/// Flag for semitransparent
+		/// </summary>
+		public bool AlwaysVisible {
+			get;
+			set;
+		}
+
+		/// <summary>
 		/// Расположение относительно центра объекта
 		/// </summary>
 		public Vector3[] Vertices {
@@ -51,7 +59,7 @@ namespace Cubed.Components.Rendering {
 		/// </summary>
 		internal override EntityComponent.BlendingMode RenditionBlending {
 			get {
-				if (WireColor.A < 255) {
+				if (WireColor.A < 255 || AlwaysVisible) {
 					return BlendingMode.AlphaChannel;
 				}
 				return BlendingMode.ForceOpaque;
@@ -63,7 +71,7 @@ namespace Cubed.Components.Rendering {
 		/// </summary>
 		internal override EntityComponent.TransparencyPass RenditionPass {
 			get {
-				if (WireColor.A < 255) {
+				if (WireColor.A < 255 || AlwaysVisible) {
 					return TransparencyPass.Blend;
 				}
 				return TransparencyPass.Opaque;
@@ -172,6 +180,11 @@ namespace Cubed.Components.Rendering {
 				needBuffer = false;
 			}
 
+			// Получение флагов
+			if (AlwaysVisible) {
+				GL.Disable(EnableCap.DepthTest);
+			}
+
 			// Режим
 			PrimitiveType primitive = PrimitiveType.Lines;
 			switch (Mode) {
@@ -204,6 +217,9 @@ namespace Cubed.Components.Rendering {
 				GL.DrawArrays(primitive, 0, vertexList.Length);
 				GL.DisableClientState(ArrayCap.VertexArray);
 			}
+
+			// Enabling blend back
+			GL.Enable(EnableCap.DepthTest);
 		}
 
 		/// <summary>

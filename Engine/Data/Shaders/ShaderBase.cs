@@ -136,31 +136,49 @@ namespace Cubed.Data.Shaders {
 		/// Установка шейдера
 		/// </summary>
 		public virtual void Bind() {
+			if (GLProgram > -1) {
+				if (!GL.IsProgram(GLProgram)) {
+					GLProgram = -1;
+					foreach (Uniform uniform in uniforms) {
+						uniform.Release();
+					}
+					foreach (VertexAttribute attribute in attribs) {
+						attribute.Release();
+					}
+					Compile();
+				}
+			}
+
 			bool allow = GLProgram > -2;
 			if (allow && GLProgram == -1) {
 				Compile();
 				if (GLProgram == -2) allow = false;
 			}
+			Caps.CheckErrors();
 
 			if (allow) {
 				projectionMatrix.Matrix = ShaderSystem.ProjectionMatrix;
 				cameraMatrix.Matrix = ShaderSystem.CameraMatrix;
 				entityMatrix.Matrix = ShaderSystem.EntityMatrix;
 				GL.UseProgram(GLProgram);
+				Caps.CheckErrors();
 				if (uniforms != null) {
 					foreach (Uniform u in uniforms) {
 						u.Bind(GLProgram);
+						Caps.CheckErrors();
 					}
 				}
 				if (attribs != null) {
 					foreach (VertexAttribute v in attribs) {
 						if(v.Handle > -1) GL.EnableVertexAttribArray(v.Handle);
+						Caps.CheckErrors();
 					}
 				}
 			} else {
 				Caps.FallbackToLegacy();
 				GL.UseProgram(0);
 			}
+			Caps.CheckErrors();
 		}
 
 		/// <summary>
@@ -170,7 +188,9 @@ namespace Cubed.Data.Shaders {
 			GL.UseProgram(0);
 			if (attribs != null) {
 				foreach (VertexAttribute v in attribs) {
-					GL.DisableVertexAttribArray(v.Handle);
+					if (v.Handle > -1) {
+						GL.DisableVertexAttribArray(v.Handle);
+					}
 				}
 			}
 			if (GLProgram == -2) {
@@ -207,6 +227,13 @@ namespace Cubed.Data.Shaders {
 				if (Handle == -1) {
 					Handle = GL.GetUniformLocation(program, Name);
 				}
+			}
+
+			/// <summary>
+			/// Releasing handle
+			/// </summary>
+			public void Release() {
+				Handle = -1;
 			}
 
 			/// <summary>
@@ -451,6 +478,13 @@ namespace Cubed.Data.Shaders {
 			/// <param name="name">Имя аттрибута</param>
 			public VertexAttribute(string name) {
 				Name = name;
+				Handle = -1;
+			}
+
+			/// <summary>
+			/// Releasing handle
+			/// </summary>
+			public void Release() {
 				Handle = -1;
 			}
 

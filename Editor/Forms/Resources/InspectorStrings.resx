@@ -204,4 +204,52 @@
   <data name="ProjectName" xml:space="preserve">
     <value>Project name</value>
   </data>
+  <data name="AffectedByFog" xml:space="preserve">
+    <value>Affected by fog</value>
+  </data>
+  <data name="AffectedByLight" xml:space="preserve">
+    <value>Affected by light</value>
+  </data>
+  <data name="Angle" xml:space="preserve">
+    <value>Angle</value>
+  </data>
+  <data name="Blending" xml:space="preserve">
+    <value>Blending</value>
+  </data>
+  <data name="BoundGroup" xml:space="preserve">
+    <value>Collision and bounds</value>
+  </data>
+  <data name="BrokenGroup" xml:space="preserve">
+    <value>Broken appearance</value>
+  </data>
+  <data name="Facing" xml:space="preserve">
+    <value>Facing</value>
+  </data>
+  <data name="Offset" xml:space="preserve">
+    <value>Offset</value>
+  </data>
+  <data name="Scale" xml:space="preserve">
+    <value>Scale</value>
+  </data>
+  <data name="SizeGroup" xml:space="preserve">
+    <value>Dimensions</value>
+  </data>
+  <data name="Solid" xml:space="preserve">
+    <value>Solid</value>
+  </data>
+  <data name="Texture" xml:space="preserve">
+    <value>Texture</value>
+  </data>
+  <data name="Tint" xml:space="preserve">
+    <value>Tint</value>
+  </data>
+  <data name="VisualGroup" xml:space="preserve">
+    <value>Visual appearance</value>
+  </data>
+  <data name="Sound" xml:space="preserve">
+    <value>Sound</value>
+  </data>
+  <data name="SoundDesc" xml:space="preserve">
+    <value>Point that emits audio</value>
+  </data>
 </root>

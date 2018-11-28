@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.102
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Game", "Game\Game.csproj", "{380ABFD0-CE98-4BA2-B121-4F51BD9481D7}"
 EndProject
@@ -10,6 +10,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Editor", "Editor\Editor.csproj", "{6AE32098-0A18-452C-BCA7-059BDE71B414}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameObjects", "GameObjects\GameObjects.csproj", "{5D7C9BFC-476F-4279-B647-B1F1F1A39BE0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MP3Sharp", "Library\MP3Sharp\MP3Sharp.csproj", "{BF3B29F8-DA04-4973-93DB-144A5BBE2472}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,8 +35,15 @@ Global
 		{5D7C9BFC-476F-4279-B647-B1F1F1A39BE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5D7C9BFC-476F-4279-B647-B1F1F1A39BE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5D7C9BFC-476F-4279-B647-B1F1F1A39BE0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BF3B29F8-DA04-4973-93DB-144A5BBE2472}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BF3B29F8-DA04-4973-93DB-144A5BBE2472}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BF3B29F8-DA04-4973-93DB-144A5BBE2472}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BF3B29F8-DA04-4973-93DB-144A5BBE2472}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A09CA031-5C54-40D3-BCC6-16A81DA6AB9A}
 	EndGlobalSection
 EndGlobal

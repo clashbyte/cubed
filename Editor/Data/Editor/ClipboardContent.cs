@@ -69,7 +69,11 @@ namespace Cubed.Data.Editor {
 		/// Checking clipboard for chunk
 		/// </summary>
 		public static bool HasChunk() {
-			return Clipboard.ContainsData(FORMAT);
+			bool cont = false;
+			try {
+				cont = Clipboard.ContainsData(FORMAT);
+			} catch (Exception) {}
+			return cont;
 		}
 
 		/// <summary>

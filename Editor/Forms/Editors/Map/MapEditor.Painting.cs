@@ -81,8 +81,10 @@ namespace Cubed.Forms.Editors.Map {
 
 		// Updating paint tool logics
 		void PaintToolUpdate() {
+
 			// Hiding all proxies
 			bool needRebuild = false;
+			bool pickVisible = Input.Controls.Mouse != Vector2.One * -1;
 			if (Input.Controls.MouseHit(MouseButton.Middle) && allowMouseLook) {
 				foreach (PaintEditorProxy prx in paintProxies) {
 					prx.Block.Visible = false;
@@ -100,7 +102,7 @@ namespace Cubed.Forms.Editors.Map {
 			camDir.Normalize();
 			Vector3 pickPos = Vector3.Zero;
 			MapIntersections.Hit hit = MapIntersections.Intersect(camPos, camDir, map);
-			if (hit != null && GetCurrentTexture(null) != null) {
+			if (hit != null && GetCurrentTexture(null) != null && pickVisible) {
 				PaintItem pi = new PaintItem() {
 					Coords = hit.Cell,
 					Side = hit.Side,
@@ -240,8 +242,7 @@ namespace Cubed.Forms.Editors.Map {
 							}
 						}
 					}
-					List<string> hashes = new List<string>();
-					items.AddRange(CalculatePaintSiblings(root.Coords, root.Side, root.UseCeiling, searchTex, hashes, true));
+					items.AddRange(CalculatePaintSiblings(root.Coords, root.Side, root.UseCeiling, searchTex, true));
 				}
 			}
 			return items.ToArray();
@@ -255,121 +256,160 @@ namespace Cubed.Forms.Editors.Map {
 		/// <param name="ceilHint">Use ceiling part</param>
 		/// <param name="protoTex">Texture to search</param>
 		/// <returns>Array of items</returns>
-		PaintItem[] CalculatePaintSiblings(Vector3 pos, World.Map.Side side, bool ceilHint, Texture protoTex, List<string> hashes, bool skipProcess = false) {
+		PaintItem[] CalculatePaintSiblings(Vector3 originPos, World.Map.Side originSide, bool originCeilHint, Texture protoTex, bool skipProcess = false) {
 			List<PaintItem> result = new List<PaintItem>();
-			string hash = GetPaintCellHash(pos, side, ceilHint);
-			if (!hashes.Contains(hash)) {
-				World.Map.Block block = map.GetBlockAtCoords(pos.X, pos.Y, pos.Z);
-				
-				// Checking current block
-				if (!skipProcess) {
+			Stack<PaintItem> items = new Stack<PaintItem>();
+			List<string> hashes = new List<string>();
+
+			// Staring point
+			PaintItem pi = new PaintItem() {
+				Coords = originPos,
+				Side = originSide,
+				UseCeiling = originCeilHint
+			};
+			hashes.Add(GetPaintCellHash(pi.Coords, pi.Side, pi.UseCeiling));
+			items.Push(pi);
+
+			while (items.Count > 0) {
+				PaintItem current = items.Pop();
+				string hash = GetPaintCellHash(current.Coords, current.Side, current.UseCeiling);
+				if (!hashes.Contains(hash)) {
+					World.Map.Block block = current.Block;
 					if (block == null) {
-						return result.ToArray();
+						block = map.GetBlockAtCoords(current.Coords.X, current.Coords.Y, current.Coords.Z);
 					}
-					if (block is World.Map.WallBlock) {
-						// Wall
-						if ((block as World.Map.WallBlock)[side] != protoTex) {
-							return result.ToArray();
+					World.Map.Side side = current.Side;
+					Vector3 pos = current.Coords;
+					bool ceilHint = current.UseCeiling;
+					
+					// Checking current block
+					if (!skipProcess) {
+						if (block == null) {
+							continue;
 						}
-					} else if(block is World.Map.FloorBlock) {
-						// Floor block
-						if (side == World.Map.Side.Top) {
-							// Floor
-							if ((block as World.Map.FloorBlock).Floor != protoTex) {
-								return result.ToArray();
+						if (block is World.Map.WallBlock) {
+							// Wall
+							if ((block as World.Map.WallBlock)[side] != protoTex) {
+								continue;
 							}
-						} else if(side == World.Map.Side.Bottom) {
-							// Ceiling
-							if ((block as World.Map.FloorBlock).Floor != protoTex) {
-								return result.ToArray();
-							}
-						} else {
-							// Trims
-							if (ceilHint) {
-								if ((block as World.Map.FloorBlock).CeilingTrim[side] != protoTex) {
-									return result.ToArray();
+						} else if (block is World.Map.FloorBlock) {
+							// Floor block
+							if (side == World.Map.Side.Top) {
+								// Floor
+								if ((block as World.Map.FloorBlock).Floor != protoTex) {
+									continue;
+								}
+							} else if (side == World.Map.Side.Bottom) {
+								// Ceiling
+								if ((block as World.Map.FloorBlock).Floor != protoTex) {
+									continue;
 								}
 							} else {
-								if ((block as World.Map.FloorBlock).FloorTrim[side] != protoTex) {
-									return result.ToArray();
+								// Trims
+								if (ceilHint) {
+									if ((block as World.Map.FloorBlock).CeilingTrim[side] != protoTex) {
+										return result.ToArray();
+									}
+								} else {
+									if ((block as World.Map.FloorBlock).FloorTrim[side] != protoTex) {
+										return result.ToArray();
+									}
 								}
 							}
 						}
+
+						// Adding this to output
+						result.Add(new PaintItem() {
+							Block = block,
+							Coords = pos,
+							Side = side,
+							UseCeiling = ceilHint
+						});
 					}
 
-					// Adding this to output
-					result.Add(new PaintItem() {
-						Block = block,
-						Coords = pos,
-						Side = side,
-						UseCeiling = ceilHint
-					});
-				}
+					// Adding hash
+					hashes.Add(hash);
 
-				// Adding hash
-				hashes.Add(hash);
-
-				// Checking siblings
-				if (block is World.Map.WallBlock) {
-					if (side != World.Map.Side.Top && side != World.Map.Side.Bottom) {
-						// Going up
-						if (CheckPaintVerticalBlock(pos, side, true, protoTex, false, hashes)) {
-							result.AddRange(CalculatePaintSiblings(pos + Vector3.UnitY, side, false, protoTex, hashes));
-						}
-
-						// Going down
-						if (CheckPaintVerticalBlock(pos, side, false, protoTex, true, hashes)) {
-							result.AddRange(CalculatePaintSiblings(pos - Vector3.UnitY, side, false, protoTex, hashes));
-						}
-
-						// Going sideways
-						for (int i = 0; i < 2; i++) {
-							Vector3 target = Vector3.Zero;
-							Vector3 cross = Vector3.Zero;
-							switch (side) {
-								case Cubed.World.Map.Side.Forward:
-									target.X += (i == 1) ? -1 : 1;
-									break;
-								case Cubed.World.Map.Side.Right:
-									target.Z += (i == 1) ? 1 : -1;
-									break;
-								case Cubed.World.Map.Side.Back:
-									target.X += (i == 1) ? 1 : -1;
-									break;
-								case Cubed.World.Map.Side.Left:
-									target.Z += (i == 1) ? -1 : 1;
-									break;
+					// Checking siblings
+					if (block is World.Map.WallBlock) {
+						if (side != World.Map.Side.Top && side != World.Map.Side.Bottom) {
+							// Going up
+							if (CheckPaintVerticalBlock(pos, side, true, protoTex, false, hashes)) {
+								items.Push(new PaintItem() {
+									Coords = pos + Vector3.UnitY,
+									Side = side,
+									UseCeiling = false
+								});
 							}
-							if (CheckPaintHorizontalBlock(pos, side, i == 1, protoTex, false, hashes)) {
-								result.AddRange(CalculatePaintSiblings(pos + target, side, false, protoTex, hashes));
+
+							// Going down
+							if (CheckPaintVerticalBlock(pos, side, false, protoTex, true, hashes)) {
+								items.Push(new PaintItem() {
+									Coords = pos - Vector3.UnitY,
+									Side = side,
+									UseCeiling = false
+								});
 							}
-							if (CheckPaintHorizontalBlock(pos, side, i == 1, protoTex, true, hashes)) {
-								result.AddRange(CalculatePaintSiblings(pos + target, side, true, protoTex, hashes));
+
+							// Going sideways
+							for (int i = 0; i < 2; i++) {
+								Vector3 target = Vector3.Zero;
+								Vector3 cross = Vector3.Zero;
+								switch (side) {
+									case Cubed.World.Map.Side.Forward:
+										target.X += (i == 1) ? -1 : 1;
+										break;
+									case Cubed.World.Map.Side.Right:
+										target.Z += (i == 1) ? 1 : -1;
+										break;
+									case Cubed.World.Map.Side.Back:
+										target.X += (i == 1) ? 1 : -1;
+										break;
+									case Cubed.World.Map.Side.Left:
+										target.Z += (i == 1) ? -1 : 1;
+										break;
+								}
+								if (CheckPaintHorizontalBlock(pos, side, i == 1, protoTex, false, hashes)) {
+									items.Push(new PaintItem() {
+										Coords = pos + target,
+										Side = side,
+										UseCeiling = false
+									});
+								}
+								if (CheckPaintHorizontalBlock(pos, side, i == 1, protoTex, true, hashes)) {
+									items.Push(new PaintItem() {
+										Coords = pos + target,
+										Side = side,
+										UseCeiling = true
+									});
+								}
 							}
 						}
-					}
-				} else if (block is World.Map.FloorBlock) {
-					World.Map.FloorBlock fb = block as World.Map.FloorBlock;
-					if (side == World.Map.Side.Top || side == World.Map.Side.Bottom) {
-						if (((side == World.Map.Side.Top) ? fb.HasFloor : fb.HasCeiling)) {
-							Vector3[] offs = new Vector3[] {
+					} else if (block is World.Map.FloorBlock) {
+						World.Map.FloorBlock fb = block as World.Map.FloorBlock;
+						if (side == World.Map.Side.Top || side == World.Map.Side.Bottom) {
+							if (((side == World.Map.Side.Top) ? fb.HasFloor : fb.HasCeiling)) {
+								Vector3[] offs = new Vector3[] {
 								Vector3.UnitX, Vector3.UnitZ,
 								-Vector3.UnitX, -Vector3.UnitZ
 							};
-							foreach (Vector3 off in offs) {
-								if (CheckPaintFloorBlock(pos + off, protoTex, side == World.Map.Side.Bottom, hashes)) {
-									result.AddRange(CalculatePaintSiblings(pos + off, side, side == World.Map.Side.Bottom, protoTex, hashes));
+								foreach (Vector3 off in offs) {
+									if (CheckPaintFloorBlock(pos + off, protoTex, side == World.Map.Side.Bottom, hashes)) {
+										items.Push(new PaintItem() {
+											Coords = pos + off,
+											Side = side,
+											UseCeiling = side == World.Map.Side.Bottom
+										});
+									}
 								}
 							}
-						}
-					} else {
+						} else {
 
+						}
 					}
 				}
-
 			}
 			return result.ToArray();
-
 		}
 
 		/// <summary>
@@ -669,10 +709,10 @@ namespace Cubed.Forms.Editors.Map {
 								new Vector3(0, 1f - fblock.CeilingHeight[3] - span, 1),
 							};
 							mc.TexCoords = new Vector2[] {
-								new Vector2(0, 0),
 								new Vector2(1, 0),
-								new Vector2(0, 1),
-								new Vector2(1, 1)
+								new Vector2(0, 0),
+								new Vector2(1, 1),
+								new Vector2(0, 1)
 							};
 							mc.Indices = new ushort[] {
 								0, 2, 1,
@@ -737,10 +777,10 @@ namespace Cubed.Forms.Editors.Map {
 								new Vector3(1, fblock.FloorHeight[3] + span, 1),
 							};
 							mc.TexCoords = new Vector2[] {
-								new Vector2(0, 0),
 								new Vector2(1, 0),
-								new Vector2(0, 1),
-								new Vector2(1, 1)
+								new Vector2(0, 0),
+								new Vector2(1, 1),
+								new Vector2(0, 1)
 							};
 							mc.Indices = new ushort[] {
 								0, 2, 1,

@@ -10,6 +10,10 @@ using Cubed.Drivers.Windows;
 using Cubed.Input;
 using OpenTK;
 using OpenTK.Input;
+using OpenTK.Graphics;
+using OpenTK.Graphics.OpenGL;
+using System.Runtime.InteropServices;
+using System.Diagnostics;
 
 namespace Cubed.Drivers {
 	
@@ -17,6 +21,11 @@ namespace Cubed.Drivers {
 	/// Custom control for interface
 	/// </summary>
 	public class EngineControl : Control {
+
+		/// <summary>
+		/// Hidden debug procedure
+		/// </summary>
+		static DebugProc debugProc;
 
 		/// <summary>
 		/// Display module
@@ -145,6 +154,20 @@ namespace Cubed.Drivers {
 				Controls.Add(gl);
 				ResumeLayout();
 
+				// Enabling debug if Debug =D
+				#if DEBUG
+				if (debugProc == null) {
+					debugProc = new DebugProc(gl_DebugHandler);
+				}
+				string exts = GL.GetString(StringName.Extensions);
+				string renderer = GL.GetString(StringName.Renderer);
+				
+				//GL.Enable(EnableCap.DebugOutput);
+				//GL.Enable(EnableCap.DebugOutputSynchronous);
+				//GL.DebugMessageControl(DebugSourceControl.DontCare, DebugTypeControl.DontCare, DebugSeverityControl.DontCare, 0, new int[0], true);
+				//GL.DebugMessageCallback(debugProc, IntPtr.Zero);
+				#endif
+
 				// Making timer
 				timer = new Timer();
 				timer.Interval = 10;
@@ -232,23 +255,24 @@ namespace Cubed.Drivers {
 		/// </summary>
 		void timer_Tick(object sender, EventArgs e) {
 
-			// Locking
-			if (Display.MouseLock != mouseLocked) {
-				if (Display.MouseLock) {
-					mouseResetDelta = true;
-					Point center = gl.PointToScreen(new Point(gl.ClientSize.Width / 2, gl.ClientSize.Height / 2));
-					Mouse.SetPosition(center.X, center.Y);
-					mousePos = center;
-					prevMousePos = center;
-					System.Windows.Forms.Cursor.Hide();
-				} else {
-					System.Windows.Forms.Cursor.Show();
-				}
-				mouseLocked = Display.MouseLock;
-			}
-
 			// Updating logic
 			if (Display != null) {
+
+				// Locking
+				if (Display.MouseLock != mouseLocked) {
+					if (Display.MouseLock) {
+						mouseResetDelta = true;
+						Point center = gl.PointToScreen(new Point(gl.ClientSize.Width / 2, gl.ClientSize.Height / 2));
+						Mouse.SetPosition(center.X, center.Y);
+						mousePos = center;
+						prevMousePos = center;
+						System.Windows.Forms.Cursor.Hide();
+					} else {
+						System.Windows.Forms.Cursor.Show();
+					}
+					mouseLocked = Display.MouseLock;
+				}
+
 				InputState.Snapshot current = new InputState.Snapshot(mouseStates, keyStates, mousePos, wheel, prevMousePos, prevWheel);
 				InputState state = new InputState(prevSnapshot, current);
 				prevSnapshot = current;
@@ -274,9 +298,12 @@ namespace Cubed.Drivers {
 		/// Rendering frame
 		/// </summary>
 		void gl_Paint(object sender, PaintEventArgs e) {
-
+			
 			// Rendering to control
 			gl.MakeCurrent();
+			
+
+			// Rendering
 			if (Display != null) {
 				Display.Render(gl.ClientSize);
 			}
@@ -311,5 +338,13 @@ namespace Cubed.Drivers {
 			OnDragOver(e);
 		}
 
+		/// <summary>
+		/// Debug handler
+		/// </summary>
+		static void gl_DebugHandler(DebugSource source, DebugType type, int id, DebugSeverity severity, int length, IntPtr message, IntPtr userParam) {
+			Trace.WriteLine(source == DebugSource.DebugSourceApplication ?
+				$"openGL - {Marshal.PtrToStringAnsi(message, length)}" :
+				$"openGL - {Marshal.PtrToStringAnsi(message, length)}\n\tid:{id} severity:{severity} type:{type} source:{source}\n");
+		}
 	}
 }

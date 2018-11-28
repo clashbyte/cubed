@@ -185,10 +185,18 @@ namespace Cubed.Editing.Gizmos {
 		
 		}
 
+		/// <summary>
+		/// Updating iteraction
+		/// </summary>
+		/// <param name="rayPos"></param>
+		/// <param name="rayDir"></param>
+		/// <param name="tween"></param>
+		/// <param name="current"></param>
+		/// <param name="cursor"></param>
 		public override void Update(Vector3 rayPos, Vector3 rayDir, float tween, bool current, out System.Windows.Forms.Cursor cursor) {
 			base.Update(rayPos, rayDir, tween, current, out cursor);
 			currentSize = Math.Max(Math.Min(currentSize + (current ? 0.2f : -0.2f), 1f), 0f);
-			GetComponent<WireCubeComponent>().Size = Vector3.One * (boxSize - 0.05f * (1f - currentSize));
+			GetComponent<WireCubeComponent>().Size = Vector3.One * (boxSize - (boxSize * 0.25f) * (1f - currentSize));
 
 
 			if (current) {

@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Cubed.Components.Audio;
 using Cubed.Components.Controls;
 using Cubed.Components.Rendering;
 using Cubed.Core;
@@ -106,6 +107,11 @@ namespace Cubed.Main.Testing {
 		int fpsFrames;
 
 		/// <summary>
+		/// Counter
+		/// </summary>
+		float tempCounter;
+
+		/// <summary>
 		/// Таймер
 		/// </summary>
 		Stopwatch sw;
@@ -117,8 +123,8 @@ namespace Cubed.Main.Testing {
 
 			// Handling logical update
 			engine.Filesystem = new FolderFileSystem() {
-				//RootFolder = @"D:\Sharp\Cubed\Project"
-				RootFolder = AppDomain.CurrentDomain.BaseDirectory + @"\Data"
+				RootFolder = @"D:\Sharp\Cubed\Project"
+				//RootFolder = AppDomain.CurrentDomain.BaseDirectory + @"\Data"
 			};
 			engine.UpdateLogic += engine_UpdateLogic;
 			//engine.MouseLock = true;
@@ -184,6 +190,7 @@ namespace Cubed.Main.Testing {
 				Texture ceilTex = new Texture("floor_005.bmp", Texture.LoadingMode.Queued) {
 					Filtering = Texture.FilterMode.Disabled
 				};
+				//wallLowerTex = wallTex = wallLampTex = floorTex = ceilTex = null;
 
 				// Chunk
 				for (int hgt = 0; hgt < 2; hgt++) {
@@ -224,7 +231,7 @@ namespace Cubed.Main.Testing {
 						for (int i = 0; i < 4; i++) {
 							wb[(Map.Side)i] = hgt == 1 ? ((x == 2 || x == 5) ? wallLampTex : wallTex) : wallLowerTex;
 						}
-						if (x == 2 || x == 5) {
+						if ((x == 2 || x == 5) && false) {
 							Light l = new Light();
 							l.Position = new Vector3(x + 0.5f, 0.5f + hgt, 1.1f);
 							l.Range = 6f;
@@ -290,6 +297,29 @@ namespace Cubed.Main.Testing {
 					
 					map[0, hgt, 0] = chunk;
 				}
+
+				for (int i = 0; i < 2; i++) {
+					Light lgd = new Light();
+					lgd.Position = new Vector3(4f + (float)Math.Sin(tempCounter + (float)i * MathHelper.Pi) * 2.5f, 1.5f, 4f + (float)Math.Cos(tempCounter + (float)i * MathHelper.Pi) * 2.5f);
+					lgd.Range = 4f;
+					lgd.Color = (i % 2 == 1) ? Color.Red : Color.Blue;
+					lgd.Shadows = true;
+					lgd.Static = i > 0;
+					lgd.AddComponent(new WireCubeComponent() {
+						Size = Vector3.One * 0.15f
+					});
+					lights.Add(lgd);
+					scene.Entities.Add(lgd);
+
+					//if (i == 0) {
+						SoundSource soundComponent;
+						Audio.AudioTrack track = new Audio.AudioTrack("test.mp3", false);
+						lgd.AddComponent(soundComponent = new SoundSource(track));
+						soundComponent.Play();
+					//}
+					
+				}
+
 				scene.Map = map;
 
 
@@ -352,12 +382,24 @@ namespace Cubed.Main.Testing {
 				fpsFrames = 0;
 				sw.Start();
 
+
+				
+
 				// Setting scene
 				e.CurrentEngine.World = scene;
 				initialized = true;
 			}
 
 
+			for (int i = 0; i < lights.Count; i++) {
+				if (i == 1) {
+				//	continue;
+				}
+				lights[i].Position = new Vector3(4f + (float)Math.Sin(tempCounter + (float)i * MathHelper.Pi) * 2.5f, 1.5f, 4f + (float)Math.Cos(tempCounter + (float)i * MathHelper.Pi) * 2.5f);
+			}
+			
+
+			tempCounter += 0.01f;
 
 			// Moving camera
 			Vector2 rot = Controls.MouseDelta;

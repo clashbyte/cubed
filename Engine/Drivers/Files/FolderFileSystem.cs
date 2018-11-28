@@ -36,7 +36,7 @@ namespace Cubed.Drivers.Files {
 		/// <returns>Size in bytes</returns>
 		public override int Size(string file) {
 			if (Exists(file)) {
-				return (int)(new FileInfo(file)).Length;
+				return (int)(new FileInfo(calcPath(file))).Length;
 			}
 			return 0;
 		}
@@ -49,6 +49,18 @@ namespace Cubed.Drivers.Files {
 		public override byte[] Get(string file) {
 			if(Exists(file)) {
 				return File.ReadAllBytes(calcPath(file));
+			}
+			return null;
+		}
+
+		/// <summary>
+		/// Reading file stream
+		/// </summary>
+		/// <param name="file">File</param>
+		/// <returns>Stream or null</returns>
+		public override Stream GetStream(string file) {
+			if (Exists(file)) {
+				return new FileStream(calcPath(file), FileMode.Open, FileAccess.Read);
 			}
 			return null;
 		}

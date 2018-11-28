@@ -161,6 +161,7 @@ namespace Cubed.Forms.Common {
 		/// Run game test
 		/// </summary>
 		private void buildToolStripMenuItem_Click(object sender, EventArgs e) {
+			saveAllToolStripMenuItem_Click(sender, e);
 			Enabled = false;
 			Process.Start(new ProcessStartInfo() {
 				FileName = "Game.exe",

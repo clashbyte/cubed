@@ -10,6 +10,9 @@ using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
 using Cubed.Input;
 using Cubed.Drivers.Rendering;
+using System.Collections.Generic;
+using Cubed.Components.Audio;
+using Cubed.Audio;
 
 namespace Cubed.Core {
 	
@@ -81,6 +84,22 @@ namespace Cubed.Core {
 		}
 
 		/// <summary>
+		/// Audio engine
+		/// </summary>
+		internal AudioSystem AudioSystem {
+			get;
+			private set;
+		}
+
+		/// <summary>
+		/// Sound sources
+		/// </summary>
+		internal List<SoundSource> SoundComponents {
+			get;
+			private set;
+		}
+
+		/// <summary>
 		/// Console subsystem
 		/// </summary>
 		internal Cubed.UI.Console Console {
@@ -92,8 +111,7 @@ namespace Cubed.Core {
 		/// Количество отрисовок
 		/// </summary>
 		internal uint drawCalls;
-
-
+		
 		/// <summary>
 		/// Previous input state
 		/// </summary>
@@ -104,8 +122,10 @@ namespace Cubed.Core {
 		/// </summary>
 		public Engine() {
 			this.TextureCache = new TextureCache(this);
+			this.AudioSystem = new AudioSystem(this);
 			this.Console = new UI.Console();
 			this.inputSnapshot = new InputState.Snapshot();
+			this.SoundComponents = new List<SoundSource>();
 		}
 
 		/// <summary>
@@ -120,6 +140,9 @@ namespace Cubed.Core {
 		/// </summary>
 		public void Pause() {
 			Paused = true;
+			foreach (SoundSource soundComponent in SoundComponents) {
+				//soundComponent.Suspend();
+			}
 			// TODO: Pause logic
 		}
 
@@ -130,6 +153,9 @@ namespace Cubed.Core {
 			Paused = false;
 			if (World != null) {
 				World.ResetUpdateCounter();
+			}
+			foreach (SoundSource soundComponent in SoundComponents) {
+				//soundComponent.Resume();
 			}
 
 			// TODO: Unpause logic
@@ -147,12 +173,14 @@ namespace Cubed.Core {
 
 			// Updating controls
 			Controls.Update(state);
+			Caps.CheckErrors();
 
 			if (!Paused) {
 
 				// Updating world
 				if (World != null) {
 					World.Update();
+					Caps.CheckErrors();
 				}
 
 				// Updating world and scene
@@ -168,6 +196,7 @@ namespace Cubed.Core {
 				// Updating interface
 				if (Interface != null) {
 					Interface.Update(tween, state);
+					Caps.CheckErrors();
 				}
 			}
 			
@@ -186,6 +215,7 @@ namespace Cubed.Core {
 			Caps.CheckCaps();
 			TextureCache.Update();
 			drawCalls = 0;
+			Caps.CheckErrors();
 
 			if (!Paused) {
 
@@ -194,7 +224,7 @@ namespace Cubed.Core {
 				GL.Viewport(new Size((int)res.X, (int)res.Y));
 				GL.ClearColor(Color.Black);
 				GL.ClearAccum(0, 0, 0, 0);
-				GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit | ClearBufferMask.AccumBufferBit);
+				GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.AccumBufferBit);
 
 				// Rendering
 				if (World != null) {
@@ -204,6 +234,7 @@ namespace Cubed.Core {
 						}
 					}
 					World.Render();
+					Caps.CheckErrors();
 				}
 				if (Interface != null) {
 					GL.Enable(EnableCap.Blend);
@@ -212,7 +243,7 @@ namespace Cubed.Core {
 
 					Interface.Setup(Vector2.Zero, res);
 					Interface.Render();
-
+					Caps.CheckErrors();
 					GL.Disable(EnableCap.Blend);
 				}
 				Console.Render();

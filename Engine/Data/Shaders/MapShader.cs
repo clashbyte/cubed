@@ -1,5 +1,6 @@
 ﻿using System.Drawing;
 using Cubed.Graphics;
+using OpenTK;
 
 namespace Cubed.Data.Shaders {
 	
@@ -67,6 +68,15 @@ namespace Cubed.Data.Shaders {
 		}
 
 		/// <summary>
+		/// Расположение буффера вершин
+		/// </summary>
+		public int NormalsBufferLocation {
+			get {
+				return normalAttrib.Handle;
+			}
+		}
+
+		/// <summary>
 		/// Основной цвет
 		/// </summary>
 		public Color AmbientColor {
@@ -126,24 +136,57 @@ namespace Cubed.Data.Shaders {
 			}
 		}
 
+		/// <summary>
+		/// Fog color
+		/// </summary>
+		public Color SunColor {
+			get {
+				return sunColor.Color;
+			}
+			set {
+				sunColor.Color = value;
+			}
+		}
+
+		/// <summary>
+		/// Sun matrix
+		/// </summary>
+		public Matrix4 SunMatrix {
+			get {
+				return sunMatrix.Matrix;
+			}
+			set {
+				sunMatrix.Matrix = value;
+			}
+		}
+
 		// Скрытые параметры
 		TextureUniform textureUniform;
 		TextureUniform lightmapUniform;
+		TextureUniform staticLightmapUniform;
+		TextureUniform sunMapUniform;
 		ColorUniform ambientColor;
 		ColorUniform fogColor;
+		ColorUniform sunColor;
 		MatrixUniform textureMatrix;
+		MatrixUniform sunMatrix;
 		BoolUniform fogEnabled;
 		FloatUniform fogNear;
 		FloatUniform fogFar;
 		VertexAttribute vertexAttrib;
 		VertexAttribute texCoordAttrib;
 		VertexAttribute lightCoordAttrib;
+		VertexAttribute normalAttrib;
 
 		// Конструктор
 		protected MapShader() : base() {
 			if (vertexAttrib == null) {
 				vertexAttrib = new VertexAttribute("inPosition");
 				attribs.Add(vertexAttrib);
+			}
+			if (normalAttrib == null) {
+				normalAttrib = new VertexAttribute("inNormal");
+				attribs.Add(normalAttrib);
 			}
 			if (texCoordAttrib == null) {
 				texCoordAttrib = new VertexAttribute("inTexCoord");
@@ -160,8 +203,18 @@ namespace Cubed.Data.Shaders {
 			}
 			if (lightmapUniform == null) {
 				lightmapUniform = new TextureUniform("lightmap");
-				lightmapUniform.Layer = 1;
+				lightmapUniform.Layer = 2;
 				uniforms.Add(lightmapUniform);
+			}
+			if (staticLightmapUniform == null) {
+				staticLightmapUniform = new TextureUniform("staticLightmap");
+				staticLightmapUniform.Layer = 1;
+				uniforms.Add(staticLightmapUniform);
+			}
+			if (sunMapUniform == null) {
+				sunMapUniform = new TextureUniform("sunMap");
+				sunMapUniform.Layer = 3;
+				uniforms.Add(sunMapUniform);
 			}
 			if (ambientColor == null) {
 				ambientColor = new ColorUniform("ambient");
@@ -170,6 +223,10 @@ namespace Cubed.Data.Shaders {
 			if (textureMatrix == null) {
 				textureMatrix = new MatrixUniform("textureMatrix");
 				uniforms.Add(textureMatrix);
+			}
+			if (sunMatrix == null) {
+				sunMatrix = new MatrixUniform("sunMatrix");
+				uniforms.Add(sunMatrix);
 			}
 			if (fogEnabled == null) {
 				fogEnabled = new BoolUniform("fog");
@@ -186,6 +243,10 @@ namespace Cubed.Data.Shaders {
 			if (fogFar == null) {
 				fogFar = new FloatUniform("fogFar");
 				uniforms.Add(fogFar);
+			}
+			if (sunColor == null) {
+				sunColor = new ColorUniform("sunColor");
+				uniforms.Add(sunColor);
 			}
 		}
 

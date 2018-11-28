@@ -11,17 +11,29 @@ namespace Cubed.Forms.Inspections.Fields {
 
 		string[] opts;
 
+		Array values;
+
 		public EnumFieldInspector()
 			: base() {
 				InitializeComponent();
 		}
 
 		public override void UpdateValue() {
-			opts = Enum.GetNames(Info.PropertyType);
-			comboBox.SuspendLayout();
-			comboBox.Items = string.Join("\n", opts);
-			comboBox.ResumeLayout();
-			comboBox.Enabled = Info.CanWrite;
+			customChange = true;
+			if (opts == null) {
+				opts = Enum.GetNames(Info.PropertyType);
+				values = Enum.GetValues(Info.PropertyType);
+				comboBox.SuspendLayout();
+				comboBox.Items = string.Join("\n", opts);
+				comboBox.ResumeLayout();
+				comboBox.Enabled = Info.CanWrite;
+			}
+			Array vals = Enum.GetValues(Info.PropertyType);
+			int idx = Array.IndexOf(vals, ReadValue());
+			if (idx != comboBox.SelectedIndex) {
+				comboBox.SelectedIndex = idx;
+			}
+			customChange = false;
 		}
 
 		private void InitializeComponent() {

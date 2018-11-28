@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using Cubed.Components;
 using Cubed.Components.Rendering;
 using Cubed.Data.Game.Attributes;
 using Cubed.Graphics;
@@ -130,6 +131,47 @@ namespace Cubed.Prefabs {
 		}
 
 		/// <summary>
+		/// Facing mode for sprite
+		/// </summary>
+		public FacingMode Facing {
+			get {
+				switch (sprite.Facing) {
+					case SpriteComponent.FacingMode.XY:
+						return FacingMode.All;
+					case SpriteComponent.FacingMode.Y:
+						return FacingMode.Horizontal;
+					default:
+						return FacingMode.None;
+				}
+			}
+			set {
+				switch (value) {
+					case FacingMode.None:
+						sprite.Facing = SpriteComponent.FacingMode.Disabled;
+						break;
+					case FacingMode.Horizontal:
+						sprite.Facing = SpriteComponent.FacingMode.Y;
+						break;
+					case FacingMode.All:
+						sprite.Facing = SpriteComponent.FacingMode.XY;
+						break;
+				}
+			}
+		}
+
+		/// <summary>
+		/// Facing mode for sprite
+		/// </summary>
+		public BlendingMode Blending {
+			get {
+				return (BlendingMode)((byte)sprite.Blending);
+			}
+			set {
+				sprite.Blending = (SpriteComponent.BlendingMode)((int)value);
+			}
+		}
+
+		/// <summary>
 		/// Enabled bounding box
 		/// </summary>
 		bool boundEnabled;
@@ -196,7 +238,7 @@ namespace Cubed.Prefabs {
 			base.Save(f);
 
 			// Writing version
-			f.Write((byte)2);
+			f.Write((byte)3);
 
 			// Writing data
 			f.Write(Texture != null);
@@ -224,6 +266,10 @@ namespace Cubed.Prefabs {
 			f.Write(BoundSize.X);
 			f.Write(BoundSize.Y);
 			f.Write(BoundSize.Z);
+
+			// Facing and blending
+			f.Write((byte)Facing);
+			f.Write((byte)Blending);
 
 		}
 
@@ -281,6 +327,14 @@ namespace Cubed.Prefabs {
 
 
 			}
+
+			if (ver >= 3) {
+
+				// Facing and blending config
+				Facing = (FacingMode)f.ReadByte();
+				Blending = (BlendingMode)f.ReadByte();
+
+			}
 		}
 
 		/// <summary>
@@ -295,6 +349,58 @@ namespace Cubed.Prefabs {
 			} else {
 				bound.BoxCollider = null;
 			}
+		}
+
+		/// <summary>
+		/// Sprite facing mode
+		/// </summary>
+		public enum FacingMode : byte {
+			
+			/// <summary>
+			/// No facing
+			/// </summary>
+			None = 0,
+			
+			/// <summary>
+			/// Facing only in horizontal
+			/// </summary>
+			Horizontal = 1,
+			
+			/// <summary>
+			/// Facing for all axis
+			/// </summary>
+			All = 2
+		}
+
+		/// <summary>
+		/// Sprite blending mode
+		/// </summary>
+		public enum BlendingMode : int {
+
+			/// <summary>
+			/// Alpha mixing
+			/// </summary>
+			AlphaChannel = EntityComponent.BlendingMode.AlphaChannel,
+			
+			/// <summary>
+			/// Mixing by brightness
+			/// </summary>
+			Brightness = EntityComponent.BlendingMode.Brightness,
+			
+			/// <summary>
+			/// Additive mixing
+			/// </summary>
+			Add = EntityComponent.BlendingMode.Add,
+			
+			/// <summary>
+			/// Multiply mixing
+			/// </summary>
+			Multiply = EntityComponent.BlendingMode.Multiply,
+			
+			/// <summary>
+			/// Forced opaque mixing
+			/// </summary>
+			ForceOpaque = EntityComponent.BlendingMode.ForceOpaque
 		}
 	}
 }

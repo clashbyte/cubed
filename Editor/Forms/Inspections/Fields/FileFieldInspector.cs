@@ -11,6 +11,7 @@ using Cubed.Data.Projects;
 using Cubed.Forms.Common;
 using Cubed.Data.EditorGlue.Attributes;
 using Cubed.Data.Editor.Previews;
+using Cubed.Audio;
 
 namespace Cubed.Forms.Inspections.Fields {
 	public partial class FileFieldInspector : FieldInspector {
@@ -56,6 +57,9 @@ namespace Cubed.Forms.Inspections.Fields {
 				} else if(Info.PropertyType == typeof(Image)) {
 					mode = PickerMode.RawImage;
 					fileDropper.AllowedTypes = ".png|.jpg|.jpeg|.png|.gif|.bmp";
+				} else if (Info.PropertyType == typeof(AudioTrack)) {
+					mode = PickerMode.Sound;
+					fileDropper.AllowedTypes = ".mp3|.wav|.ogg|.mid";
 				}
 			}
 		}
@@ -77,6 +81,9 @@ namespace Cubed.Forms.Inspections.Fields {
 				case PickerMode.Model:
 					break;
 				case PickerMode.Sound:
+					if (obj is AudioTrack) {
+						path = (obj as AudioTrack).Path;
+					}
 					break;
 				case PickerMode.StringFile:
 					path = obj as string;
@@ -96,10 +103,12 @@ namespace Cubed.Forms.Inspections.Fields {
 					en = Project.GetFile(path) as Project.Entry;
 				}
 			}
-			currentFile = en;
-			customUpdate = true;
-			fileDropper.File = currentFile;
-			customUpdate = false;
+			if (currentFile != en) {
+				customUpdate = true;
+				fileDropper.File = en;
+				customUpdate = false;
+				currentFile = en;	
+			}
 		}
 		
 		/// <summary>
@@ -120,6 +129,9 @@ namespace Cubed.Forms.Inspections.Fields {
 					case PickerMode.Model:
 						break;
 					case PickerMode.Sound:
+						if (fileDropper.File != null) {
+							value = new AudioTrack(fileDropper.File.Path);
+						}
 						break;
 					case PickerMode.StringFile:
 						if (fileDropper.File != null) {

@@ -78,7 +78,7 @@ namespace Cubed.World {
 		internal void Render() {
 
 			// Создание массивов
-			if (vertices == null || coords == null || indices == null) {
+			if (vertices == null || coords == null || indices == null || (Caps.ShaderPipeline && (!GL.IsBuffer(indexBuffer) || !GL.IsBuffer(vertexBuffer) || !GL.IsBuffer(texCoordBuffer)))) {
 
 				// Вершины
 				vertices = new float[] {
@@ -130,7 +130,7 @@ namespace Cubed.World {
 					}
 				}
 			}
-
+			
 			// Установка данных
 			if (Caps.ShaderPipeline) {
 
@@ -184,6 +184,9 @@ namespace Cubed.World {
 				GL.DisableClientState(ArrayCap.TextureCoordArray);
 				GL.DisableClientState(ArrayCap.VertexArray);
 			}
+
+			// Cleaning depth buffer
+			GL.Clear(ClearBufferMask.DepthBufferBit);
 
 		}
 
