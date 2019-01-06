@@ -13,11 +13,17 @@ namespace Cubed.UI {
 	/// </summary>
 	public abstract class Control {
 
+		/// <summary>
+		/// Flag for control enable
+		/// </summary>
 		public bool Enabled {
 			get;
 			set;
 		}
 
+		/// <summary>
+		/// Position
+		/// </summary>
 		public Vector2 Position {
 			get {
 				return position;
@@ -27,6 +33,9 @@ namespace Cubed.UI {
 			}
 		}
 
+		/// <summary>
+		/// Size
+		/// </summary>
 		public Vector2 Size {
 			get {
 				return size;
@@ -36,17 +45,26 @@ namespace Cubed.UI {
 			}
 		}
 
+		/// <summary>
+		/// Position anchor
+		/// </summary>
 		public AnchorMode Anchor {
 			get;
 			set;
 		}
 
+		/// <summary>
+		/// Internal real position
+		/// </summary>
 		protected Vector2 RealPosition {
 			get {
 				return realPosition;
 			}
 		}
 
+		/// <summary>
+		/// Internal real size
+		/// </summary>
 		protected Vector2 RealSize {
 			get {
 				return realSize;
@@ -78,6 +96,9 @@ namespace Cubed.UI {
 		/// </summary>
 		Vector2 paramResolution;
 
+		/// <summary>
+		/// Constructor for control
+		/// </summary>
 		public Control() {
 			Enabled = true;
 			Anchor = AnchorMode.TopLeft;

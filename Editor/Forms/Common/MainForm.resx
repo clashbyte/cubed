@@ -211,7 +211,7 @@
     <value>editorsControl</value>
   </data>
   <data name="&gt;&gt;editorsControl.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSProjectControl, Editor, Version=1.0.6903.32244, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSProjectControl, Editor, Version=1.0.6936.5091, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;editorsControl.Parent" xml:space="preserve">
     <value>propsContainer.Panel1</value>
@@ -247,7 +247,7 @@
     <value>inspector</value>
   </data>
   <data name="&gt;&gt;inspector.Type" xml:space="preserve">
-    <value>Cubed.Forms.Inspections.Inspector, Editor, Version=1.0.6903.32244, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.Forms.Inspections.Inspector, Editor, Version=1.0.6936.5091, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;inspector.Parent" xml:space="preserve">
     <value>propsContainer.Panel2</value>
@@ -319,7 +319,7 @@
     <value>engineControl1</value>
   </data>
   <data name="&gt;&gt;engineControl1.Type" xml:space="preserve">
-    <value>Cubed.Drivers.EngineControl, Editor, Version=1.0.6903.32244, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.Drivers.EngineControl, Editor, Version=1.0.6936.5091, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;engineControl1.Parent" xml:space="preserve">
     <value>filesContainer.Panel2</value>
@@ -349,12 +349,42 @@
     <value>projectControl</value>
   </data>
   <data name="&gt;&gt;projectControl.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSDirectoryInspector, Editor, Version=1.0.6903.32244, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSDirectoryInspector, Editor, Version=1.0.6936.5091, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;projectControl.Parent" xml:space="preserve">
     <value>panel1</value>
   </data>
   <data name="&gt;&gt;projectControl.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="volumeButton.IconImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        xAAADsQBlSsOGwAAAJRJREFUKFNjoBr49++fHhDvhHJxA6AiKSCeC8TP/wMBVBgkzgZmAMXqoNgBKBgE
+        xK+BuBOIBWAagGwmIF4LxDYgDSCwH4jrgAIgTXJgk4AAJAGigWKbgRhk2G6YBrAtYFVIACQBooEKq4A4
+        A4ifkq2BGCeFADHYSQQ9DQJA/nogtoJyEQAoiD9YcQGgAuIiDj9gYAAAwqTs/ZSffQEAAAAASUVORK5C
+        YII=
+</value>
+  </data>
+  <data name="volumeButton.Location" type="System.Drawing.Point, System.Drawing">
+    <value>4, 6</value>
+  </data>
+  <data name="volumeButton.Size" type="System.Drawing.Size, System.Drawing">
+    <value>25, 25</value>
+  </data>
+  <data name="volumeButton.TabIndex" type="System.Int32, mscorlib">
+    <value>9</value>
+  </data>
+  <data name="&gt;&gt;volumeButton.Name" xml:space="preserve">
+    <value>volumeButton</value>
+  </data>
+  <data name="&gt;&gt;volumeButton.Type" xml:space="preserve">
+    <value>Cubed.UI.Controls.NSCheckboxIconicButton, Editor, Version=1.0.6936.5091, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;volumeButton.Parent" xml:space="preserve">
+    <value>panel2</value>
+  </data>
+  <data name="&gt;&gt;volumeButton.ZOrder" xml:space="preserve">
     <value>0</value>
   </data>
   <data name="projectUpButton.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
@@ -385,13 +415,13 @@
     <value>projectUpButton</value>
   </data>
   <data name="&gt;&gt;projectUpButton.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSIconicButton, Editor, Version=1.0.6903.32244, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSIconicButton, Editor, Version=1.0.6936.5091, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;projectUpButton.Parent" xml:space="preserve">
     <value>panel2</value>
   </data>
   <data name="&gt;&gt;projectUpButton.ZOrder" xml:space="preserve">
-    <value>0</value>
+    <value>1</value>
   </data>
   <data name="projectPath.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Right</value>
@@ -409,13 +439,13 @@
     <value>projectPath</value>
   </data>
   <data name="&gt;&gt;projectPath.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSTextBox, Editor, Version=1.0.6903.32244, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSTextBox, Editor, Version=1.0.6936.5091, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;projectPath.Parent" xml:space="preserve">
     <value>panel2</value>
   </data>
   <data name="&gt;&gt;projectPath.ZOrder" xml:space="preserve">
-    <value>1</value>
+    <value>2</value>
   </data>
   <data name="panel2.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
     <value>Bottom</value>
@@ -484,7 +514,7 @@
     <value>projectFileInfo</value>
   </data>
   <data name="&gt;&gt;projectFileInfo.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSFileInfo, Editor, Version=1.0.6903.32244, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSFileInfo, Editor, Version=1.0.6936.5091, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;projectFileInfo.Parent" xml:space="preserve">
     <value>filesContainer.Panel2</value>
@@ -718,7 +748,7 @@
     <value>menuStrip</value>
   </data>
   <data name="&gt;&gt;menuStrip.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSMenuStrip, Editor, Version=1.0.6903.32244, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSMenuStrip, Editor, Version=1.0.6936.5091, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;menuStrip.Parent" xml:space="preserve">
     <value>$this</value>
@@ -748,7 +778,7 @@
     <value>projectCreateMenu</value>
   </data>
   <data name="&gt;&gt;projectCreateMenu.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSContextMenu, Editor, Version=1.0.6903.32244, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSContextMenu, Editor, Version=1.0.6936.5091, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <metadata name="projectPopupMenu.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>410, 17</value>
@@ -787,7 +817,7 @@
     <value>projectPopupMenu</value>
   </data>
   <data name="&gt;&gt;projectPopupMenu.Type" xml:space="preserve">
-    <value>Cubed.UI.Controls.NSContextMenu, Editor, Version=1.0.6903.32244, Culture=neutral, PublicKeyToken=null</value>
+    <value>Cubed.UI.Controls.NSContextMenu, Editor, Version=1.0.6936.5091, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>True</value>

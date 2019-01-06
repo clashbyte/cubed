@@ -83,6 +83,16 @@ namespace Cubed.Forms.Resources {
         /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap Door {
+            get {
+                object obj = ResourceManager.GetObject("Door", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap Environment {
             get {
                 object obj = ResourceManager.GetObject("Environment", resourceCulture);
@@ -113,9 +123,9 @@ namespace Cubed.Forms.Resources {
         /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap LevelEnd {
+        internal static System.Drawing.Bitmap LevelChange {
             get {
-                object obj = ResourceManager.GetObject("LevelEnd", resourceCulture);
+                object obj = ResourceManager.GetObject("LevelChange", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

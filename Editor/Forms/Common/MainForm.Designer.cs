@@ -36,9 +36,11 @@
 			this.tabPage1 = new System.Windows.Forms.TabPage();
 			this.tabPage2 = new System.Windows.Forms.TabPage();
 			this.inspector = new Cubed.Forms.Inspections.Inspector();
+			this.engineControl1 = new Cubed.Drivers.EngineControl();
 			this.panel1 = new System.Windows.Forms.Panel();
 			this.projectControl = new Cubed.UI.Controls.NSDirectoryInspector();
 			this.panel2 = new System.Windows.Forms.Panel();
+			this.volumeButton = new Cubed.UI.Controls.NSCheckboxIconicButton();
 			this.projectUpButton = new Cubed.UI.Controls.NSIconicButton();
 			this.projectPath = new Cubed.UI.Controls.NSTextBox();
 			this.projectFileInfo = new Cubed.UI.Controls.NSFileInfo();
@@ -80,7 +82,6 @@
 			this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
 			this.projectRenameMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.projectDeleteMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.engineControl1 = new Cubed.Drivers.EngineControl();
 			((System.ComponentModel.ISupportInitialize)(this.filesContainer)).BeginInit();
 			this.filesContainer.Panel1.SuspendLayout();
 			this.filesContainer.Panel2.SuspendLayout();
@@ -160,6 +161,12 @@
 			this.inspector.Target = null;
 			this.inspector.FieldChanged += new System.EventHandler(this.inspector_FieldChanged);
 			// 
+			// engineControl1
+			// 
+			this.engineControl1.Display = null;
+			resources.ApplyResources(this.engineControl1, "engineControl1");
+			this.engineControl1.Name = "engineControl1";
+			// 
 			// panel1
 			// 
 			this.panel1.Controls.Add(this.projectControl);
@@ -181,10 +188,25 @@
 			// 
 			// panel2
 			// 
+			this.panel2.Controls.Add(this.volumeButton);
 			this.panel2.Controls.Add(this.projectUpButton);
 			this.panel2.Controls.Add(this.projectPath);
 			resources.ApplyResources(this.panel2, "panel2");
 			this.panel2.Name = "panel2";
+			// 
+			// volumeButton
+			// 
+			this.volumeButton.Checked = false;
+			this.volumeButton.Corners.BottomLeft = true;
+			this.volumeButton.Corners.BottomRight = true;
+			this.volumeButton.Corners.TopLeft = true;
+			this.volumeButton.Corners.TopRight = true;
+			this.volumeButton.IconImage = ((System.Drawing.Image)(resources.GetObject("volumeButton.IconImage")));
+			this.volumeButton.IconSize = new System.Drawing.Size(12, 12);
+			this.volumeButton.Large = false;
+			resources.ApplyResources(this.volumeButton, "volumeButton");
+			this.volumeButton.Name = "volumeButton";
+			this.volumeButton.CheckedChanged += new Cubed.UI.Controls.NSCheckboxIconicButton.CheckedChangedEventHandler(this.volumeButton_CheckedChanged);
 			// 
 			// projectUpButton
 			// 
@@ -499,12 +521,6 @@
 			resources.ApplyResources(this.projectDeleteMenuItem, "projectDeleteMenuItem");
 			this.projectDeleteMenuItem.Click += new System.EventHandler(this.projectDeleteMenuItem_Click);
 			// 
-			// engineControl1
-			// 
-			this.engineControl1.Display = null;
-			resources.ApplyResources(this.engineControl1, "engineControl1");
-			this.engineControl1.Name = "engineControl1";
-			// 
 			// MainForm
 			// 
 			resources.ApplyResources(this, "$this");
@@ -592,5 +608,6 @@
 		private System.Windows.Forms.ToolStripMenuItem closeProjectToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem openInExplorerToolStripMenuItem;
 		private Drivers.EngineControl engineControl1;
+		private UI.Controls.NSCheckboxIconicButton volumeButton;
 	}
 }

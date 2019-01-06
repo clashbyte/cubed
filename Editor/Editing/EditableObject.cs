@@ -66,6 +66,16 @@ namespace Cubed.Editing {
 		}
 
 		/// <summary>
+		/// Spawn offset
+		/// </summary>
+		[InspectorHidden]
+		public virtual Vector3 SpawnOffset {
+			get {
+				return Vector3.One * 0.05f;
+			}
+		}
+
+		/// <summary>
 		/// Handling gizmos
 		/// </summary>
 		[InspectorHidden]

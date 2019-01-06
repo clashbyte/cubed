@@ -74,6 +74,7 @@ namespace Cubed.Forms.Common
 			// Registering form
 			Current = this;
 			UpdateTitle();
+			InitVolumeForm();
 
 			// Populating project hierarchy
 			Preview.PreviewReady += Preview_PreviewReady;
@@ -104,8 +105,6 @@ namespace Cubed.Forms.Common
 			tp.Tag = hpage;
 			hpage.Dock = DockStyle.Fill;
 			editorsControl.AddTab(tp, true);
-
-
 
 		}
 
@@ -157,7 +156,5 @@ namespace Cubed.Forms.Common
 				LogicUpdate(this, EventArgs.Empty);
 			}
 		}
-
-		
 	}
 }

@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Drawing;
 using System.Windows.Forms;
 using Cubed.Forms.Common;
 using Cubed.Forms.Resources;
+using Cubed.UI.Controls;
 using Cubed.UI.Graphics;
 
 namespace Cubed.Forms.Editors.Misc {
@@ -55,9 +49,19 @@ namespace Cubed.Forms.Editors.Misc {
 			tabIcon = new UIIcon(DirectoryInspectorIcons.Home);
 
 			SuspendLayout();
-			CefSharp.WinForms.ChromiumWebBrowser cwb = new CefSharp.WinForms.ChromiumWebBrowser("https://clashbyte.ru/cubed/home");
-			cwb.Dock = DockStyle.Fill;
-			Controls.Add(cwb);
+			if (Program.AllowBrowser) {
+				CefSharp.WinForms.ChromiumWebBrowser cwb = new CefSharp.WinForms.ChromiumWebBrowser("https://clashbyte.ru/cubed/home");
+				cwb.Dock = DockStyle.Fill;
+				Controls.Add(cwb);
+			} else {
+				NSLabel label = new NSLabel() {
+					Text = "Unable to find CEFSharp bindings",
+					Dock = DockStyle.Fill,
+					ForeColor = Color.LightGray,
+					TextAlign = ContentAlignment.MiddleCenter
+				};
+				Controls.Add(label);
+			}
 			ResumeLayout();
 		}
 	}

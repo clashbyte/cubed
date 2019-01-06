@@ -77,6 +77,7 @@ namespace Cubed.Forms.Common {
 				}
 
 				// Closing editor
+				ef.Close();
 				editorsControl.RemoveTab(tp);
 			}
 		}

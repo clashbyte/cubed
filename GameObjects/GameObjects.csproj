@@ -32,9 +32,8 @@
     <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="OpenTK, Version=3.0.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
-      <HintPath>..\packages\OpenTK.3.0.0-pre\lib\net20\OpenTK.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="OpenTK, Version=3.0.1.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
+      <HintPath>..\packages\OpenTK.3.0.1\lib\net20\OpenTK.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -48,8 +47,20 @@
   <ItemGroup>
     <Compile Include="Data\Game\Attributes\PrefabAttribute.cs" />
     <Compile Include="Formats\MapReader.cs" />
-    <Compile Include="Gameplay\LevelPlayer.cs" />
+    <Compile Include="Gameplay\Game.cs" />
+    <Compile Include="Gameplay\Hero.cs" />
+    <Compile Include="Gameplay\MapPlayer.cs" />
+    <Compile Include="Interface\LoadingScreen.cs" />
+    <Compile Include="Packed\Textures.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Textures.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Prefabs\Classes\IPlayerUsable.cs" />
     <Compile Include="Prefabs\GamePrefab.cs" />
+    <Compile Include="Prefabs\MapDoor.cs" />
+    <Compile Include="Prefabs\Triggers\LevelChangeTrigger.cs" />
+    <Compile Include="Prefabs\TriggerPrefab.cs" />
     <Compile Include="Prefabs\MapSound.cs" />
     <Compile Include="Prefabs\MapLight.cs" />
     <Compile Include="Prefabs\MapSprite.cs" />
@@ -63,10 +74,16 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Packed\Textures.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Textures.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
     <None Include="OpenTK.dll.config" />
     <None Include="packages.config" />
+    <None Include="Resources\loader.png" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

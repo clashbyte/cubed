@@ -2,9 +2,7 @@
 using Cubed.Core;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 
 namespace Cubed.Audio {
@@ -65,6 +63,19 @@ namespace Cubed.Audio {
 		}
 
 		/// <summary>
+		/// Releasing audio cache
+		/// </summary>
+		internal void Destroy() {
+			if (loadingThreads != null) {
+				foreach (Thread thread in loadingThreads) {
+					thread.Abort();
+				}
+				loadingThreads = null;
+			}
+			
+		}
+
+		/// <summary>
 		/// Thread checking
 		/// </summary>
 		void CheckThreads() {
@@ -75,6 +86,7 @@ namespace Cubed.Audio {
 					t.Priority = ThreadPriority.BelowNormal;
 					t.IsBackground = true;
 					t.Start();
+					loadingThreads[i] = t;
 				}
 			}
 		}

@@ -14,6 +14,7 @@ using Cubed.Data.Projects;
 using Cubed.Drivers.Files;
 using Cubed.Drivers.Rendering;
 using Cubed.Editing;
+using Cubed.Editing.Gizmos;
 using Cubed.Forms.Common;
 using Cubed.Forms.Resources;
 using Cubed.Graphics;
@@ -153,6 +154,21 @@ namespace Cubed.Forms.Editors.Map {
 		/// </summary>
 		protected override void OnClosed(EventArgs e) {
 			Project.EntriesChangedEvent -= Project_EntriesChangedEvent;
+
+			// Clearing up all data
+			foreach (EditableObject eo in sceneSelectedObjects) {
+				Gizmo[] gizmos = eo.ControlGizmos;
+				eo.Deselect(scene);
+				foreach (Gizmo gz in eo.ControlGizmos) {
+					gz.Unassign(scene);
+				}
+			}
+			foreach (EditableObject eo in sceneObjects) {
+				eo.Destroy(scene);
+			}
+			engine.Destroy();
+
+			// Base closing
 			base.OnClosed(e);
 		}
 
@@ -207,32 +223,44 @@ namespace Cubed.Forms.Editors.Map {
 			// Updating controls
 			UpdateControls();
 
-			// Updating textures
-			UpdateTextureAnimators();
+			// Updating volume
+			float volumeMul = soundsEnabledFlag.Checked ? 1f : 0f;
+			engine.AudioSystem.MusicVolume = volumeMul;
+			engine.AudioSystem.SoundsVolume = volumeMul;
 
-			// Grid movement
-			float gheight = grid.Position.Y;
-			float gtarget = gridHeight;
-			if ((cam.Position.Y < gridHeight + 1) && (cam.Angles.X < 0)) {
-				gtarget += 1;
-			}
-			if (Math.Abs(gheight - gtarget) < 0.001f) {
-				gheight = gtarget;
+			// Updating game state
+			if (isPlayModeEnabled) {
+
+				// Updating gameplay
+				UpdatePlayMode();
+
 			} else {
-				gheight += (gtarget - gheight) * 0.4f;
-			}
-			grid.Position = new Vector3(
-				(float)System.Math.Floor(cam.Position.X),
-				gheight,
-				(float)System.Math.Floor(cam.Position.Z)
-			);
-			grid.Visible = !walkModeEnable.Checked;
 
-			// Updating wobble
-			wobble = (wobble + 0.01f) % 1f;
+				// Updating textures
+				UpdateTextureAnimators();
 
-			// Updating tools
-			if (!walkModeEnable.Checked) {
+				// Grid movement
+				float gheight = grid.Position.Y;
+				float gtarget = gridHeight;
+				if ((cam.Position.Y < gridHeight + 1) && (cam.Angles.X < 0)) {
+					gtarget += 1;
+				}
+				if (Math.Abs(gheight - gtarget) < 0.001f) {
+					gheight = gtarget;
+				} else {
+					gheight += (gtarget - gheight) * 0.4f;
+				}
+				grid.Position = new Vector3(
+					(float)System.Math.Floor(cam.Position.X),
+					gheight,
+					(float)System.Math.Floor(cam.Position.Z)
+				);
+				grid.Visible = !walkModeEnable.Checked;
+
+				// Updating wobble
+				wobble = (wobble + 0.01f) % 1f;
+
+				// Updating tools
 				switch (currentTool) {
 					case ToolType.Select:
 						SelectToolUpdate();
@@ -254,7 +282,7 @@ namespace Cubed.Forms.Editors.Map {
 						break;
 				}
 			}
-
+			
 			// Handling mouse look
 			if (prevAllowLook != allowMouseLook) {
 				MainForm.UpdateEditingMenu();
@@ -267,6 +295,8 @@ namespace Cubed.Forms.Editors.Map {
 		public override void Pause() {
 			base.Pause();
 			engine.Pause();
+			engine.AudioSystem.MusicVolume = 0;
+			engine.AudioSystem.SoundsVolume = 0;
 		}
 
 		/// <summary>
@@ -363,13 +393,6 @@ namespace Cubed.Forms.Editors.Map {
 		/// </summary>
 		private void walkModeEnable_CheckedChanged(object sender) {
 			if (walkModeEnable.Checked) {
-				foreach (EditableObject eo in sceneObjects) {
-					eo.StartPlayMode(scene);
-				}
-				scene.Camera = playerCamera;
-				player.Position = cam.Position;
-				playerCamHolder.Angles = cam.Angles;
-				playerController.Reset();
 				display.MouseLock = true;
 				switch (currentTool) {
 					case ToolType.Select:
@@ -392,11 +415,8 @@ namespace Cubed.Forms.Editors.Map {
 						break;
 				}
 				screen.Focus();
+				StartPlayMode();
 			} else {
-				foreach (EditableObject eo in sceneObjects) {
-					eo.StopPlayMode(scene);
-				}
-				scene.Camera = cam;
 				display.MouseLock = false;
 				switch (currentTool) {
 					case ToolType.Select:
@@ -418,6 +438,7 @@ namespace Cubed.Forms.Editors.Map {
 						LogicToolOpen();
 						break;
 				}
+				StopPlayMode();
 			}
 			MainForm.UpdateEditingMenu();
 		}
@@ -426,10 +447,7 @@ namespace Cubed.Forms.Editors.Map {
 		/// Showing environment parameters
 		/// </summary>
 		private void envOptionsButton_Click(object sender, EventArgs e) {
-			foreach (EditableObject eo in sceneSelectedObjects) {
-				eo.Deselect(scene);
-			}
-			sceneSelectedObjects.Clear();
+			SelectEntities(null);
 			InspectingObject = environment;
 		}
 
@@ -472,7 +490,11 @@ namespace Cubed.Forms.Editors.Map {
 		/// Sounds flag
 		/// </summary>
 		private void soundsEnabledFlag_CheckedChanged(object sender) {
+			if (soundsEnabledFlag.Checked) {
 
+			} else {
+
+			}
 		}
 
 		/// <summary>

@@ -9,6 +9,7 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
 using Cubed.Audio.Decoders;
+using System;
 
 namespace Cubed.Audio {
 
@@ -16,6 +17,30 @@ namespace Cubed.Audio {
 	/// Internal audio system
 	/// </summary>
 	public class AudioSystem {
+
+		/// <summary>
+		/// All music volume
+		/// </summary>
+		public float MusicVolume {
+			get {
+				return musicVol;
+			}
+			set {
+				musicVol = Math.Min(Math.Max(value, 0f), 1f);
+			}
+		}
+
+		/// <summary>
+		/// Sounds volume
+		/// </summary>
+		public float SoundsVolume {
+			get {
+				return soundVol;
+			}
+			set {
+				soundVol = Math.Min(Math.Max(value, 0f), 1f);
+			}
+		}
 
 		/// <summary>
 		/// Audio cache
@@ -61,6 +86,36 @@ namespace Cubed.Audio {
 		object _lock;
 
 		/// <summary>
+		/// Flag for destroying state
+		/// </summary>
+		bool destroying;
+
+		/// <summary>
+		/// Internal sound volume value
+		/// </summary>
+		float soundVol;
+
+		/// <summary>
+		/// Music volume value
+		/// </summary>
+		float musicVol;
+
+		/// <summary>
+		/// Check for OpenAL
+		/// </summary>
+		/// <returns>True if library exists</returns>
+		public static bool OpenALExists() {
+			try {
+				AudioContext ac = new AudioContext();
+				ac.MakeCurrent();
+				ac.Dispose();
+			} catch (DllNotFoundException) {
+				return false;
+			}
+			return true;
+		}
+
+		/// <summary>
 		/// Constructor
 		/// </summary>
 		/// <param name="eng">Internal engine</param>
@@ -71,6 +126,9 @@ namespace Cubed.Audio {
 			sourcesToDestroy = new ConcurrentQueue<Source>();
 			Cache = new AudioCache(eng);
 			_lock = new object();
+
+			soundVol = 1f;
+			musicVol = 1f;
 
 			// Creating thread
 			audioThread = new Thread(ThreadedWork);
@@ -92,9 +150,8 @@ namespace Cubed.Audio {
 
 			System.Diagnostics.Debug.WriteLine("[Engine] Running on AL " + AudioContext.DefaultDevice);
 			
-
 			// Endless loop
-			while (true) {
+			while (!destroying) {
 
 				// Setting up camera
 				if (engine != null && engine.World != null && engine.World.Camera != null) {
@@ -139,6 +196,13 @@ namespace Cubed.Audio {
 				// Sleeping
 				Thread.Sleep(0);
 			}
+
+			// Releasing all sources
+			lock (_lock) {
+				foreach (Source source in sources) {
+					source.Release();
+				}
+			}
 		}
 
 		/// <summary>
@@ -166,6 +230,19 @@ namespace Cubed.Audio {
 			if (!sourcesToDestroy.Contains(source)) {
 				sourcesToDestroy.Enqueue(source);
 			}
+		}
+
+		/// <summary>
+		/// Destroying system
+		/// </summary>
+		internal void Destroy() {
+			// Waiting for main thread
+			destroying = true;
+			audioThread.Join();
+
+			// Releasing cache
+			Cache.Destroy();
+			Cache = null;
 		}
 
 		/// <summary>
@@ -275,6 +352,29 @@ namespace Cubed.Audio {
 			}
 
 			/// <summary>
+			/// Sound channel mode
+			/// </summary>
+			public SoundChannels Channels {
+				get {
+					return channels;
+				}
+				set {
+					if (channels != value) {
+						channels = value;
+						dirtyChannels = true;
+					}
+				}
+			}
+
+			/// <summary>
+			/// Sound playback channel
+			/// </summary>
+			public SoundGroup Group {
+				get;
+				set;
+			}
+
+			/// <summary>
 			/// Current track
 			/// </summary>
 			AudioTrack track;
@@ -293,6 +393,11 @@ namespace Cubed.Audio {
 			/// Position
 			/// </summary>
 			bool dirtyPos;
+
+			/// <summary>
+			/// Flag for recheck audio transform
+			/// </summary>
+			bool dirtyChannels;
 
 			/// <summary>
 			/// Flag for streaming
@@ -325,6 +430,11 @@ namespace Cubed.Audio {
 			float speed;
 
 			/// <summary>
+			/// Swapping channels
+			/// </summary>
+			SoundChannels channels;
+
+			/// <summary>
 			/// Paused flag
 			/// </summary>
 			bool paused;
@@ -335,6 +445,11 @@ namespace Cubed.Audio {
 			bool playing;
 
 			/// <summary>
+			/// Current state: 0-stopped, 1-paused, 2-playing
+			/// </summary>
+			int state;
+
+			/// <summary>
 			/// Internal OpenAL source
 			/// </summary>
 			int alSource;
@@ -343,11 +458,6 @@ namespace Cubed.Audio {
 			/// Hidden AL buffers
 			/// </summary>
 			int[] alBuffers;
-
-			/// <summary>
-			/// Current buffer index
-			/// </summary>
-			int bufferPointer;
 
 			/// <summary>
 			/// Previous data
@@ -388,6 +498,7 @@ namespace Cubed.Audio {
 				dirty = true;
 				dirtyPos = true;
 				alSource = AL.GenSource();
+				state = 0;
 				CheckParameters();
 			}
 			
@@ -409,6 +520,7 @@ namespace Cubed.Audio {
 					}
 					if (track == null || track.Entry == null) {
 						AL.SourceStop(alSource);
+						state = 0;
 						trackReady = true;
 					} else {
 						CheckTrackReady();
@@ -421,20 +533,23 @@ namespace Cubed.Audio {
 					}
 
 					if (pl && !paused) {
-						if (currentState != ALSourceState.Playing) {
+						if (state != 2) {
 							AL.SourcePlay(alSource);
+							state = 2;
 						}
 
 						// Updating effects
 						efx.SourceUpdate(alSource);
 
 					} else if(pl && paused) {
-						if (currentState != ALSourceState.Paused) {
+						if (state != 1) {
 							AL.SourcePause(alSource);
+							state = 1;
 						}
 					} else {
-						if (currentState != ALSourceState.Stopped) {
+						if (state != 0) {
 							AL.SourceStop(alSource);
+							state = 0;
 						}
 					}
 
@@ -518,6 +633,13 @@ namespace Cubed.Audio {
 			/// Applying params
 			/// </summary>
 			void CheckParameters() {
+				float vol = volume;
+				if (Group == SoundGroup.Ambient || Group == SoundGroup.Music) {
+					vol *= Parent.musicVol;
+				} else {
+					vol *= Parent.soundVol;
+				}
+				AL.Source(alSource, ALSourcef.Gain, vol);
 				if (dirtyPos) {
 					Vector3 zero = Vector3.Zero;
 					Vector3 pos = no3D ? Vector3.Zero : position;
@@ -528,10 +650,13 @@ namespace Cubed.Audio {
 				}
 				if (dirty) {
 					AL.Source(alSource, ALSourceb.SourceRelative, no3D);
-					AL.Source(alSource, ALSourcef.Gain, speed);
-					AL.Source(alSource, ALSourcef.Pitch, 1);
+					AL.Source(alSource, ALSourcef.Pitch, speed);
 					AL.Source(alSource, ALSourceb.Looping, loop && !streaming);
 					dirty = false;
+				}
+				if (dirtyChannels) {
+					SetTrack(track, true);
+					dirtyChannels = false;
 				}
 			}
 
@@ -551,6 +676,13 @@ namespace Cubed.Audio {
 			/// Releasing buffers
 			/// </summary>
 			void ReleaseBuffers() {
+				if (alSource != 0) {
+					int queued = 0;
+					AL.GetSource(alSource, ALGetSourcei.BuffersQueued, out queued);
+					if (queued > 0) {
+						AL.SourceUnqueueBuffers(alSource, queued);
+					}
+				}
 				if (alBuffers != null) {
 					foreach (int buffer in alBuffers) {
 						if (buffer != 0 && AL.IsBuffer(buffer)) {
@@ -569,6 +701,8 @@ namespace Cubed.Audio {
 			/// </summary>
 			void CheckTrackReady() {
 				if (needCleanup) {
+					AL.Source(alSource, ALSourceb.Looping, false);
+					AL.SourceStop(alSource);
 					ReleaseBuffers();
 					needCleanup = false;
 				}
@@ -585,13 +719,13 @@ namespace Cubed.Audio {
 							}
 
 							// Disable looping
-							AL.Source(alSource, ALSourceb.Looping, false);
+							dirty = true;
+							CheckParameters();
 
 							// Creating ring buffer
 							prevData = -1;
 							for (int i = 0; i < STREAM_BUFFERS; i++) {
 								AudioDecoder.AudioData ad = GetNextData();
-								prevData = ad.NextData;
 								PopulateBuffer(alBuffers[i], ad);
 								AL.SourceQueueBuffer(alSource, alBuffers[i]);
 
@@ -603,7 +737,8 @@ namespace Cubed.Audio {
 						} else {
 
 							// Enable looping
-							AL.Source(alSource, ALSourceb.Looping, loop);
+							dirty = true;
+							CheckParameters();
 
 							// Instant loading to single buffer
 							prevData = -1;
@@ -611,9 +746,12 @@ namespace Cubed.Audio {
 							AL.Source(alSource, ALSourcei.Buffer, alBuffers[0]);
 
 						}
+						state = paused ? 1 : 0;
 						if (playing && !paused) {
+							dirty = true;
 							CheckParameters();
 							AL.SourcePlay(alSource);
+							state = 2;
 						}
 						trackReady = true;
 					}
@@ -626,11 +764,92 @@ namespace Cubed.Audio {
 			/// <param name="buffer">Buffer to populate</param>
 			/// <param name="data">Data</param>
 			void PopulateBuffer(int buffer, AudioDecoder.AudioData data) {
-				ALFormat format = data.Depth == 16 ? ALFormat.Mono16 : ALFormat.Mono8;
-				if (data.Channels == 2) {
-					format = data.Depth == 16 ? ALFormat.Stereo16 : ALFormat.Stereo8;
+
+				// Processing data
+				int depth = data.Depth;
+				int chnum = data.Channels;
+				byte[] sdata = data.Data;
+				if (data.Channels == 2 && channels != SoundChannels.Auto) {
+					if (channels == SoundChannels.Swap) {
+						byte[] ndata = new byte[sdata.Length];
+						int pos = 0;
+						while (pos < ndata.Length) {
+							if (depth == 16) {
+								ndata[pos + 0] = sdata[pos + 2];
+								ndata[pos + 1] = sdata[pos + 3];
+								ndata[pos + 2] = sdata[pos + 0];
+								ndata[pos + 3] = sdata[pos + 1];
+							} else {
+								ndata[pos + 0] = sdata[pos + 1];
+								ndata[pos + 1] = sdata[pos + 0];
+							}
+							pos += depth / 4;
+						}
+						sdata = ndata;
+					} else if(channels == SoundChannels.MixedMono) {
+						byte[] ndata = new byte[sdata.Length / 2];
+						float[] leftData = new float[ndata.Length / (depth / 8)];
+						float[] rightData = new float[leftData.Length];
+						if (depth == 16) {
+							for (int i = 0; i < sdata.Length; i += 4) {
+								int pos = i / 4;
+								leftData[pos] = (float)BitConverter.ToInt16(sdata, i) / 32768f + 0.5f;
+								rightData[pos] = (float)BitConverter.ToInt16(sdata, i + 2) / 32768f + 0.5f;
+								leftData[pos] = Math.Min(Math.Max(leftData[pos], 0), 1);
+								rightData[pos] = Math.Min(Math.Max(rightData[pos], 0), 1);
+							}
+						} else {
+							for (int i = 0; i < sdata.Length; i += 2) {
+								int pos = i / 2;
+								leftData[pos] = (float)sdata[i + 0] / 255f;
+								rightData[pos] = (float)sdata[i + 1] / 255f;
+							}
+						}
+						for (int i = 0; i < leftData.Length; i++) {
+							float a = leftData[i];
+							float b = rightData[i];
+							float mix = 0;
+							if (a < 0.5f || b < 0.5f) {
+								mix = a * b * 2f;
+							} else {
+								mix = 2f * (a + b) - a * b * 2f - 1f;
+							}
+							if (depth == 16) {
+								int mx = (int)(mix * 65535f) - 32768;
+								int ps = i * 2;
+								ndata[ps + 0] = (byte)((mx) & 0xff);
+								ndata[ps + 1] = (byte)((mx >> 8) & 0xff);
+							} else {
+								ndata[i] = (byte)(mix * 255f);
+							}
+						}
+						sdata = ndata;
+						chnum = 1;
+					} else {
+						byte[] ndata = new byte[sdata.Length / 2];
+						int pos = channels == SoundChannels.RightMono ? depth / 8 : 0;
+						int npos = 0;
+						while (npos < ndata.Length) {
+							if (depth == 16) {
+								ndata[npos + 0] = sdata[pos + 0];
+								ndata[npos + 1] = sdata[pos + 1];
+							} else {
+								ndata[npos] = sdata[pos];
+							}
+							pos += depth / 4;
+							npos += depth / 8;
+						}
+						sdata = ndata;
+						chnum = 1;
+					}
 				}
-				AL.BufferData<byte>(buffer, format, data.Data, data.Data.Length, data.Samples);
+
+				// Sending to AL
+				ALFormat format = depth == 16 ? ALFormat.Mono16 : ALFormat.Mono8;
+				if (chnum == 2) {
+					format = depth == 16 ? ALFormat.Stereo16 : ALFormat.Stereo8;
+				}
+				AL.BufferData<byte>(buffer, format, sdata, sdata.Length, data.Samples);
 			}
 
 			/// <summary>
@@ -647,6 +866,84 @@ namespace Cubed.Audio {
 				prevData = data.NextData;
 				return data;
 			}
+		}
+
+		/// <summary>
+		/// Sound channel
+		/// </summary>
+		public enum SoundGroup {
+
+			/// <summary>
+			/// Music channel
+			/// </summary>
+			Music,
+
+			/// <summary>
+			/// Ambient sounds
+			/// </summary>
+			Ambient,
+
+			/// <summary>
+			/// Map generic sounds
+			/// </summary>
+			MapSound,
+
+			/// <summary>
+			/// Player sounds
+			/// </summary>
+			Player,
+
+			/// <summary>
+			/// Enemy sounds
+			/// </summary>
+			Enemy,
+
+			/// <summary>
+			/// Effect sounds
+			/// </summary>
+			Effect,
+
+			/// <summary>
+			/// Gunshots
+			/// </summary>
+			Weapon,
+
+			/// <summary>
+			/// Interface
+			/// </summary>
+			UI
+
+		}
+		
+		/// <summary>
+		/// Sound channel mode
+		/// </summary>
+		public enum SoundChannels : int {
+
+			/// <summary>
+			/// Automatic
+			/// </summary>
+			Auto		= 0,
+
+			/// <summary>
+			/// Force left channel mono
+			/// </summary>
+			LeftMono	= 1,
+
+			/// <summary>
+			/// Force right channel mono
+			/// </summary>
+			RightMono	= 2,
+
+			/// <summary>
+			/// Force mixed down mono
+			/// </summary>
+			MixedMono	= 3,
+
+			/// <summary>
+			/// Swapping channels
+			/// </summary>
+			Swap		= 4
 		}
 	}
 }

@@ -16,6 +16,18 @@ namespace Cubed.Prefabs {
 	public class MapLight : GamePrefab {
 
 		/// <summary>
+		/// Checks for light change
+		/// </summary>
+		public override bool Ready {
+			get {
+				if (light != null) {
+					return !light.IsChanged;
+				}
+				return true;
+			}
+		}
+
+		/// <summary>
 		/// Light color
 		/// </summary>
 		public Color Color {
@@ -114,7 +126,7 @@ namespace Cubed.Prefabs {
 		/// Updating entity
 		/// </summary>
 		public override void Update() {
-			//light.TextureAngle += 5f;
+
 		}
 
 		/// <summary>

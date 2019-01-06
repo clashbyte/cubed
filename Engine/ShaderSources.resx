@@ -212,7 +212,7 @@ void main() {
 	float texU = clamp(temp.x / fullRange + 0.5, 0.0, 1.0);
 	float texV = clamp(temp.z / fullRange + 0.5, 0.0, 1.0);
 	texCoord = vec2(texU, texV);
-	normal = inNormal;
+	normal = (entityMatrix * vec4(inNormal, 0.0)).xyz;
 }</value>
   </data>
   <data name="MapShadowFragment" xml:space="preserve">

@@ -31,6 +31,36 @@ namespace Cubed.Editing {
 			}
 		}
 
+		public float Volume {
+			get {
+				return (Prefab as Prefabs.MapSound).Volume;
+			}
+			set {
+				(Prefab as Prefabs.MapSound).Volume = value;
+			}
+		}
+
+		public float Speed {
+			get {
+				return (Prefab as Prefabs.MapSound).Speed;
+			}
+			set {
+				(Prefab as Prefabs.MapSound).Speed = value;
+			}
+		}
+
+		/// <summary>
+		/// Audio track for playing
+		/// </summary>
+		public AudioSystem.SoundChannels Channels {
+			get {
+				return (Prefab as Prefabs.MapSound).Channel;
+			}
+			set {
+				(Prefab as Prefabs.MapSound).Channel = value;
+			}
+		}
+
 		/// <summary>
 		/// Range gizmos
 		/// </summary>
@@ -129,12 +159,15 @@ namespace Cubed.Editing {
 		public override void Destroy(Scene scene) {
 			if (Prefab != null) {
 				Prefab.Unassign(scene);
+				Prefab.Destroy();
 			}
 			if (Gizmo != null) {
 				scene.Entities.Remove(Gizmo);
+				Gizmo.Destroy();
 			}
 			if (SelectedGizmo != null) {
 				scene.Entities.Remove(SelectedGizmo);
+				SelectedGizmo.Destroy();
 			}
 		}
 

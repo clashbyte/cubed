@@ -123,6 +123,9 @@
   <data name="AffectedByLight" xml:space="preserve">
     <value>Воздействие света</value>
   </data>
+  <data name="AmbientLight" xml:space="preserve">
+    <value>Рассеянный свет</value>
+  </data>
   <data name="Angle" xml:space="preserve">
     <value>Поворот</value>
   </data>
@@ -141,14 +144,38 @@
   <data name="EmptyObject" xml:space="preserve">
     <value>Выберите объект для изменения свойств</value>
   </data>
+  <data name="Enabled" xml:space="preserve">
+    <value>Включен</value>
+  </data>
   <data name="EnvironmentInfo" xml:space="preserve">
     <value>Окружение карты</value>
   </data>
   <data name="EnvironmentInfoDesc" xml:space="preserve">
     <value>Параметры неба, освещения и звуков</value>
   </data>
+  <data name="EnvLightGroup" xml:space="preserve">
+    <value>Освещение</value>
+  </data>
   <data name="Facing" xml:space="preserve">
     <value>Режим вращения</value>
+  </data>
+  <data name="FogColor" xml:space="preserve">
+    <value>Цвет тумана</value>
+  </data>
+  <data name="FogFar" xml:space="preserve">
+    <value>Начало</value>
+  </data>
+  <data name="FogGroup" xml:space="preserve">
+    <value>Туман</value>
+  </data>
+  <data name="FogNear" xml:space="preserve">
+    <value>Конец</value>
+  </data>
+  <data name="LevelChange" xml:space="preserve">
+    <value>Финиш</value>
+  </data>
+  <data name="LevelChangeDesc" xml:space="preserve">
+    <value>Зона перехода на другую карту</value>
   </data>
   <data name="Light" xml:space="preserve">
     <value>Лампа</value>
@@ -177,6 +204,27 @@
   <data name="SizeGroup" xml:space="preserve">
     <value>Размеры</value>
   </data>
+  <data name="SkyBack" xml:space="preserve">
+    <value>Зад (-Z)</value>
+  </data>
+  <data name="SkyBottom" xml:space="preserve">
+    <value>Низ (-Y)</value>
+  </data>
+  <data name="SkyFront" xml:space="preserve">
+    <value>Перед (+Z)</value>
+  </data>
+  <data name="SkyGroup" xml:space="preserve">
+    <value>Небо</value>
+  </data>
+  <data name="SkyLeft" xml:space="preserve">
+    <value>Лево (-X)</value>
+  </data>
+  <data name="SkyRight" xml:space="preserve">
+    <value>Право (+X)</value>
+  </data>
+  <data name="SkyTop" xml:space="preserve">
+    <value>Верх (+Y)</value>
+  </data>
   <data name="Solid" xml:space="preserve">
     <value>Твёрдый</value>
   </data>
@@ -200,5 +248,11 @@
   </data>
   <data name="VisualGroup" xml:space="preserve">
     <value>Внешний вид</value>
+  </data>
+  <data name="Door" xml:space="preserve">
+    <value>Дверь</value>
+  </data>
+  <data name="DoorDesc" xml:space="preserve">
+    <value>Объект, разделяющий комнаты</value>
   </data>
 </root>

@@ -258,7 +258,7 @@ namespace Cubed.World {
 		/// <summary>
 		/// Destroying object
 		/// </summary>
-		public void Destroy() {
+		public virtual void Destroy() {
 			destroyed = true;
 			foreach (EntityComponent c in components) {
 				c.Destroy();

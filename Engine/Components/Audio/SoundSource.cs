@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Cubed.Audio;
-using Cubed.Audio.Decoders;
+﻿using Cubed.Audio;
 using Cubed.Core;
-using OpenTK.Audio.OpenAL;
 
 namespace Cubed.Components.Audio {
 
@@ -25,6 +19,79 @@ namespace Cubed.Components.Audio {
 				source.Track = value;
             }
         }
+
+		/// <summary>
+		/// Source volume
+		/// </summary>
+		public float Volume {
+			get {
+				return source.Volume;
+			}
+			set {
+				source.Volume = value;
+			}
+		}
+
+		/// <summary>
+		/// Source playing speed
+		/// </summary>
+		public float Pitch {
+			get {
+				return source.Speed;
+			}
+			set {
+				source.Speed = value;
+			}
+		}
+
+		/// <summary>
+		/// Source group
+		/// </summary>
+		public AudioSystem.SoundGroup Group {
+			get {
+				return source.Group;
+			}
+			set {
+				source.Group = value;
+			}
+		}
+
+		/// <summary>
+		/// Sound looping
+		/// </summary>
+		public bool Loop {
+			get {
+				return source.Loop;
+			}
+			set {
+				source.Loop = value;
+			}
+		}
+
+		/// <summary>
+		/// Disabling 3D mode
+		/// </summary>
+		public bool Disable3D {
+			get {
+				return source.Disable3D;
+			}
+			set {
+				source.Disable3D = value;
+			}
+		}
+
+		/// <summary>
+		/// Channel processing mode
+		/// </summary>
+		public AudioSystem.SoundChannels ChannelMod {
+			get {
+				return source.Channels;
+			}
+			set {
+				source.Channels = value;
+				
+			}
+		}
 		
 		/// <summary>
 		/// Hidden source
@@ -73,8 +140,15 @@ namespace Cubed.Components.Audio {
 		public void Stop() {
 			source.Stop();
 		}
-		
-		
-		
+
+		/// <summary>
+		/// Removing channel
+		/// </summary>
+		internal override void Destroy() {
+			base.Destroy();
+			source.Parent.ReleaseSource(source);
+			source = null;
+		}
+
 	}
 }

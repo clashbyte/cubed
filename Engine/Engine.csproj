@@ -42,9 +42,8 @@
     <Reference Include="NVorbis, Version=0.8.6.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\NVorbis.0.8.6\lib\net35\NVorbis.dll</HintPath>
     </Reference>
-    <Reference Include="OpenTK, Version=3.0.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
-      <HintPath>..\packages\OpenTK.3.0.0-pre\lib\net20\OpenTK.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="OpenTK, Version=3.0.1.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
+      <HintPath>..\packages\OpenTK.3.0.1\lib\net20\OpenTK.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -90,11 +89,13 @@
     <Compile Include="Drivers\Textures\GifImageLoader.cs" />
     <Compile Include="Drivers\Textures\BasicImageLoader.cs" />
     <Compile Include="Drivers\Textures\TextureLoader.cs" />
+    <Compile Include="Graphics\IconHelper.cs" />
     <Compile Include="Graphics\TextureAnimator.cs" />
     <Compile Include="Maths\Intersections.cs" />
     <Compile Include="Maths\Lerps.cs" />
     <Compile Include="Maths\Lines.cs" />
     <Compile Include="Maths\MapIntersections.cs" />
+    <Compile Include="UI\Basic\Rectangle.cs" />
     <Compile Include="World\Collider.cs" />
     <Compile Include="Components\Rendering\AnimatedMeshComponent.cs" />
     <Compile Include="Components\Rendering\MeshComponent.cs" />
@@ -156,11 +157,13 @@
     <Compile Include="UI\Themes\InterfaceTheme.cs" />
     <Compile Include="UI\UserInterface.cs" />
     <Compile Include="World\Camera.cs" />
+    <Compile Include="World\Door.cs" />
     <Compile Include="World\Entity.cs" />
     <Compile Include="World\Fog.cs" />
     <Compile Include="World\Light.cs" />
     <Compile Include="World\Map.cs" />
     <Compile Include="World\MapTriangulator.cs" />
+    <Compile Include="World\ObstructEntity.cs" />
     <Compile Include="World\Scene.cs" />
     <Compile Include="World\Skybox.cs" />
   </ItemGroup>

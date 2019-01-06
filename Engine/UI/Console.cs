@@ -133,7 +133,7 @@ namespace Cubed.UI {
 			GL.LoadMatrix(ref modl);
 			GL.Enable(EnableCap.Texture2D);
 			GL.Enable(EnableCap.Blend);
-			GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+			GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
 			// Background
 			Drawing.FilledBox(0, -offset, width, 640, Color.White, backTile, 1.5f, backOffset, backOffset);

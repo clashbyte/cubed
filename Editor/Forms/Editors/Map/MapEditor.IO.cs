@@ -76,6 +76,9 @@ namespace Cubed.Forms.Editors.Map {
 
 					// Reading map
 					if (data.Map != null) {
+						if (map != null) {
+							map.Destroy();
+						}
 						foreach (World.Map.Chunk ch in data.Map.GetAllChunks()) {
 							for (int y = 0; y < World.Map.Chunk.BLOCKS; y++) {
 								for (int x = 0; x < World.Map.Chunk.BLOCKS; x++) {
@@ -110,6 +113,7 @@ namespace Cubed.Forms.Editors.Map {
 						eo.Deselect(scene); 
 						foreach (Gizmo gz in eo.ControlGizmos) {
 							gz.Unassign(scene);
+							gz.Destroy();
 						}
 					}
 					foreach (EditableObject eo in sceneObjects) {
@@ -145,6 +149,8 @@ namespace Cubed.Forms.Editors.Map {
 						cam.Position = data.CameraPos;
 						cam.Angles = data.CameraAngle;
 						gridHeight = data.GridHeight;
+
+						ApplyEditorFlags(data.EditorFlags);
 					}
 
 				}
@@ -164,7 +170,7 @@ namespace Cubed.Forms.Editors.Map {
 			data.FogEnabled = environment.FogEnabled;
 			data.Fog = environment.FogData;
 			data.Ambient = environment.Ambient;
-			data.EditorFlags = 0;
+			data.EditorFlags = EncodeEditorFlags();
 			data.CameraPos = cam.Position;
 			data.CameraAngle = cam.Angles;
 			data.GridHeight = (int)gridHeight;
@@ -448,6 +454,27 @@ namespace Cubed.Forms.Editors.Map {
 			}
 			SelectEntities(sceneObjects.ToArray());
 		}
+
+		/// <summary>
+		/// Encoding current editor flags
+		/// </summary>
+		/// <returns>Computed number</returns>
+		int EncodeEditorFlags() {
+			return
+				(snapToGrid.Checked ? 1 : 0) |
+				(skyboxEnabledFlag.Checked ? 2 : 0) |
+				(lightsEnabledFlag.Checked ? 4 : 0) |
+				(soundsEnabledFlag.Checked ? 8 : 0);
+		}
 		
+		/// <summary>
+		/// Decoding and applying flags
+		/// </summary>
+		void ApplyEditorFlags(int flags) {
+			snapToGrid.Checked = (flags & 1) != 0;
+			skyboxEnabledFlag.Checked = (flags & 2) != 0;
+			lightsEnabledFlag.Checked = (flags & 4) != 0;
+			soundsEnabledFlag.Checked = (flags & 8) != 0;
+		}
 	}
 }

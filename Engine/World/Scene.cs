@@ -140,12 +140,15 @@ namespace Cubed.World {
 			// Updating map geometry
 			if (Map != null) {
 				List<Light> lightList = new List<Light>();
+				List<ObstructEntity> obstructorList = new List<ObstructEntity>();
 				foreach (Entity en in Entities) {
 					if (en is Light) {
 						lightList.Add(en as Light);
+					} else if(en is ObstructEntity) {
+						obstructorList.Add(en as ObstructEntity);
 					}
 				}
-				Map.Update(lightList, this);
+				Map.Update(lightList, obstructorList, this);
 				Caps.CheckErrors();
 			}
 
@@ -305,7 +308,7 @@ namespace Cubed.World {
 			if (needAlphaPass || needBlendPass) {
 				// Enabling blending
 				GL.Enable(EnableCap.Blend);
-				GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+				GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
 				// Alphatest pass
 				if (needAlphaPass) {
@@ -443,19 +446,19 @@ namespace Cubed.World {
 			protected override void RenderSingle(EntityComponent c) {
 				switch (c.RenditionBlending) {
 					case EntityComponent.BlendingMode.AlphaChannel:
-						GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+						GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 						break;
 					case EntityComponent.BlendingMode.Brightness:
-						GL.BlendFunc(BlendingFactorSrc.DstColor, BlendingFactorDest.Zero);
+						GL.BlendFunc(BlendingFactor.DstColor, BlendingFactor.Zero);
 						break;
 					case EntityComponent.BlendingMode.Add:
-						GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.One);
+						GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.One);
 						break;
 					case EntityComponent.BlendingMode.Multiply:
-						GL.BlendFunc(BlendingFactorSrc.DstColor, BlendingFactorDest.Zero);
+						GL.BlendFunc(BlendingFactor.DstColor, BlendingFactor.Zero);
 						break;
 					case EntityComponent.BlendingMode.ForceOpaque:
-						GL.BlendFunc(BlendingFactorSrc.One, BlendingFactorDest.Zero);
+						GL.BlendFunc(BlendingFactor.One, BlendingFactor.Zero);
 						break;
 
 				}

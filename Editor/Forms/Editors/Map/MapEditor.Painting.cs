@@ -267,7 +267,6 @@ namespace Cubed.Forms.Editors.Map {
 				Side = originSide,
 				UseCeiling = originCeilHint
 			};
-			hashes.Add(GetPaintCellHash(pi.Coords, pi.Side, pi.UseCeiling));
 			items.Push(pi);
 
 			while (items.Count > 0) {
@@ -308,11 +307,11 @@ namespace Cubed.Forms.Editors.Map {
 								// Trims
 								if (ceilHint) {
 									if ((block as World.Map.FloorBlock).CeilingTrim[side] != protoTex) {
-										return result.ToArray();
+										continue;
 									}
 								} else {
 									if ((block as World.Map.FloorBlock).FloorTrim[side] != protoTex) {
-										return result.ToArray();
+										continue;
 									}
 								}
 							}

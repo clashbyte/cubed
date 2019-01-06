@@ -279,12 +279,15 @@ namespace Cubed.Editing {
 		public override void Destroy(Scene scene) {
 			if (Prefab != null) {
 				Prefab.Unassign(scene);
+				Prefab.Destroy();
 			}
 			if (Gizmo != null) {
 				scene.Entities.Remove(Gizmo);
+				Gizmo.Destroy();
 			}
 			if (SelectedGizmo != null) {
 				scene.Entities.Remove(SelectedGizmo);
+				SelectedGizmo.Destroy();
 			}
 		}
 

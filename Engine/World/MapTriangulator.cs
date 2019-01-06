@@ -15,7 +15,7 @@ namespace Cubed.World {
 		/// <summary>
 		/// Texture pixels per single block
 		/// </summary>
-		const int TEXELS_PER_BLOCK = 16;
+		public const int TEXELS_PER_BLOCK = 16;
 
 		/// <summary>
 		/// Calculating light dimensions

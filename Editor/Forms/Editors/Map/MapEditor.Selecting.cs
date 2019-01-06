@@ -351,7 +351,8 @@ namespace Cubed.Forms.Editors.Map {
 			// Dragging new object on scene
 			if (draggingNewObject != null && pickedWorld) {
 				Vector3 newPos = pickPos - draggingNewObject.BoundPosition;
-				Vector3 bound = draggingNewObject.BoundSize / 2f + Vector3.One * 0.05f;
+				Vector3 offPos = draggingNewObject.SpawnOffset;
+				Vector3 bound = draggingNewObject.BoundSize / 2f + offPos;
 				switch (pickSide) {
 					case World.Map.Side.Forward:
 						newPos.Z += bound.Z; 
@@ -406,6 +407,9 @@ namespace Cubed.Forms.Editors.Map {
 		/// <param name="objects">Array of objects to select</param>
 		void SelectEntities(EditableObject[] objects) {
 			EditableObject inspectorObject = null;
+			if (objects == null) {
+				objects = new EditableObject[0];
+			}
 			if (!Input.Controls.KeyDown(Key.ShiftLeft)) {
 				bool flush = objects.Length == 0;
 				foreach (EditableObject seo in objects) {

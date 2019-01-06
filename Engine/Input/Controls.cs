@@ -71,6 +71,17 @@ namespace Cubed.Input {
 		}
 
 		/// <summary>
+		/// Check for any key just pressed
+		/// </summary>
+		/// <returns></returns>
+		public static bool AnyKeyHit() {
+			if (state != null) {
+				return state.AnyKeyHit();
+			}
+			return false;
+		}
+
+		/// <summary>
 		/// Check for key just pressed
 		/// </summary>
 		/// <param name="key">Key</param>

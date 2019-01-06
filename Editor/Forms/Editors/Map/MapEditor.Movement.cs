@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Cubed.Components.Controls;
 using Cubed.Forms.Common;
 using Cubed.World;
@@ -28,6 +25,7 @@ namespace Cubed.Forms.Editors.Map {
 
 			if (walkModeEnable.Checked) {
 
+				/*
 				// Moving camera
 				Vector2 rot = Input.Controls.MouseDelta;
 				Vector2 mov = Input.Controls.Movement * (Input.Controls.KeyDown(Key.LShift) ? 0.1f : 0.06f);
@@ -76,6 +74,7 @@ namespace Cubed.Forms.Editors.Map {
 					playerLandDisp = Math.Min(playerController.LandVelocity * 3f, 0.5f);
 				}
 				playerLandDisp *= 0.85f;
+				*/
 
 				// Exiting walk mode
 				if (Input.Controls.KeyHit(Key.Escape)) {

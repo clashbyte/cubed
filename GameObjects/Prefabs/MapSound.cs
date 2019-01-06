@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using Cubed.Audio;
 using Cubed.Components.Audio;
+using Cubed.Core;
 using Cubed.Data.Game.Attributes;
-using Cubed.Graphics;
 using Cubed.World;
 
 namespace Cubed.Prefabs {
@@ -28,7 +24,43 @@ namespace Cubed.Prefabs {
 				source.Track = value;
 			}
 		}
-		
+
+		/// <summary>
+		/// Volume
+		/// </summary>
+		public float Volume {
+			get {
+				return source.Volume;
+			}
+			set {
+				source.Volume = value;
+			}
+		}
+
+		/// <summary>
+		/// Sound speed
+		/// </summary>
+		public float Speed {
+			get {
+				return source.Pitch;
+			}
+			set {
+				source.Pitch = value;
+			}
+		}
+
+		/// <summary>
+		/// Channel modification
+		/// </summary>
+		public AudioSystem.SoundChannels Channel {
+			get {
+				return source.ChannelMod;
+			}
+			set {
+				source.ChannelMod = value;
+			}
+		}
+
 		/// <summary>
 		/// Source entity
 		/// </summary>
@@ -70,13 +102,6 @@ namespace Cubed.Prefabs {
 		}
 
 		/// <summary>
-		/// Updating entity
-		/// </summary>
-		public override void Update() {
-			//light.TextureAngle += 5f;
-		}
-
-		/// <summary>
 		/// Saving to file
 		/// </summary>
 		/// <param name="f">Binary writer</param>
@@ -84,28 +109,19 @@ namespace Cubed.Prefabs {
 			base.Save(f);
 
 			// Writing version
-			f.Write((byte)0);
+			f.Write((byte)1);
 
-			/*
-			// Color
-			f.Write(Color.R);
-			f.Write(Color.G);
-			f.Write(Color.B);
-
-			// Range
-			f.Write(Range);
-
-			// Shadows
-			f.Write(Shadows);
-
-			// Textures
-			f.Write(Texture != null);
-			if (Texture != null) {
-				f.Write(Texture.Link);
+			// Link to file
+			if (Sound != null) {
+				f.Write(Sound.Path);
+			} else {
+				f.Write("");
 			}
-			f.Write(TextureAngle);
-			*/
 
+			// Params
+			f.Write(Volume);
+			f.Write(Speed);
+			f.Write((byte)Channel);
 		}
 
 		/// <summary>
@@ -121,25 +137,18 @@ namespace Cubed.Prefabs {
 				ver = f.ReadByte();
 			} catch (Exception ex) { }
 
-			/*
-			// Reading ver-1 specific data
-			if (ver >= 1) {
-
-				// Basic params
-				byte[] colors = f.ReadBytes(3);
-				Color = System.Drawing.Color.FromArgb(colors[0], colors[1], colors[2]);
-				Range = f.ReadSingle();
-				Shadows = f.ReadBoolean();
-
-				// Reading texture
-				if (f.ReadBoolean()) {
-					Texture = new Texture(f.ReadString());
+			// Loading file
+			if (ver > 0) {
+				string path = f.ReadString();
+				if (Engine.Current.Filesystem.Exists(path)) {
+					Sound = new AudioTrack(path);
 				}
-				TextureAngle = f.ReadSingle();
 
-			}*/
-
-
+				// Switching data
+				Volume = f.ReadSingle();
+				Speed = f.ReadSingle();
+				Channel = (AudioSystem.SoundChannels)f.ReadByte();
+			}
 		}
 		
 	}

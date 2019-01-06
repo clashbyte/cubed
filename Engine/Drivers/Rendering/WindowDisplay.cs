@@ -166,6 +166,7 @@ namespace Cubed.Drivers.Rendering {
 			// Creating window
 			CheckResolution();
 			window = new GameWindow((int)resolution.X, (int)resolution.Y, new GraphicsMode(new ColorFormat(32), 24, 0, 0, new ColorFormat(32), 2, false), title, fullscreen ? GameWindowFlags.Fullscreen : GameWindowFlags.Default, DisplayDevice.Default, 2, 4, GraphicsContextFlags.Default);
+			window.Icon = icon;
 			window.VSync = VSyncMode.Off;
 			window.UpdateFrame += window_UpdateFrame;
 			window.RenderFrame += window_RenderFrame;
@@ -246,8 +247,8 @@ namespace Cubed.Drivers.Rendering {
 			if (prevSnapshot == null) {
 				prevSnapshot = new InputState.Snapshot();
 			}
-			KeyboardState keybd = window.Keyboard.GetState();
-			MouseState mouse = window.Mouse.GetState();
+			KeyboardState keybd = Keyboard.GetState();
+			MouseState mouse = Mouse.GetState();
 			InputState.Snapshot currentSnapshot = new InputState.Snapshot(mouse, keybd, mouseInside ? mouseLocation : new Point(-1, -1));
 			
 			// Creating input state

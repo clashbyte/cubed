@@ -45,7 +45,11 @@ namespace Cubed.Data.Editor.Attributes {
 				if (manager == null) {
 					manager = new ResourceManager("Cubed.Forms.Resources.InspectorStrings", Assembly.GetExecutingAssembly());
 				}
-				lines.Add(key, manager.GetString(key));
+				string val = manager.GetString(key);
+				if (string.IsNullOrEmpty(val)) {
+					val = "#" + key;
+				}
+				lines.Add(key, val);
 			}
 			return lines[key];
 		}

@@ -111,6 +111,19 @@ namespace Cubed.Input {
 		}
 
 		/// <summary>
+		/// Keyboard hit any key
+		/// </summary>
+		/// <returns>True if any key is just pressed</returns>
+		public bool AnyKeyHit() {
+			for (int i = 0; i < keyboardState.Length; i++) {
+				if (keyboardState[i] == KeyState.Pressed) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		/// <summary>
 		/// Keyboard key just released
 		/// </summary>
 		/// <param name="key">Key</param>

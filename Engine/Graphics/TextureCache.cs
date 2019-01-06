@@ -158,6 +158,27 @@ namespace Cubed.Graphics {
 		}
 
 		/// <summary>
+		/// Stopping activity
+		/// </summary>
+		internal void Destroy() {
+			if (loadingThreads != null) {
+				foreach (Thread thread in loadingThreads) {
+					thread.Abort();
+				}
+				loadingThreads = null;
+			}
+			loadQueue = sendQueue = null;
+			releaseQueue = null;
+			foreach (var item in textures) {
+				if (item.Value.State == EntryState.Complete) {
+					System.Diagnostics.Debug.WriteLine("[TexCache] Releasing "+item.Key);
+					item.Value.Release();
+				}
+			}
+			textures = null;
+		}
+
+		/// <summary>
 		/// Thread checking
 		/// </summary>
 		void CheckThreads() {
@@ -169,6 +190,7 @@ namespace Cubed.Graphics {
 					t.Priority = ThreadPriority.BelowNormal;
 					t.IsBackground = true;
 					t.Start();
+					loadingThreads[i] = t;
 				}
 			}
 		}

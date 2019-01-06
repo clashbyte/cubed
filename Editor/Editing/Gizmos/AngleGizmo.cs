@@ -43,6 +43,32 @@ namespace Cubed.Editing.Gizmos {
 		}
 
 		/// <summary>
+		/// Arrow distance
+		/// </summary>
+		public float Distance {
+			get {
+				return boxDist;
+			}
+			set {
+				boxDist = value;
+				BuildArrow(boxDist, boxSize);
+			}
+		}
+
+		/// <summary>
+		/// Arrow size
+		/// </summary>
+		public float Size {
+			get {
+				return boxSize;
+			}
+			set {
+				boxSize = value;
+				BuildArrow(boxDist, boxSize);
+			}
+		}
+
+		/// <summary>
 		/// Dragging start position
 		/// </summary>
 		float startPosition;
@@ -157,23 +183,10 @@ namespace Cubed.Editing.Gizmos {
 			if (Maths.Intersections.RayPlane(planePos, Vector3.UnitY, rayPos, rayDir.Normalized(), out hitPos)) {
 				Vector3 raw = hitPos - Position;
 				float angle = (float)Math.Round(MathHelper.RadiansToDegrees((float)Math.Atan2(raw.X, raw.Z)) / 5f) * 5f;
-
-				Angle = angle;
-				
-				/*
-				pos = startPosition;
-				Vector3 dif = hitPos - planePos;
-				if (vertMode) {
-					pos.Y += dif.Y;
-				} else {
-					pos.X += dif.X;
-					pos.Z += dif.Z;
-				}
 				if (Filter != null) {
-					//pos = Filter(this, pos);
+					angle = Filter(this, angle);
 				}
-				Position = pos;
-				 */
+				Angle = angle;
 			}
 		}
 

@@ -48,6 +48,11 @@ namespace Cubed.Audio.Decoders {
 		int endPoint;
 
 		/// <summary>
+		/// Audio format
+		/// </summary>
+		int format;
+
+		/// <summary>
 		/// Reading data
 		/// </summary>
 		/// <param name="nextData">Flag for next data</param>
@@ -78,6 +83,10 @@ namespace Cubed.Audio.Decoders {
 			data.Depth = depth;
 			data.Samples = samples;
 			data.NextData = next;
+			if (depth == 24) {
+				data.Data = Convert24BitsTo16(data.Data);
+				data.Depth = 16;
+			}
 			return data;
 		}
 
@@ -104,22 +113,57 @@ namespace Cubed.Audio.Decoders {
 			if (header != "fmt ") {
 				throw new Exception("Unknown format in Wav container!");
 			}
-			int formatSize = reader.ReadInt32();
-			stream.Position += 2;
-			channels = reader.ReadUInt16();
-			samples = reader.ReadInt32();
-			stream.Position += 6;
-			depth = reader.ReadUInt16();
+			int formatSize		= reader.ReadInt32();
+			format				= reader.ReadUInt16();
+			channels			= reader.ReadUInt16();
+			samples				= reader.ReadInt32();
+			stream.Position		+= 6;
+			depth				= reader.ReadUInt16();
+			stream.Position		= 20 + formatSize;
 
 			// Position
-			stream.Position = 20 + formatSize;
-			header = new string(reader.ReadChars(4));
-			if (header != "data") {
+			bool foundData = false;
+			while (stream.Position < stream.Length - 1) {
+				header = new string(reader.ReadChars(4));
+				int targetSize = reader.ReadInt32();
+				switch (header) {
+
+					case "data":
+						startPoint = (int)stream.Position;
+						endPoint = startPoint + targetSize;
+						stream.Position += targetSize;
+						foundData = true;
+						break;
+
+					default:
+						stream.Position += targetSize;
+						System.Diagnostics.Debug.WriteLine("Unknown chunk: " + header);
+						break;
+				}
+			}
+			if (!foundData) {
 				throw new Exception("Unknown data in Wav container!");
 			}
-			int targetSize = reader.ReadInt32();
-			startPoint = (int)stream.Position;
-			endPoint = startPoint + targetSize;
+		}
+
+		/// <summary>
+		/// Converting WAV data from 24 bits to 16
+		/// </summary>
+		/// <param name="data">Data</param>
+		/// <returns></returns>
+		byte[] Convert24BitsTo16(byte[] data) {
+			short[] raw = new short[data.Length / 3];
+			for (int i = 0; i < data.Length / 3; i++) {
+				int idx = i * 3;
+				int num = 
+					(data[idx + 0] << 0) | 
+					(data[idx + 1] << 8) | 
+					(data[idx + 2] << 16);
+				raw[i] = (short)((float)num / 8388607f * (float)(short.MaxValue - 1));
+			}
+			byte[] output = new byte[raw.Length * 2];
+			Buffer.BlockCopy(raw, 0, output, 0, output.Length);
+			return output;
 		}
 	}
 }

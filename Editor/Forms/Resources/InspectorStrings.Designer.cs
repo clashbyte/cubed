@@ -133,6 +133,24 @@ namespace Cubed.Forms.Resources {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Door.
+        /// </summary>
+        internal static string Door {
+            get {
+                return ResourceManager.GetString("Door", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Object that splits rooms.
+        /// </summary>
+        internal static string DoorDesc {
+            get {
+                return ResourceManager.GetString("DoorDesc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Select an object to edit properties.
         /// </summary>
         internal static string EmptyObject {
@@ -223,20 +241,20 @@ namespace Cubed.Forms.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Level End.
+        ///   Ищет локализованную строку, похожую на Map End.
         /// </summary>
-        internal static string LevelEnd {
+        internal static string LevelChange {
             get {
-                return ResourceManager.GetString("LevelEnd", resourceCulture);
+                return ResourceManager.GetString("LevelChange", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Zone that ends current level.
+        ///   Ищет локализованную строку, похожую на Zone that changes current level.
         /// </summary>
-        internal static string LevelEndDesc {
+        internal static string LevelChangeDesc {
             get {
-                return ResourceManager.GetString("LevelEndDesc", resourceCulture);
+                return ResourceManager.GetString("LevelChangeDesc", resourceCulture);
             }
         }
         

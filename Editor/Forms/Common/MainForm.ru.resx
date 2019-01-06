@@ -118,6 +118,15 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="volumeButton.IconImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        xAAADsQBlSsOGwAAAJRJREFUKFNjoBr49++fHhDvhHJxA6AiKSCeC8TP/wMBVBgkzgZmAMXqoNgBKBgE
+        xK+BuBOIBWAagGwmIF4LxDYgDSCwH4jrgAIgTXJgk4AAJAGigWKbgRhk2G6YBrAtYFVIACQBooEKq4A4
+        A4ifkq2BGCeFADHYSQQ9DQJA/nogtoJyEQAoiD9YcQGgAuIiDj9gYAAAwqTs/ZSffQEAAAAASUVORK5C
+        YII=
+</value>
+  </data>
   <data name="projectUpButton.IconImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
@@ -127,59 +136,47 @@
         aisOeAvNPQpnmoPmjmSiNfQX+6jz8cBk3bei6AYYQJMuBkPUsgAAAABJRU5ErkJggg==
 </value>
   </data>
-  <data name="fileToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>59, 20</value>
-  </data>
-  <data name="fileToolStripMenuItem.Text" xml:space="preserve">
-    <value>Проект</value>
-  </data>
-  <data name="newToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>193, 22</value>
-  </data>
-  <data name="newToolStripMenuItem.Text" xml:space="preserve">
-    <value>Создать проект</value>
-  </data>
   <data name="openToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>193, 22</value>
+    <value>197, 22</value>
   </data>
   <data name="openToolStripMenuItem.Text" xml:space="preserve">
     <value>Открыть проект</value>
   </data>
   <data name="closeProjectToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>193, 22</value>
+    <value>197, 22</value>
   </data>
   <data name="closeProjectToolStripMenuItem.Text" xml:space="preserve">
     <value>Закрыть проект</value>
   </data>
   <data name="toolStripSeparator1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>190, 6</value>
+    <value>194, 6</value>
   </data>
   <data name="saveAllToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>193, 22</value>
+    <value>197, 22</value>
   </data>
   <data name="saveAllToolStripMenuItem.Text" xml:space="preserve">
     <value>Сохранить всё</value>
   </data>
   <data name="closeToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>193, 22</value>
+    <value>197, 22</value>
   </data>
   <data name="closeToolStripMenuItem.Text" xml:space="preserve">
     <value>Закрыть файл</value>
   </data>
   <data name="toolStripSeparator2.Size" type="System.Drawing.Size, System.Drawing">
-    <value>190, 6</value>
+    <value>194, 6</value>
   </data>
   <data name="exitToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>193, 22</value>
+    <value>197, 22</value>
   </data>
   <data name="exitToolStripMenuItem.Text" xml:space="preserve">
     <value>Выход</value>
   </data>
-  <data name="editToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+  <data name="fileToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
     <value>59, 20</value>
   </data>
-  <data name="editToolStripMenuItem.Text" xml:space="preserve">
-    <value>Правка</value>
+  <data name="fileToolStripMenuItem.Text" xml:space="preserve">
+    <value>Проект</value>
   </data>
   <data name="undoToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
     <value>190, 22</value>
@@ -229,17 +226,17 @@
   <data name="preferencesToolStripMenuItem.Text" xml:space="preserve">
     <value>Настройки</value>
   </data>
+  <data name="editToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>59, 20</value>
+  </data>
+  <data name="editToolStripMenuItem.Text" xml:space="preserve">
+    <value>Правка</value>
+  </data>
   <data name="createToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
     <value>62, 20</value>
   </data>
   <data name="createToolStripMenuItem.Text" xml:space="preserve">
     <value>Создать</value>
-  </data>
-  <data name="gameToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>46, 20</value>
-  </data>
-  <data name="gameToolStripMenuItem.Text" xml:space="preserve">
-    <value>Игра</value>
   </data>
   <data name="buildToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
     <value>163, 22</value>
@@ -262,11 +259,11 @@
   <data name="propertiesToolStripMenuItem.Text" xml:space="preserve">
     <value>Параметры</value>
   </data>
-  <data name="infoToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>68, 20</value>
+  <data name="gameToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>46, 20</value>
   </data>
-  <data name="infoToolStripMenuItem.Text" xml:space="preserve">
-    <value>Помощь</value>
+  <data name="gameToolStripMenuItem.Text" xml:space="preserve">
+    <value>Игра</value>
   </data>
   <data name="startingPageToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
     <value>184, 22</value>
@@ -280,8 +277,11 @@
   <data name="aboutToolStripMenuItem.Text" xml:space="preserve">
     <value>О программе</value>
   </data>
-  <data name="projectCreateMenu.Size" type="System.Drawing.Size, System.Drawing">
-    <value>109, 32</value>
+  <data name="infoToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>68, 20</value>
+  </data>
+  <data name="infoToolStripMenuItem.Text" xml:space="preserve">
+    <value>Помощь</value>
   </data>
   <data name="projectCreateFolderItem.Size" type="System.Drawing.Size, System.Drawing">
     <value>108, 22</value>
@@ -291,6 +291,9 @@
   </data>
   <data name="toolStripSeparator7.Size" type="System.Drawing.Size, System.Drawing">
     <value>105, 6</value>
+  </data>
+  <data name="projectCreateMenu.Size" type="System.Drawing.Size, System.Drawing">
+    <value>109, 32</value>
   </data>
   <data name="projectCreateMenuItem.Size" type="System.Drawing.Size, System.Drawing">
     <value>201, 22</value>

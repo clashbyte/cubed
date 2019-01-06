@@ -183,11 +183,11 @@
   <data name="SpriteDesc" xml:space="preserve">
     <value>Thing to decorate maps</value>
   </data>
-  <data name="LevelEnd" xml:space="preserve">
-    <value>Level End</value>
+  <data name="LevelChange" xml:space="preserve">
+    <value>Map End</value>
   </data>
-  <data name="LevelEndDesc" xml:space="preserve">
-    <value>Zone that ends current level</value>
+  <data name="LevelChangeDesc" xml:space="preserve">
+    <value>Zone that changes current level</value>
   </data>
   <data name="Player" xml:space="preserve">
     <value>Player</value>
@@ -251,5 +251,11 @@
   </data>
   <data name="SoundDesc" xml:space="preserve">
     <value>Point that emits audio</value>
+  </data>
+  <data name="Door" xml:space="preserve">
+    <value>Door</value>
+  </data>
+  <data name="DoorDesc" xml:space="preserve">
+    <value>Object that splits rooms</value>
   </data>
 </root>

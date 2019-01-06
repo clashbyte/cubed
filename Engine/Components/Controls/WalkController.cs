@@ -125,7 +125,7 @@ namespace Cubed.Components.Controls {
 				sin * move.X + cos * move.Y
 			);
 			if (movement.X != 0 || movement.Y != 0) {
-				movement.NormalizeFast();
+				movement.Normalize();
 			}
 			running = run;
 			
@@ -172,13 +172,16 @@ namespace Cubed.Components.Controls {
 
 			tr += new Vector3(movement.X, 0, movement.Y) * mult;
 			tr *= decMult;
-			if (tr.LengthFast > speed) {
+			if (tr.Length > speed) {
 				tr = tr.Normalized() * speed;
-			} else if(tr.LengthFast < 0.0001f) {
+			} else if(tr.Length < 0.0001f) {
 				tr = Vector3.Zero;
 			}
 			tr.Y = velocity.Y;
 			velocity = tr;
+
+			// If collider overlaps with another colliders
+			Parent.BoxCollider.PushFromOthers();
 
 			// Current max floor height
 			Vector3 pos = Parent.Position;
@@ -219,19 +222,6 @@ namespace Cubed.Components.Controls {
 			if (Parent == null) {
 				return;
 			}
-
-			/*
-			if (velocity.X != 0) {
-				if (Math.Sign(Parent.BoxCollider.Response.X) == Math.Sign(velocity.X)) {
-					velocity.X = 0;
-				}
-			}
-			if (velocity.Z != 0) {
-				if (Math.Sign(Parent.BoxCollider.Response.Z) == Math.Sign(velocity.Z)) {
-					velocity.Z = 0;
-				}
-			}
-			 */
 
 			if (velocity.Y > 0) {
 				if (Parent.BoxCollider.Response.Y < 0) {

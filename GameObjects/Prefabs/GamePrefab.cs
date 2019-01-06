@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Cubed.Components;
 using Cubed.Data.Files;
 using Cubed.Data.Game.Attributes;
 using Cubed.World;
@@ -16,6 +17,15 @@ namespace Cubed.Prefabs {
 	public abstract class GamePrefab : Entity {
 
 		/// <summary>
+		/// Is entity ready (loading state check)
+		/// </summary>
+		public virtual bool Ready {
+			get {
+				return true;
+			}
+		}
+
+		/// <summary>
 		/// Assigning to scene
 		/// </summary>
 		/// <param name="scene">Scene</param>
@@ -26,6 +36,13 @@ namespace Cubed.Prefabs {
 		/// </summary>
 		/// <param name="scene">Scene to create</param>
 		public abstract void Unassign(Scene scene);
+
+		/// <summary>
+		/// Release all resources
+		/// </summary>
+		public new virtual void Destroy() {
+			base.Destroy();
+		}
 
 		/// <summary>
 		/// Saving file

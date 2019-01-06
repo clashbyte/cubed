@@ -443,6 +443,49 @@ namespace Cubed.World {
 		}
 
 		/// <summary>
+		/// Pushing collider away from other AABBs on overlap
+		/// </summary>
+		internal void PushFromOthers() {
+			if (Scene.Current == null) {
+				return;
+			}
+			float epsilon = 0.000001f;
+			bool collided = true;
+			float bw = size.X / 2f;
+			float bh = size.Y / 2f;
+			float bd = size.Z / 2f;
+			Vector3 pos = owner.Position;
+			Collider[] others = Scene.Current.GetAllColliders();
+			while (collided) {
+				collided = false;
+				foreach (Collider other in others) {
+					if (other != this && other.collideWithOther) {
+						Vector3 op = other.owner.Position;
+						Vector3 os = other.size * 0.5f;
+						Vector3 diff = op - pos;
+						if (!(Math.Abs(diff.X) > os.X + bw || Math.Abs(diff.Y) > os.Y + bh || Math.Abs(diff.Z) > os.Z + bd)) {
+							float dx = Math.Abs(diff.X);
+							float dy = Math.Abs(diff.Y);
+							float dz = Math.Abs(diff.Z);
+							if (dx >= dy && dx >= dz) {
+								// Nearest is X
+								pos.X = op.X - Math.Sign(diff.X) * (os.X + bw + epsilon);
+							} else if (dy >= dx && dy >= dz) {
+								// Neares is Y
+								pos.Y = op.Y - Math.Sign(diff.Y) * (os.Y + bh + epsilon);
+							} else {
+								// Nearest is Z
+								pos.Z = op.Z - Math.Sign(diff.Z) * (os.Z + bd + epsilon);
+							}
+							collided = true;
+						}
+					}
+				}
+			}
+			owner.Position = pos;
+		}
+
+		/// <summary>
 		/// Получение самого близкого пола
 		/// </summary>
 		/// <param name="map">Карта</param>
@@ -497,7 +540,7 @@ namespace Cubed.World {
 								((opos.Z - obd.Z) > (start.Z + bd)) ||
 								((opos.X + obd.X) < (start.X - bw)) ||
 								((opos.X - obd.X) > (start.X + bw)))) {
-								if (start.Y > opos.Y && (target.Y - bh) < opos.Y + obd.Y) {
+								if (start.Y - bsz.Y > opos.Y - obd.Y && (target.Y - bh) < opos.Y + obd.Y) {
 									floorh = Math.Max(opos.Y + obd.Y, floorh);
 								}
 							}

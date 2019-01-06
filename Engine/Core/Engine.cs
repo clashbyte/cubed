@@ -86,7 +86,7 @@ namespace Cubed.Core {
 		/// <summary>
 		/// Audio engine
 		/// </summary>
-		internal AudioSystem AudioSystem {
+		public AudioSystem AudioSystem {
 			get;
 			private set;
 		}
@@ -111,7 +111,7 @@ namespace Cubed.Core {
 		/// Количество отрисовок
 		/// </summary>
 		internal uint drawCalls;
-		
+
 		/// <summary>
 		/// Previous input state
 		/// </summary>
@@ -125,7 +125,6 @@ namespace Cubed.Core {
 			this.AudioSystem = new AudioSystem(this);
 			this.Console = new UI.Console();
 			this.inputSnapshot = new InputState.Snapshot();
-			this.SoundComponents = new List<SoundSource>();
 		}
 
 		/// <summary>
@@ -140,9 +139,6 @@ namespace Cubed.Core {
 		/// </summary>
 		public void Pause() {
 			Paused = true;
-			foreach (SoundSource soundComponent in SoundComponents) {
-				//soundComponent.Suspend();
-			}
 			// TODO: Pause logic
 		}
 
@@ -154,11 +150,23 @@ namespace Cubed.Core {
 			if (World != null) {
 				World.ResetUpdateCounter();
 			}
-			foreach (SoundSource soundComponent in SoundComponents) {
-				//soundComponent.Resume();
-			}
+			
 
 			// TODO: Unpause logic
+		}
+
+		/// <summary>
+		/// Destroying scene
+		/// </summary>
+		public void Destroy() {
+
+			// Stopping texture cache
+			TextureCache.Destroy();
+			TextureCache = null;
+
+			// Stopping audio engine
+			AudioSystem.Destroy();
+			AudioSystem = null;
 		}
 
 		/// <summary>
@@ -239,7 +247,7 @@ namespace Cubed.Core {
 				if (Interface != null) {
 					GL.Enable(EnableCap.Blend);
 					GL.Disable(EnableCap.DepthTest);
-					GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+					GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
 					Interface.Setup(Vector2.Zero, res);
 					Interface.Render();

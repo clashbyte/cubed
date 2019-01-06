@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Cubed.Data.Editor.Attributes;
 using Cubed.Editing;
+using Cubed.Editing.Triggers;
 using Cubed.UI.Controls;
 using Cubed.UI.Graphics;
 
@@ -18,6 +19,8 @@ namespace Cubed.Forms.Editors.Map {
 			typeof(MapLight),
 			typeof(MapSprite),
 			typeof(MapSound),
+			typeof(LevelChange),
+			typeof(MapDoor),
 		};
 
 		/// <summary>

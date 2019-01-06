@@ -90,7 +90,7 @@ namespace Cubed.Audio.Decoders {
 			if (nextData != -1) {
 				pos = nextData;
 			}
-			sequencer.Seek(pos, false);
+			sequencer.Seek(pos, true);
 			
 			// Reading file
 			byte[] buffer = null;

@@ -27,7 +27,12 @@ namespace Cubed.World {
 		/// <summary>
 		/// Milliseconds for all chunks
 		/// </summary>
-		const int CHUNKS_QUOTA_MS = 4;
+		const int CHUNKS_QUOTA_MS = 2;
+
+		/// <summary>
+		/// Milliseconds for all obstructors
+		/// </summary>
+		const int OBSTRUCT_QUOTA_MS = 2;
 
 		/// <summary>
 		/// Get or set map chunk
@@ -96,6 +101,14 @@ namespace Cubed.World {
 		}
 
 		/// <summary>
+		/// Enable lazy chunk rebuilding
+		/// </summary>
+		public bool LazyRebuilding {
+			get;
+			set;
+		}
+
+		/// <summary>
 		/// Dictionary of chunks
 		/// </summary>
 		Dictionary<string, Chunk> chunks;
@@ -116,6 +129,11 @@ namespace Cubed.World {
 		int chunkRelightQuota = 32;
 
 		/// <summary>
+		/// Obstructors to relight quota
+		/// </summary>
+		int obstructRelightQuota = 32;
+
+		/// <summary>
 		/// Queue for light update
 		/// </summary>
 		Queue<Light> lightUpdateQueue;
@@ -126,9 +144,19 @@ namespace Cubed.World {
 		Queue<Chunk> chunkUpdateQueue;
 
 		/// <summary>
+		/// Queue for obstructors update
+		/// </summary>
+		Queue<ObstructEntity> obstructorUpdateQueue;
+
+		/// <summary>
 		/// Previous lights
 		/// </summary>
 		Light[] lastAffectedLights;
+
+		/// <summary>
+		/// Previous obstructors
+		/// </summary>
+		ObstructEntity[] lastAffectedObstructors;
 
 		/// <summary>
 		/// Parental scene
@@ -157,7 +185,9 @@ namespace Cubed.World {
 			Ambient = Color.DimGray;
 			lightUpdateQueue = new Queue<Light>();
 			chunkUpdateQueue = new Queue<Chunk>();
+			obstructorUpdateQueue = new Queue<ObstructEntity>();
 			lastAffectedLights = new Light[0];
+			lastAffectedObstructors = new ObstructEntity[0];
 		}
 
 		/// <summary>
@@ -320,10 +350,11 @@ namespace Cubed.World {
 		/// <summary>
 		/// Rebuilding and relighting
 		/// </summary>
-		internal void Update(List<Light> lights, Scene parent) {
+		internal void Update(List<Light> lights, List<ObstructEntity> obstructors, Scene parent) {
 			Parent = parent;
 			lastAffectedLights = lights.ToArray();
-			CheckLighting(lights);
+			lastAffectedObstructors = obstructors.ToArray();
+			CheckLighting(lights, obstructors);
 		}
 
 		/// <summary>
@@ -333,11 +364,39 @@ namespace Cubed.World {
 		public Chunk[] GetAllChunks() {
 			return chunks.Values.ToArray();
 		}
+		
+		/// <summary>
+		/// Checking readiness of all chunks
+		/// </summary>
+		/// <returns>True if all is ready</returns>
+		public bool IsReady() {
+			if (chunks != null) {
+				foreach (Chunk c in chunks.Values) {
+					if (c.needRebuild || c.needRelightStatic || c.needRelightDynamic) {
+						return false;
+					}
+				}
+			}
+			return true;
+		}
+
+		/// <summary>
+		/// Cleanup all data
+		/// </summary>
+		public void Destroy() {
+			if (chunks != null) {
+				foreach (Chunk c in chunks.Values) {
+					c.Release();
+				}
+				chunks.Clear();
+				chunks = null;
+			}
+		}
 
 		/// <summary>
 		/// Checking all the chunks for rebuild
 		/// </summary>
-		void CheckLighting(IEnumerable<Light> lights) {
+		void CheckLighting(IEnumerable<Light> lights, IEnumerable<ObstructEntity> obstructors) {
 
 			// Updating queue
 			Stopwatch sw = new Stopwatch();
@@ -351,6 +410,21 @@ namespace Cubed.World {
 					chunk.needRebuild = false;
 					chunk.needRelightStatic = true;
 					chunk.needRelightDynamic = true;
+					if (LazyRebuilding) {
+						return;
+					}
+				}
+			}
+			Caps.CheckErrors();
+
+			// Checking all obstructors for rebuilding
+			foreach (ObstructEntity obs in obstructors) {
+				obs.CheckLights(lights);
+				if (obs.NeedRebuild) {
+					obs.RebuildMesh();
+					obs.NeedRebuild = false;
+					obs.StaticInvalid = true;
+					obs.DynamicInvalid = true;
 				}
 			}
 			Caps.CheckErrors();
@@ -376,7 +450,7 @@ namespace Cubed.World {
 			sw.Restart();
 			while (lightLimit > 0 && lightUpdateQueue.Count > 0) {
 				Light light = lightUpdateQueue.Dequeue();
-				light.RebuildTexture(this);
+				light.RebuildTexture(this, obstructors);
 				light.Cleanup();
 
 				lightLimit--;
@@ -386,7 +460,7 @@ namespace Cubed.World {
 			Caps.CheckErrors();
 
 			// Recalculating light quota
-			if (sw.ElapsedMilliseconds > LIGHTS_QUOTA_MS && lightUpdateQuota > 1) {
+			if (sw.ElapsedMilliseconds > LIGHTS_QUOTA_MS && lightUpdateQuota > 1 && updatedLights > 0) {
 				long allowedTicks = TimeSpan.TicksPerMillisecond * LIGHTS_QUOTA_MS;
 				long ticks = sw.ElapsedTicks;
 				long ticksPerLight = ticks / updatedLights;
@@ -418,11 +492,42 @@ namespace Cubed.World {
 			Caps.CheckErrors();
 
 			// Recalculating chunk quota
-			if (sw.ElapsedMilliseconds > CHUNKS_QUOTA_MS && chunkRelightQuota > 1) {
+			if (sw.ElapsedMilliseconds > CHUNKS_QUOTA_MS && chunkRelightQuota > 1 && updatedChunks > 0) {
 				long allowedTicks = TimeSpan.TicksPerMillisecond * CHUNKS_QUOTA_MS;
 				long ticks = sw.ElapsedTicks;
 				long ticksPerChunk = ticks / updatedChunks;
 				chunkRelightQuota = (int)Math.Max(allowedTicks / ticksPerChunk, 1);
+			}
+
+			// Relight all needed obstructors
+			foreach (ObstructEntity ob in obstructors) {
+				if ((ob.StaticInvalid || ob.DynamicInvalid) && !obstructorUpdateQueue.Contains(ob)) {
+					obstructorUpdateQueue.Enqueue(ob);
+				}
+			}
+
+			// Updating lights in queue
+			int updatedObstructors = 0;
+			int obstructLimit = obstructRelightQuota;
+			sw.Restart();
+			while (obstructLimit > 0 && obstructorUpdateQueue.Count > 0) {
+				ObstructEntity ob = obstructorUpdateQueue.Dequeue();
+				ob.RebuildLightmaps();
+				ob.StaticInvalid = false;
+				ob.DynamicInvalid = false;
+
+				obstructLimit--;
+				updatedObstructors++;
+			}
+			sw.Stop();
+			Caps.CheckErrors();
+
+			// Recalculating chunk quota
+			if (sw.ElapsedMilliseconds > OBSTRUCT_QUOTA_MS && obstructRelightQuota > 1 && updatedObstructors > 0) {
+				long allowedTicks = TimeSpan.TicksPerMillisecond * OBSTRUCT_QUOTA_MS;
+				long ticks = sw.ElapsedTicks;
+				long ticksPerObs = ticks / updatedObstructors;
+				obstructRelightQuota = (int)Math.Max(allowedTicks / ticksPerObs, 1);
 			}
 		}
 
@@ -753,10 +858,14 @@ namespace Cubed.World {
 					Caps.CheckErrors();
 					MapShader.Shader.Bind();
 					foreach (KeyValuePair<Texture, RenderGroup> group in groups) {
-						RenderSingle(group.Key, group.Value);
+						if (group.Value.IndexCount > 0) {
+							RenderSingle(group.Key, group.Value);
+						}
 						Caps.CheckErrors();
 					}
-					RenderSingle(null, nullGroup);
+					if (nullGroup != null && nullGroup.IndexCount > 0) {
+						RenderSingle(null, nullGroup);
+					}
 					Caps.CheckErrors();
 
 					// Unbinding
@@ -1466,22 +1575,7 @@ namespace Cubed.World {
 				List<Texture> groupsToRemove = new List<Texture>();
 				foreach (KeyValuePair<Texture, RenderGroup> pair in groups) {
 					if (!textures.Contains(pair.Key)) {
-						RenderGroup rg = pair.Value;
-						if (rg.VertexBuffer != 0) {
-							GL.DeleteBuffer(rg.VertexBuffer);
-						}
-						if (rg.TexCoordBuffer != 0) {
-							GL.DeleteBuffer(rg.TexCoordBuffer);
-						}
-						if (rg.LightmapCoordBuffer != 0) {
-							GL.DeleteBuffer(rg.LightmapCoordBuffer);
-						}
-						if (rg.NormalBuffer != 0) {
-							GL.DeleteBuffer(rg.NormalBuffer);
-						}
-						if (rg.IndexBuffer != 0) {
-							GL.DeleteBuffer(rg.IndexBuffer);
-						}
+						ReleaseGroup(pair.Value);
 						groupsToRemove.Add(pair.Key);
 					}
 				}
@@ -1505,10 +1599,12 @@ namespace Cubed.World {
 				}
 				if (needRelightStatic) {
 					RebuildLightLayer(affectedLights, true, ref staticLightmap, lightmapWidth, lightmapHeight);
+					needRelightStatic = false;
 					Caps.CheckErrors();
 				}
 				if (needRelightDynamic) {
 					RebuildLightLayer(affectedLights, false, ref dynamicLightmap, lightmapWidth, lightmapHeight);
+					needRelightDynamic = false;
 					Caps.CheckErrors();
 				}
 			}
@@ -1568,7 +1664,7 @@ namespace Cubed.World {
 				GL.Enable(EnableCap.Blend);
 				GL.ClearColor(0, 0, 0, 0);
 				GL.Clear(ClearBufferMask.ColorBufferBit);
-				GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.One);
+				GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.One);
 				Caps.CheckErrors();
 				
 				// Binding shader
@@ -1758,6 +1854,53 @@ namespace Cubed.World {
 				GL.BindBuffer(BufferTarget.ElementArrayBuffer, rg.IndexBuffer);
 				GL.BufferData(BufferTarget.ElementArrayBuffer, indices.Length * 2, indices, BufferUsageHint.StaticDraw);
 				GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+			}
+
+			/// <summary>
+			/// Release all acquired resources
+			/// </summary>
+			internal void Release() {
+
+				// Releasing buffers
+				foreach (RenderGroup rg in groups.Values) {
+					ReleaseGroup(rg);
+				}
+				if (nullGroup != null) {
+					ReleaseGroup(nullGroup);
+				}
+
+				// Dropping light textures
+				if (GL.IsTexture(staticLightmap)) {
+					GL.DeleteTexture(staticLightmap);
+				}
+				if (GL.IsTexture(dynamicLightmap)) {
+					GL.DeleteTexture(dynamicLightmap);
+				}
+			}
+
+			/// <summary>
+			/// Releasing single render group
+			/// </summary>
+			/// <param name="rg">RenderGroup to clear</param>
+			void ReleaseGroup(RenderGroup rg) {
+
+				// Dropping buffers
+				if (GL.IsBuffer(rg.VertexBuffer)) {
+					GL.DeleteBuffer(rg.VertexBuffer);
+				}
+				if (GL.IsBuffer(rg.TexCoordBuffer)) {
+					GL.DeleteBuffer(rg.TexCoordBuffer);
+				}
+				if (GL.IsBuffer(rg.LightmapCoordBuffer)) {
+					GL.DeleteBuffer(rg.LightmapCoordBuffer);
+				}
+				if (GL.IsBuffer(rg.NormalBuffer)) {
+					GL.DeleteBuffer(rg.NormalBuffer);
+				}
+				if (GL.IsBuffer(rg.IndexBuffer)) {
+					GL.DeleteBuffer(rg.IndexBuffer);
+				}
+
 			}
 
 			/// <summary>

@@ -95,10 +95,10 @@ namespace Cubed.Graphics {
 		/// Checking context errors
 		/// </summary>
 		internal static void CheckErrors() {
-			ErrorCode code = GL.GetError();
-			if (code != ErrorCode.NoError) {
-				System.Diagnostics.Debugger.Break();
-			}
+			//ErrorCode code = GL.GetError();
+			//if (code != ErrorCode.NoError) {
+				//System.Diagnostics.Debugger.Break();
+			//}
 		}
 
 		/// <summary>

@@ -27,6 +27,21 @@ namespace Cubed.Editing {
 		static Texture gizmoIcon;
 
 		/// <summary>
+		/// Looking angle
+		/// </summary>
+		public float Angle {
+			get {
+				return (Prefab as Prefabs.PlayerStart).Angle;
+			}
+			set {
+				(Prefab as Prefabs.PlayerStart).Angle = value;
+				if (angleGizmo != null) {
+					angleGizmo.Angle = value;
+				}
+			}
+		}
+		
+		/// <summary>
 		/// Is light selected
 		/// </summary>
 		bool selected;
@@ -36,6 +51,9 @@ namespace Cubed.Editing {
 		/// </summary>
 		AngleGizmo angleGizmo;
 
+		/// <summary>
+		/// Controls for angle
+		/// </summary>
 		public override Gizmo[] ControlGizmos {
 			get {
 				return new Gizmo[] {
@@ -92,7 +110,12 @@ namespace Cubed.Editing {
 
 			// Adding scene gizmos
 			if (angleGizmo == null) {
-				angleGizmo = new AngleGizmo(Color.LimeGreen, 0.15f, 0.32f) { Parent = Prefab, Position = Prefab.Position };
+				angleGizmo = new AngleGizmo(Color.LimeGreen, 0.15f, 0.32f) {
+					Parent = Prefab,
+					Position = Prefab.Position,
+					Filter = AngleFilter
+				};
+				angleGizmo.Angle = (Prefab as Prefabs.PlayerStart).Angle;
 			}
 			Prefab.Assign(scene);
 		}
@@ -104,12 +127,15 @@ namespace Cubed.Editing {
 		public override void Destroy(Scene scene) {
 			if (Prefab != null) {
 				Prefab.Unassign(scene);
+				Prefab.Destroy();
 			}
 			if (Gizmo != null) {
 				scene.Entities.Remove(Gizmo);
+				Gizmo.Destroy();
 			}
 			if (SelectedGizmo != null) {
 				scene.Entities.Remove(SelectedGizmo);
+				SelectedGizmo.Destroy();
 			}
 		}
 
@@ -146,6 +172,14 @@ namespace Cubed.Editing {
 			SelectedGizmo.Visible = selected;
 		}
 
-		
+		/// <summary>
+		/// Callback for gizmo
+		/// </summary>
+		/// <param name="gizmo">Angle gizmo</param>
+		/// <param name="target">Target angle</param>
+		/// <returns>Computed angle</returns>
+		float AngleFilter(AngleGizmo gizmo, float target) {
+			return (Prefab as Prefabs.PlayerStart).Angle = target;
+		}
 	}
 }

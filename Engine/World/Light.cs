@@ -111,7 +111,7 @@ namespace Cubed.World {
 		/// <summary>
 		/// Recalculate light
 		/// </summary>
-		internal void RebuildTexture(Map map) {
+		internal void RebuildTexture(Map map, IEnumerable<ObstructEntity> obstructors) {
 
 			// Getting all chunks
 			List<Map.Chunk> chunks = new List<Map.Chunk>();
@@ -121,6 +121,16 @@ namespace Cubed.World {
 					chunks.Add(chunk);
 					chunk.needRelightStatic = chunk.needRelightStatic || isStatic || changedAllLayers;
 					chunk.needRelightDynamic = chunk.needRelightDynamic || !isStatic || changedAllLayers;
+				}
+			}
+
+			// Getting all obstructors
+			List<ObstructEntity> obst = new List<ObstructEntity>();
+			foreach (ObstructEntity ob in obstructors) {
+				if (ob.TouchesLight(this)) {
+					obst.Add(ob);
+					ob.StaticInvalid = ob.StaticInvalid || isStatic || changedAllLayers;
+					ob.DynamicInvalid = ob.DynamicInvalid || !isStatic || changedAllLayers;
 				}
 			}
 
@@ -138,7 +148,6 @@ namespace Cubed.World {
 			Matrix4 prjMat = ShaderSystem.ProjectionMatrix;
 			Matrix4 texMat = ShaderSystem.TextureMatrix;
 			int texSize = CalculateLightmapSize();
-
 			if (projRotations == null) {
 				projRotations = new Matrix4[6]{
 					Matrix4.CreateRotationY(MathHelper.PiOver2) * Matrix4.CreateScale(1, 1, -1),
@@ -198,11 +207,20 @@ namespace Cubed.World {
 				ShaderSystem.CameraMatrix = (projRotations[i] * currentMat).Inverted();
 				ShaderSystem.ProjectionMatrix = projMatrix;
 
-				// Rendering
+				// Rendering chunks
 				foreach (Map.Chunk chunk in chunks) {
 					ShaderSystem.EntityMatrix = chunk.GetMatrix();
 					shader.Bind();
 					chunk.RenderShadow();
+					Core.Engine.Current.drawCalls++;
+					shader.Unbind();
+				}
+
+				// Rendering obstructors
+				foreach (ObstructEntity ob in obst) {
+					ShaderSystem.EntityMatrix = ob.RenditionMatrix;
+					shader.Bind();
+					ob.RenderShadowPass();
 					Core.Engine.Current.drawCalls++;
 					shader.Unbind();
 				}
@@ -344,9 +362,21 @@ namespace Cubed.World {
 		}
 
 		/// <summary>
+		/// Destroying light
+		/// </summary>
+		public override void Destroy() {
+			base.Destroy();
+
+			// Cleaning texture
+			if (GL.IsTexture(textureBuffer)) {
+				GL.DeleteTexture(textureBuffer);
+			}
+		}
+
+		/// <summary>
 		/// Does light have changes
 		/// </summary>
-		internal bool IsChanged {
+		public bool IsChanged {
 			get {
 				return changed;
 			}

@@ -78,6 +78,9 @@ namespace Cubed.Forms.Common {
 		/// Field changed
 		/// </summary>
 		private void inspector_FieldChanged(object sender, EventArgs e) {
+			if (editorsControl.SelectedTab == null) {
+				return;
+			}
 			if (editorsControl.SelectedTab.Tag is EditorForm) {
 				(editorsControl.SelectedTab.Tag as EditorForm).InspectedObjectModified();
 			}
