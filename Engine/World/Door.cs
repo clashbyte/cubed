@@ -467,11 +467,6 @@ namespace Cubed.World {
 			// Saving new entities
 			foreach (Entity newCol in cols) {
 				newCol.Parent = this;
-				newCol.AddComponent(new WireCubeComponent() {
-					Size = newCol.BoxCollider.Size,
-					WireColor = Color.Red,
-					WireWidth = 1f
-				});
 				scene.Entities.Add(newCol);
 			}
 			colliderEntities = cols.ToArray();
